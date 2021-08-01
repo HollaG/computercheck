@@ -1,0 +1,69 @@
+extends layout
+
+block content
+
+    
+    .container
+        .search-container
+            h1.text-center Start typing your query below
+            .input-container.text-center
+                form(method='get' action="/")
+                    input#search-string.query-input.text-center(type="text" value=original name="search")
+                    button(type="submit") Search
+        .items-container
+            p#total-items.text-end #{number} models found (#{diff} ms)
+            #table
+            table(width="100%")
+                thead
+                    tr  
+                        th Brand
+                        th Name
+                        th Model
+                        
+                        th Best Denki
+                        th Challenger
+                        th Courts
+                        th Gain City
+                        th Harvey Norman
+                tbody
+                    each products, model_ID in data
+                        tr(class=`${modelData[model_ID] ? modelData[model_ID][0].search_terms : ""}`)
+                            td #{modelData[model_ID] ? modelData[model_ID][0].brand : "No data"}
+                            td.long #{modelData[model_ID] ? modelData[model_ID][0].name : "No data"}
+                            td.long=model_ID
+                            
+                            td
+                                - var location = "Best Denki"
+                                if products[location]
+                                    each product in products[location]
+                                        a(href=product.link target="_blank")=product.price
+                                        br
+                            td
+                                - var location = "Challenger"
+                                if products[location]
+                                    each product in products[location]
+                                        a(href=product.link target="_blank")=product.price
+                                        br
+                            td
+                                - var location = "Courts"
+                                if products[location]
+                                    each product in products[location]
+                                        a(href=product.link target="_blank")=product.price
+                                        br
+                            td
+                                - var location = "Gain City"
+                                if products[location]
+                                    each product in products[location]
+                                        a(href=product.link target="_blank")=product.price
+                                        br
+                            td
+                                - var location = "Harvey Norman"
+                                if products[location]
+                                    each product in products[location]
+                                        a(href=product.link target="_blank")=product.price
+                                        br
+                                    
+                
+                                
+    script.
+        var data = !{stringify(data)}

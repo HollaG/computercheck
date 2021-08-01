@@ -1,0 +1,22 @@
+extends layout
+
+block content
+    .container
+        .items-container
+            table(width="100%")
+                thead
+                    tr
+                        th Brand
+                        th Name
+                        th Price 
+                        th Retailer
+                        th Model
+                tbody
+                    each product in data
+                        tr
+                            td=product.brand
+                            td=product.name
+                            td=product.price
+                            td
+                                a(href=product.link target="_blank")=product.location
+                            td=product.model_ID

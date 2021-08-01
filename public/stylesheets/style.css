@@ -1,0 +1,66 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+/* a {
+  color: #00B7FF;
+} */
+
+.center { 
+  margin: auto
+}
+
+.text-center { 
+  text-align: center;
+}
+
+.input-container { 
+  width: 75%;
+  margin:auto
+}
+
+.query-input { 
+  width: 89%;
+}
+.input-container > form > button { 
+  width: 10%;
+  min-width: 50px;
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+.items-container {
+  width: 75%;
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  
+  
+}
+#total-items { 
+  font-style: italic;
+  text-align: end;
+}
+table { 
+  margin: auto;
+  width: 100%;
+  
+  ;
+}
+
+th, td { 
+  padding: 5px;
+  vertical-align: top;
+}
+/* td > a { 
+  color: black;
+} */
+
+
+.long { 
+  word-wrap: break-word;
+}
