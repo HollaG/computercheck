@@ -39,7 +39,7 @@ const brands = []
     ; (async () => {
         const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
         try {
-            const browser = await puppeteer.launch({ headless: false });
+            const browser = await puppeteer.launch();
             const dictionary = await fs.readJSON(`${process.cwd()}/data/dictionary.json`)
             const extras = await fs.readJSON(`${process.cwd()}/data/extras.json`)
             // await harvey()
