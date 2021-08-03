@@ -61,7 +61,7 @@ router.get('/', async function(req, res, next) {
             
             
             if (searchedModels.length)
-                data = await conn.query(`SELECT * FROM data WHERE model_ID IN (?) ORDER BY brand ASC`, [searchedModels])            
+                data = await conn.query(`SELECT * FROM data WHERE model_ID IN (?) ORDER BY brand ASC, model_ID ASC`, [searchedModels])            
             else
                 data = [[]]
 
@@ -70,7 +70,7 @@ router.get('/', async function(req, res, next) {
 
             // data = await conn.query(`SELECT * FROM data LEFT JOIN model_data ON data.model_ID = model_data.model_ID WHERE search_terms LIKE ?`, mysqlString)
         } else { 
-            data = await conn.query(`SELECT * FROM data ORDER BY brand ASC`)
+            data = await conn.query(`SELECT * FROM data ORDER BY brand ASC, model_ID ASC`)
         }
         
         

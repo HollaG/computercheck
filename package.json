@@ -6,6 +6,7 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
@@ -16,6 +17,7 @@
     "mysql2": "^2.2.5",
     "pug": "2.0.0-beta11",
     "puppeteer": "^10.1.0",
+    "puppeteer-cluster": "^0.22.0",
     "tabulator-tables": "^4.9.3"
   }
 }

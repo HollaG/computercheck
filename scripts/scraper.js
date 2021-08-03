@@ -1,8 +1,27 @@
 const puppeteer = require("puppeteer")
 const fs = require('fs-extra')
-
+const axios = require("axios")
 const links = {
-    "Challenger": ['https://www.hachi.tech/pc-go/notebooks-desktops/notebooks-laptops'],
+    "Challenger": [
+        {
+            "requests": [
+                {
+                    "indexName": "hachisearchengine",
+                    "params": "filters=active_sites%3AHSG&maxValuesPerFacet=1&query=&hitsPerPage=1000&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&page=0&tagFilters=&facetFilters=%5B%5B%22boutiquecates.subcategory%3APc%20%26%20Notebooks%20%3E%20Notebooks%20%26%20Desktops%20%3E%20Notebooks%20%26%20Laptops%22%5D%5D"
+                }, // For Windows Laptops
+
+                {
+                    "indexName": "hachisearchengine",
+                    "params": "filters=active_sites%3AHSG&maxValuesPerFacet=1&query=&hitsPerPage=1000&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&page=0&tagFilters=&facetFilters=%0A%0A%5B%5B%22boutiquecates.subcategory%3AApple%20%3E%20Mac%20%3E%20Macbook%20Pro%22%5D%5D%0A%0A"
+                }, // For macbook pros
+
+                {
+                    "indexName": "hachisearchengine",
+                    "params": "filters=active_sites%3AHSG&maxValuesPerFacet=1&query=&hitsPerPage=1000&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&page=0&tagFilters=&facetFilters=%5B%5B%22boutiquecates.subcategory%3AApple%20%3E%20Mac%20%3E%20Macbook%20Air%22%5D%5D"
+                }
+            ] // for macbook Airs
+        }
+    ],
     "Best Denki": ['https://www.bestdenki.com.sg/catalog/computer/category/laptop-3094/category/gaming-laptop-3728'],
     "Courts": ['https://www.courts.com.sg/computing-mobile/laptops/all-laptops?product_list_limit=32'],
     "Harvey Norman": ['https://www.harveynorman.com.sg/computing/computers-en/laptops-en/'],
@@ -18,353 +37,522 @@ const brands = []
 
 
     ; (async () => {
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
         try {
             const browser = await puppeteer.launch({ headless: false });
+            const dictionary = await fs.readJSON(`${process.cwd()}/data/dictionary.json`)
+            const extras = await fs.readJSON(`${process.cwd()}/data/extras.json`)
+            // await harvey()
+
+            // CONFIDENCE: 5
+            await challenger()
+
+            // CONFIDENCE: 4
+            // await gain()
+
+            // CONFIDENCE : 0
+            // await courts() 
+            // await best()
+
 
             /* SECTION FOR GAIN CITY */
-            const gainPage = await browser.newPage()
-            await gainPage.goto(links["Gain City"][0], {waitUntil: 'networkidle0'})
-            gainPage.on('console', consoleObj => console.log(consoleObj.text()))
-            // Gain city automatically loads more items if we scroll down, so run a function to scroll all the way down until we can't anymore
-            await gainPage.evaluate(async() => {
-                // Scroll to bottom function        
-                const delay = 2000;
-                const wait = (ms) => new Promise(res => setTimeout(res, ms));
+            async function gain() { // Confidence: 3
+
+
+
+                const gainPage = await browser.newPage()
                 
-                const scrollDown = async () => { 
-                    // Scroll to footer, which is always at the bottom
-                    document.querySelectorAll(".product-item-info")[document.querySelectorAll(".product-item-info").length-1] .scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' })
-                }     
-                
-                const run = async()=> {
-                    let reachedEnd = false
-                    do {
-                        console.log("Checking data")
-                        let reachedEndElem = document.querySelector(".ias-noneleft")
-                        console.log(reachedEndElem ? true : false)
-                        if (reachedEndElem) reachedEnd = true
-                        console.log("Scrolling")
-                        await scrollDown();
+                await gainPage.goto(links["Gain City"][0], { waitUntil: 'networkidle0' })
+                await gainPage.exposeFunction("cleaner", cleaner)
+
+                gainPage.on('console', consoleObj => console.log(consoleObj.text()))
+                // Gain city automatically loads more items if we scroll down, so run a function to scroll all the way down until we can't anymore
+                await gainPage.evaluate(async () => {
+                    // Scroll to bottom function        
+                    const delay = 2000;
+                    const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
+                    const scrollDown = async () => {
+                        // Scroll to footer, which is always at the bottom
+                        document.querySelectorAll(".product-item-info")[document.querySelectorAll(".product-item-info").length - 1].scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' })
+                    }
+
+                    const run = async () => {
+                        let reachedEnd = false
+                        do {
+                            console.log("Checking data")
+                            let reachedEndElem = document.querySelector(".ias-noneleft")
+                            console.log(reachedEndElem ? true : false)
+                            if (reachedEndElem) reachedEnd = true
+                            console.log("Scrolling")
+                            await scrollDown();
+                            await wait(delay);
+
+                        } while (!reachedEnd);
                         await wait(delay);
-                        
-                    } while (!reachedEnd);
-                    await wait(delay);
-                    return
-                }
-                await run()
-                
-            })
-            
-            let gainData = await gainPage.evaluate(() => {
-                let items = document.querySelectorAll(".product-item-info") 
-                let products = []
-                items.forEach(item => { 
-                    
-                    let childName = item.querySelector(".product-item-link").innerText
-                    if (!childName) childName = "MISSING INFO"
-                    console.log(childName)
-                    let price = item.querySelector(".price").innerText
-                    let brand = childName.split(" ")[0]
-                    
+                        return
+                    }
+                    await run()
 
-                    let link = item.querySelector(".product-item-link").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
-                    products.push({
-                        name: childName, price, brand, link,
-                        location: "Gain City"
-                    })
                 })
-                return products
-                    
-                
-            })
-            await gainPage.close()
-            // Write to file
-            fs.writeFile(`${process.cwd()}/data/raw/gain.json`, JSON.stringify(gainData), (err, file) => { 
-                if (err) console.log(err)
-            })
 
-            
+                let gainData = await gainPage.evaluate(async () => {
+                    let items = document.querySelectorAll(".product-item-info")
+                    let products = []
+                    for (item of items) {
+
+                        let childName = item.querySelector(".product-item-link").innerText
+                        if (!childName) childName = "MISSING INFO"
+                        console.log(childName)
+                        let price = item.querySelector(".price").innerText
+                        let brand = childName.split(" ")[0]
+                        let model_ID = await cleaner(item.querySelector(".product-model-number").innerText)
+                        console.log(childName, " - ", model_ID)
+                        let link = item.querySelector(".product-item-link").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
+                        if (!link.match(/^https?:\/\//g)) link = "https://" + link
+
+                        products.push({
+                            name: childName, price, brand, link, model_ID,
+                            location: "Gain City"
+                        })
+                    }
+                    return products
+
+
+                })
+                await gainPage.close()
+                // Write to file
+                fs.writeFile(`${process.cwd()}/data/raw/gain.json`, JSON.stringify(gainData), (err, file) => {
+                    if (err) console.log(err)
+                })
+                return true
+            }
+
+
 
             /* SECTION FOR HARVEY NORMAN */
-            
-            // Create new tab
-            const harveyPage = await browser.newPage()
 
-            // Go to harvey norman laptop page
-            await harveyPage.goto(links["Harvey Norman"][0], {waitUntil: 'networkidle0'})
+            async function harvey() {
 
-            // Get the number of pages (Total / 20)
-            let harveyPages = await harveyPage.evaluate(() => Math.ceil(Number(document.querySelector("#pagination_contents > div.toolbar > div > div:nth-child(2) > div > div.pagination-amount.col-xs-4").innerText.split(" ")[0]) / 20))
-            
 
-            await harveyPage.close()
 
-            let HARVEYPRODUCTS = []
-            for (var i = 1; i <= harveyPages; i++) { 
-                let url = `https://www.harveynorman.com.sg/computing/computers-en/laptops-en/page-${i}/`
-                const productPage = await browser.newPage()
-                await productPage.goto(url, {waitUntil: 'networkidle0'})
-                let products = await productPage.evaluate(() => { 
-                    let items = document.querySelector(".col-xs-12.col-sm-9.col-md-9.omega").querySelectorAll('form')
-                    let products = []
-                    items.forEach(item => { 
-                        let childName = item.querySelector(".product-info > a").getAttribute("title").trim().toUpperCase()
-                        if (!childName) childName = "MISSING INFO"
+                // Create new tab
+                const harveyPage = await browser.newPage()
 
-                        let price = item.querySelector(".price").innerText.trim().toUpperCase()
-                        let brand = childName.split(" ")[0]
-                        let link = item.querySelector(".product-info > a").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
-                        products.push({
-                            name: childName, brand, price, link,
-                            location: "Harvey Norman"
+                // Go to harvey norman laptop page
+                await harveyPage.goto(links["Harvey Norman"][0], { waitUntil: 'domcontentloaded', timeout: 0 })
+
+                // Get the number of pages (Total / 20)
+                let harveyPages = await harveyPage.evaluate(() => Math.ceil(Number(document.querySelector("#pagination_contents > div.toolbar > div > div:nth-child(2) > div > div.pagination-amount.col-xs-4").innerText.split(" ")[0]) / 20))
+
+
+                await harveyPage.close()
+
+                let HARVEYPRODUCTS = []
+                for (var i = 1; i <= harveyPages; i++) {
+                    let url = `https://www.harveynorman.com.sg/computing/computers-en/laptops-en/page-${i}/`
+                    const productPage = await browser.newPage()
+                    await productPage.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 })
+                    let products = await productPage.evaluate(() => {
+                        let items = document.querySelector(".col-xs-12.col-sm-9.col-md-9.omega").querySelectorAll('form')
+                        let products = []
+                        items.forEach(item => {
+                            let childName = item.querySelector(".product-info > a").getAttribute("title").trim().toUpperCase()
+                            if (!childName) childName = "MISSING INFO"
+
+                            let price = item.querySelector(".price").innerText.trim().toUpperCase()
+                            let brand = childName.split(" ")[0]
+                            let link = item.querySelector(".product-info > a").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
+                            if (!link.match(/^https?:\/\//g)) link = "https://" + link
+
+
+                            products.push({
+                                name: childName, brand, price, link,
+                                location: "Harvey Norman"
+                            })
                         })
+                        return products
                     })
-                    return products
-                })
+                    const hnPage = await browser.newPage()
+                    for (let i = 0; i < products.length; i++) {
+                        let product = products[i]
+                        // Query the product page to get the model data
 
-                HARVEYPRODUCTS.push(...products)
-                await productPage.close()
-            }
-            fs.writeFile(`${process.cwd()}/data/raw/harvey.json`, JSON.stringify(HARVEYPRODUCTS), (err, file) => { 
-                if (err) console.log(err)
-            })
-            
-            
+                        await hnPage.goto(product.link, { waitUntil: "domcontentloaded", timeout: 0 })
+                        let model_ID = await hnPage.$eval("#content_features > div > table:nth-child(3)", table => {
+                            let headings = Array.from(table.querySelectorAll('tr > th'))
+                            let index;
+                            headings.forEach(heading => {
+                                if (heading.innerText.toUpperCase() == "MODEL") index = headings.indexOf(heading) + 1
+                            })
+                            return table.querySelector(`tr:nth-child(${index}) > td`).innerText.toUpperCase().trim()
 
+                        })
 
-            /* SECTION FOR CHALLENGER */
-            
-            // Create new tab
-            const challengerPage = await browser.newPage();
-
-            // Go to Challenger home page (hachi.tech)            
-            await challengerPage.goto(links["Challenger"][0], { waitUntil: 'networkidle2' })
-            
-
-            // Click on the 'Load More' button
-            await challengerPage.$eval("button[class='ivu-btn ivu-btn-default']", loadMoreBtn => loadMoreBtn.click())
-            
-
-            // Challenger automatically loads more items if we scroll down, so run a function to scroll all the way down until we can't anymore
-            await challengerPage.evaluate(async() => {
-                // Scroll to bottom function        
-                const delay = 2000;
-                const wait = (ms) => new Promise(res => setTimeout(res, ms));
-                const count = async () => document.querySelectorAll('.search-item-box').length;
-                const scrollDown = async () => { 
-                    // Scroll to footer, which is always at the bottom
-                    document.querySelector('footer[class="footer text-muted"]').scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' })
-                }     
-                
-                const run = async()=> {
-                    let preCount = 0;
-                    let postCount = 0;
-                    do {
-                        preCount = await count();
-                        await scrollDown();
-                        await wait(delay);
-                        postCount = await count();
-                    } while (postCount > preCount);
-                    await wait(delay);
-                    return
-                }
-                await run()
-                
-            })
-            
-
-            // Scrape the page to get the details of products
-
-            let challengerData = await challengerPage.evaluate(() => {
-
-                // Individual item
-                let items = document.querySelectorAll("div[class='search-item-box']")
-                
-
-                let products = []
-                
-                items.forEach(item => {
-                    
-                   
-                    let childName = item.querySelector(".product-name > div > span > span").getAttribute("aria-label").toUpperCase().trim()                    
-                    if (!childName) childName = "MISSING INFO"
-                    
-                    let UPElement = item.children[0].children[0].children[2].children[0].children[2].children[0]
-                    let price;
-                    if (!UPElement) {
-                        // Only has valueclub price
-                        price = item.children[0].children[0].children[2].children[0].children[0].innerHTML
-                    } else {
-                        price = item.children[0].children[0].children[2].children[0].children[2].children[0].innerHTML
+                        product.model_ID = cleaner(model_ID)
+                        console.log(cleaner(model_ID), product.name)
                     }
-                    let cleanedNoBracket = childName.replace(/ *\[[^\]]*]/g, '').trim()
-                    
-                    let brand = cleanedNoBracket.split(" ")[0].trim().toUpperCase()
-                    
-                    let link = item.querySelector(".item-body > a").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
-                    
-                    products.push({
-                        name: childName, price, brand, link,
-                        location: "Challenger"
-
-                    })
+                    await hnPage.close()
+                    HARVEYPRODUCTS.push(...products)
+                    await productPage.close()
+                }
+                fs.writeFile(`${process.cwd()}/data/raw/harvey.json`, JSON.stringify(HARVEYPRODUCTS), (err, file) => {
+                    if (err) console.log(err)
                 })
+            }
+
+            /* SECTION FOR CHALLENGER (using their API (AXIOS)) */
+
+            async function challenger() { // MODEL CONFIDENCE : HIGH
+                try {
+                    // Get the object of every item ID in challenger's laptop database
+                    const products = []
+
+                    for (link of links["Challenger"]) {
+                        let response = await axios.post("https://6bc318ijnf-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.10.3)%3B%20Browser%20(lite)%3B%20instantsearch.js%20(4.25.2)%3B%20Vue%20(2.6.14)%3B%20Vue%20InstantSearch%20(3.8.1)%3B%20JS%20Helper%20(3.5.4)&x-algolia-api-key=88c8a34f2b7653f93b1ce0053dbc64fe&x-algolia-application-id=6BC318IJNF",
+                            link,
+                            {
+                                "headers": {
+                                    "content-type": "application/json"
+                                }
+                            }
+                        )
+                        let results = response.data.results
+                        console.log(results)
+                        for (let r = 0; r < results.length; r++) {
+                            let hits = results[r].hits
+                            
+                            for (let i = 0; i < hits.length; i++) {
+
+                                
+                                
+                                let item_ID = hits[i].item_id
+                                let productResponse = await axios.get(`https://www.hachi.tech/product/${item_ID}/details`)
+                                let data = productResponse.data.data
+                                
+                                let name = data.short_desc.toUpperCase().trim()
+                                let price = `$${data.prices.regular_price}`
+                                let brand = data.settings.dimensions.brand_id.toUpperCase().trim()
+                                let link = `https://www.hachi.tech/product/${item_ID}`
+                                
+                                let model_ID = data.settings.dimensions.model_id.toUpperCase().trim()
+                                // EXCEPTION: ACER PRODUCTS - CHALLENGER PLACES THE ID WRONGLY, SO WE NEED TO USE THE PRODUCT NAME INSTEAD
+                                if (brand == "ACER") model_ID = cleaner(name)
+
+                                products.push({
+                                    name,
+                                    price,
+                                    brand,
+                                    model_ID,
+                                    link,
+                                    location: "Challenger"
+                                })
+
+                                console.log(`Progress: ${i + 1}/${hits.length} (Request ${r + 1}/${results.length})`)
+                                await delay(500)
+
+                            }
+
+                        }
 
 
 
-                return products
-            })
-            
-            await challengerPage.close()
-            // Write to file
-            fs.writeFile(`${process.cwd()}/data/raw/challenger.json`, JSON.stringify(challengerData), (err, file) => { 
-                if (err) console.log(err)
-            })
-            
-            
+
+
+                    }
+                    console.log(products)
+                    fs.writeFile(`${process.cwd()}/data/raw/challenger.json`, JSON.stringify(products), (err, file) => {
+                        if (err) console.log(err)
+                    })
+                    return true
+                } catch (e) {
+                    console.log(e)
+                    throw e
+                }
+
+
+            }
+            // await challenger()
+
+
+
 
             /* SECTION FOR BEST DENKI */
-            
-            let BESTPRODUCTS = []
+            async function best() {
+                let BESTPRODUCTS = []
+                const bestPage = await browser.newPage()
+                await bestPage.goto(links["Best Denki"][0], { waitUntil: 'domcontentloaded' })
+                let pages = await bestPage.$eval("#grid-view > div > div > div.item-list > ul > li.pager-current", elem => elem.innerHTML.split("of")[1])
 
-            const bestPage = await browser.newPage();
-            await bestPage.goto(links["Best Denki"][0], { waitUntil: 'networkidle0' })
+                for (var i = 0; i < pages; i++) {
 
-            
-
-            let bestData = await bestPage.evaluate((brands) => {
-
-                let items = Array.from(document.querySelectorAll(".product-content"))
-                let products = []
-                items.forEach(item => {
-                    let childName = item.querySelector(".title").querySelector('a').innerHTML.toUpperCase().trim()
-                    if (!childName) childName = "MISSING INFO"
+                    let url = `https://www.bestdenki.com.sg/catalog/computer/category/laptop-3094/category/gaming-laptop-3728?page=${i}`
                     
-                    let price = item.querySelector(".price").firstElementChild.innerHTML.toUpperCase().trim()
-                    
-                    
-                    let brand = item.firstElementChild.innerHTML.trim().toUpperCase()
-                    let link = item.querySelector(".title").querySelector('a').getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
-                    if (!brands.includes(brand)) brands.push(brand)
-                    products.push({
-                        name: childName, price, brand, link,
-                        location: "Best Denki"
+
+                    const productPage = await browser.newPage();                    
+                    await productPage.goto(url, { waitUntil: 'networkidle2' })
+                    await productPage.exposeFunction("cleaner", cleaner)
+                    let products = await productPage.evaluate(async () => {
+                        let items = Array.from(document.querySelectorAll(".product-content"))
+                        console.log(cleaner)
+                        let products = []
+                        
+                        
+                        for (item of items) {
+                            var childName = item.querySelector(".title").querySelector('a').innerHTML.trim()
+                            var price = item.querySelector(".price").firstElementChild.innerHTML.trim()
+                            let brand = item.firstElementChild.innerHTML.trim().toUpperCase()
+                            let link = item.querySelector(".title").querySelector('a').getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
+                            if (!link.match(/^https?:\/\//g)) link = "https://" + link
+                            // let model_ID = await cleaner(link.split("/")[link.split("/").length-1]) // the model is the ending of the url
+                            
+
+                            
+                            products.push({
+                                name: childName, price, brand, link,
+                                location: "Best Denki"
+                            })
+                            
+
+
+                        }
+                        
+                        return products
 
                     })
+                    
+                    await productPage.close()
+
+                    BESTPRODUCTS.push(...products)
+                    
 
 
+
+                }
+                await bestPage.exposeFunction("cleaner", cleaner)
+                for (let i = 0; i < BESTPRODUCTS.length; i++) { 
+                    console.log(i + "/" + BESTPRODUCTS.length)
+                    let product = BESTPRODUCTS[i]
+                    // Open the product page, grab the model
+                    await bestPage.goto(product.link, {waitUntil: "networkidle0"})
+                    // bestPage.on('console', consoleObj => console.log(consoleObj.text()));
+                    let model_ID = await bestPage.evaluate(() => { 
+                        let elem = document.querySelector('#mCSB_1_container > div > div > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2)')
+                        if (!elem) { 
+                            // fallback to using the URL
+                            console.log("NO ELEM FOR ", location.href)
+                            return location.href.split("/")[location.href.split("/").length-1]
+
+                        } else { 
+                            return elem.innerText
+                        }
+                    })
+                    product.model_ID = await cleaner(model_ID) ? await cleaner(model_ID) : "UNIDENTIFIED"
+                    console.log(await cleaner(model_ID), " - ", product.name)
+                }
+
+                
+                console.log(BESTPRODUCTS)
+                fs.writeFile(`${process.cwd()}/data/raw/best.json`, JSON.stringify(BESTPRODUCTS), (err, file) => {
+                    if (err) console.log(err)
+                    
                 })
-
-                var pages = document.querySelector(".pager-current").innerHTML.split("of")[1]
-                return {products, pages}
-
-
-                
-            }, brands)
-            
-            let bestPages = bestData.pages
-            BESTPRODUCTS = bestData.products
-            
-            
-            await bestPage.close()
-
-
-            for (var i = 1; i < bestPages; i++) {
-                
-                let url = `https://www.bestdenki.com.sg/catalog/computer/category/laptop-3094/category/gaming-laptop-3728?page=${i}`
-                console.log(url)
-
-                const productPage = await browser.newPage();
-                await productPage.waitForTimeout(1000)
-                await productPage.goto(url, { waitUntil: 'networkidle0' })
-                let products = await productPage.evaluate((brands) => {
-                    let items = Array.from(document.querySelectorAll(".product-content"))
-                    
-                    let products = []
-                    items.forEach(item => {
-                        var childName = item.querySelector(".title").querySelector('a').innerHTML.trim()
-                        var price = item.querySelector(".price").firstElementChild.innerHTML.trim()
-                        let brand = item.firstElementChild.innerHTML.trim().toUpperCase()
-                        let link = item.querySelector(".title").querySelector('a').getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
-                        if (!brands.includes(brand)) brands.push(brand)
-                        products.push({
-                            name: childName, price, brand, link,
-                            location: "Best Denki"
-                        })
-
-
-                    })
-                    return products
-
-                }, brands)
-                await productPage.close()
-
-                
-                BESTPRODUCTS.push(...products)
-
-              
-                
-
+                await bestPage.close()
             }
-            
-            
-            
-            fs.writeFile(`${process.cwd()}/data/raw/best.json`, JSON.stringify(BESTPRODUCTS), (err, file) => { 
-                if (err) console.log(err)
-            })
 
-            
+
+
+           
 
             /* SECTION FOR COURTS */
+            async function courts() {
 
-            const courtsPage = await browser.newPage()
-            await courtsPage.goto(links["Courts"][0], { waitUntil: 'networkidle0' })
 
-            // Find out how many pages there are
-            // Total products divided by # per page (32)
-            let courtsPages = await courtsPage.evaluate(() => Math.ceil(Number(document.querySelector('.product-count').innerText.split(" ")[0]) / 32))
-            console.log(courtsPages)
+                const courtsPage = await browser.newPage()
+                await courtsPage.goto(links["Courts"][0], { waitUntil: 'networkidle0' })
 
-            let COURTSPRODUCTS = []
-            for (let i = 1; i <= courtsPages; i++) { 
-                let url = `https://www.courts.com.sg/computing-mobile/laptops/all-laptops?p=${i}&product_list_limit=32`
-                const productPage = await browser.newPage();                
-                await productPage.goto(url, { waitUntil: 'networkidle0' })
+                // Find out how many pages there are
+                // Total products divided by # per page (32)
+                let courtsPages = await courtsPage.evaluate(() => Math.ceil(Number(document.querySelector('.product-count').innerText.split(" ")[0]) / 32))
+                console.log(courtsPages)
 
-                let products = await productPage.evaluate(() => {
-                    let items = Array.from(document.querySelectorAll(".equal-height-block"))
-                    let products = []
-                    items.forEach(item => { 
-                        let childName = item.querySelector(".product-item-name").innerText.trim().toUpperCase()
-                        if (!childName) childName = "MISSING INFO"
+                let COURTSPRODUCTS = []
+                for (let i = 1; i <= courtsPages; i++) {
+                    let url = `https://www.courts.com.sg/computing-mobile/laptops/all-laptops?p=${i}&product_list_limit=32`
 
-                        // First word is the brand
-                        let brand = childName.split(" ")[0]
-                        let price = item.querySelector(".price").innerText.trim().toUpperCase()
-                        let link = item.querySelector(".product-item-name > a").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
-                        products.push({
-                            name: childName, brand, price, link,
-                            location: "Courts"
-                        })
+                    const productPage = await browser.newPage();
+                    await productPage.goto(url, { waitUntil: 'networkidle0' })
+
+                    await productPage.exposeFunction("cleaner", cleaner)
+                    let products = await productPage.evaluate(async () => {
+                        let items = Array.from(document.querySelectorAll(".equal-height-block"))
+                        let products = []
+                        for (item of items) { 
+                            let childName = item.querySelector(".product-item-name").innerText.trim().toUpperCase()
+                            if (!childName) childName = "MISSING INFO"
+
+                            // First word is the brand
+                            let brand = childName.split(" ")[0]
+                            let price = item.querySelector(".price").innerText.trim().toUpperCase()
+                            let link = item.querySelector(".product-item-name > a").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
+                            if (!link.match(/^https?:\/\//g)) link = "https://" + link
+
+                            let model_ID = await cleaner(childName) ? await cleaner(childName) : "UNIDENTIFIED"
+
+
+
+                            products.push({
+                                name: childName, brand, price, link, model_ID,
+                                location: "Courts"
+                            })
+                        }
+                        return products
                     })
-                    return products
+                    console.log(products)
+                    COURTSPRODUCTS.push(...products)
+
+
+
+                    await productPage.close()
+
+                }
+                fs.writeFile(`${process.cwd()}/data/raw/courts.json`, JSON.stringify(COURTSPRODUCTS), (err, file) => {
+                    if (err) console.log(err)
                 })
-                console.log(products)
-                COURTSPRODUCTS.push(...products)
-
-                
-                
-                await productPage.close()
-                
+                return true
             }
-            fs.writeFile(`${process.cwd()}/data/raw/courts.json`, JSON.stringify(COURTSPRODUCTS), (err, file) => { 
-                if (err) console.log(err)
-            })
-            
 
-            
+
             await browser.close()
+            function cleaner(string) {
+                var original = string
+                var string = string.trim().toLowerCase()
 
+
+                // Replace all non-breaking space
+                string = string.replace(/ /gi, " ")
+
+
+
+                var finalArr = []
+
+                // 3) Remove all special characters
+                string = string.replace(/,|®|™|\+|\/\/|–|:/g, "")
+                // 1) Remove remove all '-' that have spaces on either side - e.g. 
+                // remove ' -', '- ', ' - ' but not 'adsfads-asdfasd'
+                string = string.replace(/[- ][ -]/g, " ")
+
+
+
+                // 2) Remove specifications (RAM / SSD)
+                // string = string.replace(/(\s\d+[kgtp]b)+(?=\W)|^\d+[kgtb]b(?=\W)|\s\d+[kgtb]b/gi, "")
+                string = string.replace(/\d+[gt]b/gi, "")
+                string = string.replace(/\d\d\dSSD/gi, "")
+
+                // GHZ
+                string = string.replace(/\d.\d[gm]hz/gi, "")
+
+                // 8-core
+                string = string.replace(/\d-core/gi, "")
+
+                // cpu name
+                string = string.replace(/[ir]\d[-\s]\d\d\d\d\w?\w?[kqe]?/gi, "")
+                string = string.replace(/ryzen\s\d\s\d\d\d\d(\d?|(\d\d)?)\w/gi, "")
+
+                // GPU
+                string = string.replace(/(R|G)TX\s?\d?\d\d\d(TI)?|(MX\s?\d\d\d)|RX\s?\d\d\d\d\s?(XT)?/gmi, "")
+                // 4) remove pure alphanumerics?
+
+
+                // 5) Remove sizing, either 
+                // NN-inch, NNinch, NN-in, NNin, NN', NN"
+                string = string.replace(/((\d\d\.)?\d+-?(in(ch)?|"|''?))/gi, "")
+
+
+                // 1) Usually, stuff in (text)/[text]/*text*/ denotes additional information, like what challenger does.
+                // Harvey norman puts the model number inside the () though, so what we do is we check each []/()/**, if 
+                // inside has at least ONE word as defined in dictionary.json, then we remove the whole string, else, 
+                // we only remove the brackets
+
+                var foundBracket = string.match(/\[[^\]]*]|\([^)]*\)*|\*[^*]*\*/g)
+                if (foundBracket) {
+                    foundBracket.forEach(match => {
+                        // Strip the brakcets for word comparison
+                        match = match.replace(/\(|\)|\[|\]|\*/g, "")
+
+                        var wordArr = match.split(" ")
+
+                        for (var i = 0; i < wordArr.length; i++) {
+                            var word = wordArr[i]
+                            var toRemove = false
+                            if (dictionary[word] || extras[word]) {
+                                // Remove this bracket
+                                toRemove = true
+                                break;
+                            }
+
+                        }
+
+                        if (toRemove) {
+                            // // This bracket (the 'match') is to be removed
+                            // string.replace(match, " ")
+                        } else {
+                            // Don't remove it, but strip the brackets
+                            finalArr.push(match)
+                        }
+                    })
+                }
+
+                // BRACKETS HAVE BEEN DEALT WITH, now REMOVE ALL THE BRACKETS
+                string = string.replace(/\[[^\]]*]|\([^)]*\)*|\*[^*]*\*/g, " ")
+
+                // console.log("*****************")
+                // console.log(string )
+                // console.log(original)
+                // console.log("*****************")
+
+                // remove all '-' that have spaces on either side - e.g. 
+                // remove ' -', '- ', ' - ' but not 'adsfads-asdfasd'
+                string = string.replace(/[- ][ -]/g, " ")
+
+                // Final remove special chars
+                string = string.replace(/,|®|™|\+|\/\/|–|:/g, "")
+
+
+                // Remove lone numbers
+                string = string.replace(/(?<=[ \t])(\d+)(?=[ \t])/g, "")
+                // Split into array
+                var stringArr = string.toLowerCase().split(" ")
+
+
+                // for each word, check if exists in dictionary or extras
+                let cleanedArr = []
+                for (var i = 0; i < stringArr.length; i++) {
+                    var word = stringArr[i]
+
+                    var toRemove = false
+                    if (dictionary[word] || extras[word]) {
+
+                        // to be removed
+                        continue
+                    }
+
+                    if (!Number.isNaN(Number(word))) {
+                        // if the word is a number, we don't add it
+                        continue
+                    }
+
+
+                    // cleanedArr.push(word)
+                    finalArr.push(word)
+
+                }
+
+
+                return finalArr.join(" ").trim().toUpperCase()
+
+
+            }
 
         } catch (e) {
             console.log(e)
