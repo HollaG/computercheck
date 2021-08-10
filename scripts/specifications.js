@@ -24,7 +24,7 @@ String.prototype.lowerLize = function () {
 
             const cluster = await Cluster.launch({
                 concurrency: Cluster.CONCURRENCY_PAGE,
-                maxConcurrency: 5,
+                maxConcurrency: 2,
                 timeout: 150 * 1000, // 2.5 min timeout per task
                 puppeteerOptions: {
                     headless,
