@@ -60,7 +60,7 @@ router.get("/loadMore/:startIndex", async function(req, res, next) {
 
         let startIndex = Number(req.params.startIndex)
         if (Number.isNaN(startIndex)) return res.status(404).send("Not found")
-        console.log(req.query.search)
+       
     
         let searchString = req.query.search ? req.query.search.trim().toUpperCase() : ""
     
@@ -204,18 +204,18 @@ async function getSearchModels(startIndex, searchString) {
 
 
         }
-
+        console.log(searchedModels)
         // Extract the required range
         let limitedSearchModels = searchedModels.slice(startIndex, startIndex + 24)
 
         // Total model count 
-        let numberOfModels = await conn.query(`SELECT COUNT(row_ID) as total FROM model_data WHERE model_ID IN (?)`, [searchedModels])
+        let numberOfModels = await conn.query(`SELECT COUNT(*) as total FROM model_data WHERE model_ID IN (?)`, [searchedModels])
         numberOfModels = numberOfModels[0][0].total
 
         if (startIndex > numberOfModels) return "All items loaded"
 
         // Total product count
-        let numberOfProducts = await conn.query(`SELECT COUNT(row_ID) as total FROM data WHERE model_ID IN (?)`, [searchedModels])
+        let numberOfProducts = await conn.query(`SELECT COUNT(*) as total FROM data WHERE model_ID IN (?)`, [searchedModels])
         numberOfProducts = numberOfProducts[0][0].total
 
         // Select the first 24 models (sorted by alphabetical)

@@ -194,7 +194,7 @@ block content
                 
                 if (this.readyState == 4 && this.status == 200) {
                     let obj = JSON.parse(this.responseText)
-                    console.log(obj)
+                    //- console.log(obj)
                     document.querySelector("#item-container").lastElementChild.insertAdjacentHTML('afterend', JSON.parse(this.responseText).html)
                     observer.observe();
 
@@ -211,7 +211,12 @@ block content
                 btn.disabled = false
 
             }
-            xhttp.open("GET", `/loadmore/${loadCount}?search=${location.href.split("search=")[1]}`, true);
+            let searchString = location.href.split("search=")[1]
+            if (searchString)
+                xhttp.open("GET", `/loadmore/${loadCount}?search=${searchString}`, true);
+            else
+                xhttp.open("GET", `/loadmore/${loadCount}`, true);
+
             xhttp.send()
             loadCount = loadCount + 24
         }
