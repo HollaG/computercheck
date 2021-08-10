@@ -24,7 +24,7 @@ String.prototype.lowerLize = function () {
 
             const cluster = await Cluster.launch({
                 concurrency: Cluster.CONCURRENCY_PAGE,
-                maxConcurrency: 2,
+                maxConcurrency: 1,
                 timeout: 150 * 1000, // 2.5 min timeout per task
                 puppeteerOptions: {
                     headless,
@@ -66,28 +66,8 @@ String.prototype.lowerLize = function () {
 
             let models = await conn.query(`SELECT * FROM model_data`)
             models = models[0]
-            // await conn.beginTransaction()
-
-
-            // for (let i = 0; i < models.length; i++) {
-            //     cluster.queue({
-            //         url: `https://www.courts.com.sg/catalogsearch/result/?q=${models[i].model_ID}`,
-            //         model: models[i]
-            //     })
-
-            // }
-
             
-            SearchScraper.configure([
-                {
-                    name: "Bing"
 
-                    , searchUrl: "https://bing.com/"
-                    , limit: 1
-                    , selectors: SearchScraper.Selectors.BING
-                    , headless
-                }
-            ])
 
             await cluster.task((async ({ page, data: model }) => {
                 console.log("Running task " + model.queue_number + " of " + Object.keys(sortedModels).length)
