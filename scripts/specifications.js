@@ -27,7 +27,8 @@ String.prototype.lowerLize = function () {
                 maxConcurrency: 5,
                 timeout: 150 * 1000, // 2.5 min timeout per task
                 puppeteerOptions: {
-                    headless
+                    headless,
+                    args: ['--no-sandbox']
                 },
                 workerCreationDelay: 500
             })
