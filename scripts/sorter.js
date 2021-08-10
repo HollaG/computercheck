@@ -1,3 +1,4 @@
+
 const fs = require("fs-extra")
 const mysql = require("mysql2/promise")
 
@@ -5,7 +6,10 @@ const db = require("../configuration/database.json")
 const pool = mysql.createPool(db)
 
 var startTime = new Date().getTime()
+const axios = require("axios")
+const sharp = require("sharp")
 console.log("Started script at " + startTime)
+const headless = true
 
     ; (async () => {
         try {
@@ -184,6 +188,9 @@ console.log("Started script at " + startTime)
             const items = {}
 
 
+            // Clear the directory of old model images
+            fs.emptyDirSync(`${process.cwd()}/public/images/product-images`)
+
             for (brand of Object.keys(brandGrouped)) {
                 var products = brandGrouped[brand]
 
@@ -227,11 +234,29 @@ console.log("Started script at " + startTime)
                             items[brand][presentModel].push(product)
 
                             // Check if the model name needs changing
-                            if (leftModel_ID.length < presentModel.length) {
-                                // Current model ID is shorter, swap them
 
+                            // TODO : BETTER HANDLING OF SPECIAL CASES
+                            let disallowedModels = {
+                                '14ITL05': 1
+                            }
+                            if (disallowedModels[leftModel_ID]) {
+                                // swap back
                                 items[brand][leftModel_ID] = items[brand][presentModel]
                                 delete items[brand][presentModel]
+                            } else if (leftModel_ID.length < presentModel.length) {
+                                // Current model ID is shorter, swap them
+
+                                
+                                 
+                                items[brand][leftModel_ID] = items[brand][presentModel]
+                                delete items[brand][presentModel]
+                                
+
+
+
+
+
+                                
                             }
 
                             // No need to loop further for this item
@@ -269,35 +294,74 @@ console.log("Started script at " + startTime)
             const model_keywords = []
             const items_data = []
             const reducer = (accumulator, currentVal) => accumulator + " " + currentVal.name + " " + currentVal.location.toUpperCase()
+            let counter = 0
             for (brand of Object.keys(items)) {
-
+                
                 let models = items[brand]
 
                 for (model of Object.keys(models)) {
+                    counter++
                     let search_terms = []
                     let products = models[model]
 
                     for (let z = 0; z < products.length; z++) {
                         let product = products[z]
                         items_data.push([
+                            0,
                             model.trim().toUpperCase(),
                             product.name,
                             product.price.replace("$", ""),
                             product.brand,
                             product.location,
-                            product.link
+                            product.link,
+                            product.image_url,
+                            1 // active?
                         ])
 
                     }
 
                     let search_string = removeDuplicatesString(products.reduce(reducer, brand).replace(/  /g, " "))
 
+                    
+                    // Check the IMAGE_URL
+                    let image_link = ""
+                    try { 
+                        
+                        let res = await axios.get(products[0].image_url,{
+                            
+                            responseType: 'arraybuffer'
+                        })  
+                        // console.log(res.data.toString())
+                        let data = Buffer.from(res.data, "binary")
+                        
+                        console.log(products[0].image_url, counter)
+                        await sharp(data)
+                            .flatten({ background: '#FFFFFF' })
+                            .trim(25)
+                            .resize({
+                                fit: "contain",
+                                width: 300,
+                                height: 200,
+                                background: { r: 255, g: 255, b: 255, alpha: 1 },
+                                
+                            })
+                            .jpeg()
+                            
+                            .toFile(`${process.cwd()}/public/images/product-images/${counter}.jpg`, (err, info) => {
+                                if (err) console.log(err)
+                            })
+                        image_link = `/images/product-images/${counter}.jpg`
+                    } catch (e) { 
+                        console.log(e)
+                        image_link = "/images/missing.jpg"
+                    }
 
                     model_data.push([
                         model.trim().toUpperCase(),
                         products[0].name.trim().toUpperCase(),
                         products[0].brand.trim().toUpperCase(),
-                        search_string
+                        search_string,
+                        image_link
                     ])
 
                     for (let j = 0; j < search_string.split(" ").length; j++) {
@@ -311,14 +375,37 @@ console.log("Started script at " + startTime)
                 }
             }
 
-            await connection.query(`DELETE FROM model_data`)
-            await connection.query(`INSERT INTO model_data (model_ID, name, brand, search_terms) VALUES ?`, [model_data])
-            // console.log(keywords)
-            await connection.query(`DELETE FROM model_keywords`)
-            await connection.query(`INSERT INTO model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
+            // await connection.query(`DELETE FROM model_data`)
+            // await connection.query(`INSERT INTO model_data (model_ID, name, brand, search_terms, image_url) VALUES ?`, [model_data])
+            // // console.log(keywords)
+            // await connection.query(`DELETE FROM model_keywords`)
+            // await connection.query(`INSERT INTO model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
 
-            await connection.query(`DELETE FROM data`)
-            await connection.query(`INSERT INTO data (model_ID, name, price, brand, location, link) VALUES ?`, [items_data])
+
+            await connection.query(`DELETE FROM temp_model_data`)
+            await connection.query(`INSERT INTO temp_model_data (model_ID, name, brand, search_terms, image_url) VALUES ?`, [model_data])
+            await connection.query(`INSERT INTO model_data (SELECT * FROM temp_model_data WHERE temp_model_data.model_ID NOT IN (SELECT model_data.model_ID FROM model_data))`)
+
+            await connection.query(`DELETE FROM temp_model_keywords`)
+            await connection.query(`INSERT INTO temp_model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
+            await connection.query(`INSERT INTO model_keywords (SELECT * FROM temp_model_keywords WHERE temp_model_keywords.model_ID NOT IN (SELECT model_keywords.model_ID FROM model_keywords))`)
+            
+            
+
+            await connection.query(`DELETE FROM temp_data`)
+            await connection.query(`INSERT INTO temp_data (row_ID, model_ID, name, price, brand, location, link, image_url, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
+
+            // Find rows from DATA that are NOT in temp_data (i.e. products that are now discontinued) and set as inactive
+            await connection.query(`UPDATE data SET active = 1 WHERE row_ID IN (SELECT row_ID FROM data WHERE data.link NOT IN (SELECT temp_data.link FROM temp_data))`)
+
+            // Copy over any rows that are in TEMP_DATA but NOT in DATA (new items added)
+            await connection.query(`INSERT INTO data (SELECT * FROM temp_data WHERE temp_data.link NOT IN (SELECT data.link FROM data))`)
+
+            // INSERT INTO data (SELECT row_ID, `model_ID`,`name`,`price`,`brand`,`location`,`link`,`date_updated`,`image_url`,`active` FROM temp_data WHERE temp_data.link NOT IN (SELECT data.link FROM data))
+
+
+            // await connection.query(`DELETE FROM data`)
+            // await connection.query(`INSERT INTO data (row_ID, model_ID, name, price, brand, location, link, image_url, active) VALUES ?`, [items_data])
 
             await connection.release()
             var endTime = new Date().getTime()

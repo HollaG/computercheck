@@ -1,0 +1,118 @@
+- let counter = 0
+each products, model_ID in data
+
+    - if (!modelData[model_ID]) modelData[model_ID] = [{}]
+    - let model = modelData[model_ID][0]
+    .col-12.col-xl-3.col-lg-4.col-md-6
+        .card.m-2
+            img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}`)
+            .card-body.parent-relative-apply.d-flex.flex-column.pb-0
+                p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}
+                p.text-truncate.mt-2.card-title=model.name
+                .container-fluid.px-0.mt-2.pt-1
+                    mixin prices(location, url)
+                        .container.mb-2.pb-2
+                            img.d-inline-block.logo-image(src=url)
+                            p.ms-2.mb-0.d-inline-block=location
+                            if (products[location].length == 1)
+                                a.float-end(href=products[location][0].link target="_blank") $#{products[location][0].price}
+                            else
+                                each product in products[location]
+                                    a.float-end(href=product.link target="_blank") $#{product.price}
+                                    br
+                                    
+                    
+                    - var location = "Best Denki"
+                    - var url = "/images/logos/best.jpg"
+                    if products[location]
+                        +prices(location, url)
+                    - var location = "Courts"
+                    - var url = "/images/logos/courts.jpg"
+                    if products[location]
+                        +prices(location, url)
+                    - var location = "Challenger"
+                    - var url = "/images/logos/challenger.jpg"
+                    if products[location]
+                        +prices(location, url)
+                    - var location = "Gain City"
+                    - var url = "/images/logos/gain.jpg"
+                    if products[location]
+                        +prices(location, url)
+                    - var location = "Harvey Norman"
+                    - var url = "/images/logos/harvey.jpg"
+                    if products[location]
+                        +prices(location, url)
+
+
+
+
+
+                .card-footer.mt-auto
+                    .row.mt-1
+                        .col-5
+                            p.small-text.fw-bold Processor
+                        .col-7
+                            -
+                                let processorText =`${model.processor_company} ${model.processor_model}`
+                                if (model.processor_company == "-" || model.processor_model == "-") processorText = "Unknown"
+
+                            p.small-text=processorText
+                    .row
+                        .col-5
+                            p.small-text.fw-bold RAM
+                        .col-7
+                            -
+                                let ramText = `${model.ram} GB`
+                                if (model.ram == "-1") ramText = "Unknown"
+                            p.small-text=ramText
+                    .row
+                        .col-5
+                            p.small-text.fw-bold Storage
+                        .col-7
+                            -
+                                let storageText = model.storage
+                                if (model.storage == "-") storageText == "Unknown"
+                            p.small-text=storageText
+
+                    .container-fluid.p-0.m-0.collapse.hiding(id=`collapse-${counter}`)
+                        .row
+                            .col-5
+                                p.small-text.fw-bold Graphics
+                            .col-7
+                                -
+                                    let gpuText = model.graphics_card
+                                    if (model.graphics_card == "-") gpuText = "Unknown"
+                                p.small-text=gpuText
+                        .row
+                            .col-5
+                                p.small-text.fw-bold Screen size
+                            .col-7
+                                -
+                                    let screenSizeText = `${model.screen_size} inch`
+
+                                    if (model.screen_size == -1 || model.screen_size == 0) screenSizeText = "Unknown"
+                                p.small-text #{screenSizeText}
+                        .row
+                            .col-5
+                                p.small-text.fw-bold Resolution
+                            .col-7
+                                -
+                                    let screenResolutionText = `${model.screen_resolution_w} x ${model.screen_resolution_h}`
+                                    if (model.screen_resolution_w == "-1" || model.screen_resolution_h == "-1") screenResolutionText = "Unknown"
+                                p.small-text=screenResolutionText
+                        .row
+                            .col-5
+                                p.small-text.fw-bold OS
+                            .col-7
+                                -
+                                    let osText = model.os
+                                    if (model.os == "-" || !model.os) osText = "Unknown"
+                                p.small-text=osText
+                    .row.mb-1
+                        .container.text-center
+                            a.view-more-btn(id=`button-${counter}` role='button' data-bs-toggle="collapse" data-bs-target=`#collapse-${counter}` aria-expanded="false" onclick='toggleView(this)') 
+                                p.d-inline-block.me-1 View more
+                                i.unflipped(class="fas fa-angle-down")
+
+
+    - counter++

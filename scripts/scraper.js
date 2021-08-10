@@ -30,7 +30,7 @@ const links = {
 }
 
 
-
+const headless = true
 
 
 const brands = []
@@ -39,20 +39,16 @@ const brands = []
     ; (async () => {
         const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
         try {
-            const browser = await puppeteer.launch();
+            const browser = await puppeteer.launch({headless});
             const dictionary = await fs.readJSON(`${process.cwd()}/data/dictionary.json`)
             const extras = await fs.readJSON(`${process.cwd()}/data/extras.json`)
+            
+            
             // await harvey()
-
-            // CONFIDENCE: 5
-            await challenger()
-
-            // CONFIDENCE: 4
+            // await challenger()
             // await gain()
-
-            // CONFIDENCE : 0
-            // await courts() 
-            // await best()
+            await courts() 
+            await best()
 
 
             /* SECTION FOR GAIN CITY */
@@ -100,7 +96,7 @@ const brands = []
                     let items = document.querySelectorAll(".product-item-info")
                     let products = []
                     for (item of items) {
-
+                        
                         let childName = item.querySelector(".product-item-link").innerText
                         if (!childName) childName = "MISSING INFO"
                         console.log(childName)
@@ -111,8 +107,11 @@ const brands = []
                         let link = item.querySelector(".product-item-link").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
                         if (!link.match(/^https?:\/\//g)) link = "https://" + link
 
+                        let image_url = item.querySelector(".product-image-photo").src
+                        if (!image_url.match(/^https?:\/\//g)) image_url = "https://" + image_url
+
                         products.push({
-                            name: childName, price, brand, link, model_ID,
+                            name: childName, price, brand, link, model_ID, image_url,
                             location: "Gain City"
                         })
                     }
@@ -165,9 +164,13 @@ const brands = []
                             let link = item.querySelector(".product-info > a").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
                             if (!link.match(/^https?:\/\//g)) link = "https://" + link
 
+                            let image_url = item.querySelector(".product-image > a > img").src
+                            if (!image_url.match(/^https?:\/\//g)) image_url = "https://" + image_url
+
+
 
                             products.push({
-                                name: childName, brand, price, link,
+                                name: childName, brand, price, link, image_url,
                                 location: "Harvey Norman"
                             })
                         })
@@ -238,6 +241,12 @@ const brands = []
                                 let model_ID = data.settings.dimensions.model_id.toUpperCase().trim()
                                 // EXCEPTION: ACER PRODUCTS - CHALLENGER PLACES THE ID WRONGLY, SO WE NEED TO USE THE PRODUCT NAME INSTEAD
                                 if (brand == "ACER") model_ID = cleaner(name)
+                                
+                                let image_url = data.image_name
+                                if (!image_url.match(/^https?:\/\//g)) image_url = "https://" + image_url
+
+
+                                
 
                                 products.push({
                                     name,
@@ -245,7 +254,8 @@ const brands = []
                                     brand,
                                     model_ID,
                                     link,
-                                    location: "Challenger"
+                                    location: "Challenger",
+                                    image_url
                                 })
 
                                 console.log(`Progress: ${i + 1}/${hits.length} (Request ${r + 1}/${results.length})`)
@@ -293,23 +303,25 @@ const brands = []
                     await productPage.goto(url, { waitUntil: 'networkidle2' })
                     await productPage.exposeFunction("cleaner", cleaner)
                     let products = await productPage.evaluate(async () => {
-                        let items = Array.from(document.querySelectorAll(".product-content"))
-                        console.log(cleaner)
+                        let items = Array.from(document.querySelectorAll(".portfolio-wrapper"))
+                        
                         let products = []
                         
                         
                         for (item of items) {
                             var childName = item.querySelector(".title").querySelector('a').innerHTML.trim()
                             var price = item.querySelector(".price").firstElementChild.innerHTML.trim()
-                            let brand = item.firstElementChild.innerHTML.trim().toUpperCase()
+                            let brand = item.querySelector(".product-content").firstElementChild.innerHTML.trim().toUpperCase()
                             let link = item.querySelector(".title").querySelector('a').getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
                             if (!link.match(/^https?:\/\//g)) link = "https://" + link
                             // let model_ID = await cleaner(link.split("/")[link.split("/").length-1]) // the model is the ending of the url
-                            
+                            let image_url = item.querySelector('img').getAttribute("data-echo")
+                            if (!image_url.match(/^https?:\/\//g)) image_url = "https://" + image_url
+
 
                             
                             products.push({
-                                name: childName, price, brand, link,
+                                name: childName, price, brand, link, image_url,
                                 location: "Best Denki"
                             })
                             
@@ -385,7 +397,7 @@ const brands = []
 
                     await productPage.exposeFunction("cleaner", cleaner)
                     let products = await productPage.evaluate(async () => {
-                        let items = Array.from(document.querySelectorAll(".equal-height-block"))
+                        let items = Array.from(document.querySelector(".columns").querySelector(".product-items").querySelectorAll(".product-item-info"))
                         let products = []
                         for (item of items) { 
                             let childName = item.querySelector(".product-item-name").innerText.trim().toUpperCase()
@@ -399,10 +411,13 @@ const brands = []
 
                             let model_ID = await cleaner(childName) ? await cleaner(childName) : "UNIDENTIFIED"
 
+                            let image_url = item.querySelector(".product-image-photo").getAttribute("data-original")
+                            if (!image_url.match(/^https?:\/\//g)) image_url = "https://" + image_url
+
 
 
                             products.push({
-                                name: childName, brand, price, link, model_ID,
+                                name: childName, brand, price, link, model_ID, image_url,
                                 location: "Courts"
                             })
                         }
