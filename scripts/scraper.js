@@ -383,7 +383,7 @@ const brands = []
 
                 let BESTPRODUCTS = []
                 const bestPage = await browser.newPage()
-                await bestPage.goto(links["Best Denki"][0], { waitUntil: 'domcontentloaded' })
+                await bestPage.goto(links["Best Denki"][0], { waitUntil: 'networkidle2', timeout: pageTimeout })
                 let pages = await bestPage.$eval("#grid-view > div > div > div.item-list > ul > li.pager-current", elem => elem.innerHTML.split("of")[1])
                 console.log("PUPPETEER: Found pages: " + pages)
 
@@ -460,7 +460,7 @@ const brands = []
                         console.log("PUPPETEER-CLUSTER (2): Scraping model " + (i + 1) + " of " + BESTPRODUCTS.length)
                         await page.exposeFunction("cleaner", cleaner)
 
-                        await page.goto(url, { waitUntil: "networkidle0" })
+                        await page.goto(url, { waitUntil: "networkidle2", timeout: pageTimeout})
                         // bestPage.on('console', consoleObj => console.log(consoleObj.text()));
                         let model_ID = await page.evaluate(() => {
                             let elem = document.querySelector('#mCSB_1_container > div > div > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2)')
@@ -532,7 +532,7 @@ const brands = []
 
 
                 const courtsPage = await browser.newPage()
-                await courtsPage.goto(links["Courts"][0], { waitUntil: 'networkidle0' })
+                await courtsPage.goto(links["Courts"][0], { waitUntil: "networkidle2", timeout: pageTimeout })
 
                 // Find out how many pages there are
                 // Total products divided by # per page (32)
