@@ -397,7 +397,7 @@ const brands = []
                         let i = data.i
                         console.log("PUPPETEER-CLUSTER (1): Scraping page " + (i + 1) + " of " + pages)
 
-                        await page.goto(url, { waitUntil: 'networkidle2' })
+                        await page.goto(url, { waitUntil: 'networkidle2', timeout: pageTimeout })
                         await page.exposeFunction("cleaner", cleaner)
                         let products = await page.evaluate(async () => {
                             let items = Array.from(document.querySelectorAll(".portfolio-wrapper"))
@@ -548,7 +548,7 @@ const brands = []
                         let url = data.url
                         let i = data.i
                         console.log("PUPPETEER-CLUSTER: Scraping page " + i + " of " + courtsPages)
-                        await page.goto(url, { waitUntil: 'networkidle0' })
+                        await page.goto(url, { waitUntil: 'networkidle2', timeout: pageTimeout })
 
                         await page.exposeFunction("cleaner", cleaner)
                         let products = await page.evaluate(async () => {
