@@ -30,12 +30,37 @@ router.get('/', async function (req, res, next) {
 
         let ended = false
         if (!Object.keys(result.groupedByProductId).length) ended = true
-        
+
 
         let searchTimeEnd = new Date().getMilliseconds()
         let diff = searchTimeEnd - searchTimeStart
-        
+
         // console.log(result.groupedByProductId)
+
+        // Get the options object
+        let brands = await conn.query(`SELECT brand, COUNT(*) as total FROM model_data GROUP BY brand ORDER BY brand ASC`)
+        let locations = await conn.query(`SELECT location, COUNT(*) as total FROM data GROUP BY location ORDER BY location ASC`)
+        let processorTypes = await conn.query(`
+        SELECT t.processor_model_clean, t.processor_company_clean, COUNT(*) as total FROM (SELECT IF(processor_company = "" OR processor_company = "-", 'Unknown', processor_company) as processor_company_clean, IF(processor_model = "" OR processor_model = "-", 'AAUnknown', processor_model) as processor_model_clean FROM model_data) t GROUP BY t.processor_model_clean ORDER BY t.processor_model_clean ASC`)
+        processorTypes = processorTypes[0].reduce((r, a) => {
+            r[a.processor_company_clean] = [...r[a.processor_company_clean] || [], a];
+            return r;
+        }, {});
+        let ramSizes = await conn.query(`SELECT t.ram_clean, COUNT(*) as total FROM (SELECT IF(ram = 0 OR ram = -1, 'AAUnknown', ram) as ram_clean FROM model_data) t GROUP BY t.ram_clean ORDER BY t.ram_clean+0 ASC`)
+        let screenSizes = await conn.query(`SELECT t.screen_clean, COUNT(*) as total FROM (SELECT IF(screen_size = 0 OR screen_size = -1, 'AAUnknown', screen_size) as screen_clean FROM model_data) t GROUP BY t.screen_clean ORDER BY t.screen_clean ASC`)
+        let osTypes = await conn.query(`SELECT t.os_clean, COUNT(*) as total FROM (SELECT IF(os = "" OR os = "-", 'AAUnknown', os) as os_clean FROM model_data) t GROUP BY t.os_clean ORDER BY t.os_clean ASC`)
+
+        let dataObj = {
+            brands: brands[0],
+            locations: locations[0],
+            processorTypes,
+            ramSizes: ramSizes[0],
+            screenSizes: screenSizes[0],
+            osTypes: osTypes[0]
+
+        }
+
+        console.log(dataObj)
         res.render('main', {
             title: 'ComputerCheck: Singapore Laptop Database',
             data: result.groupedByProductId,
@@ -47,7 +72,8 @@ router.get('/', async function (req, res, next) {
             diff,
             original: req.query.search,
             getRandomName,
-            ended
+            ended,
+            dataObj
         });
         conn.release()
     } catch (e) {
@@ -56,38 +82,40 @@ router.get('/', async function (req, res, next) {
 
     }
 
-    
+
 });
 
 // Ajax data
-router.get("/loadMore/:startIndex", async function(req, res, next) { 
-    try { 
+router.get("/loadMore/:code", async function (req, res, next) {
+    try {
         let searchTimeStart = new Date().getMilliseconds()
-
-        let startIndex = Number(req.params.startIndex)
+        
+        let startIndex = Number(req.params.code.split("-_-")[0])
+        let loadAll = req.params.code.split("-_-")[1] == "true" ? true : false
         if (Number.isNaN(startIndex)) return res.status(404).send("Not found")
-       
-    
+
+
         let searchString = req.query.search ? req.query.search.trim().toUpperCase() : ""
-    
+        
+        
         let result;
         if (searchString) {
-            result = await getSearchModels(startIndex, searchString)
+            result = await getSearchModels(startIndex, searchString, loadAll)
         } else {
-            result = await getModels(startIndex)
+            result = await getModels(startIndex, loadAll)
         }
-        console.log(result)
-        if (result == "All items loaded") return res.status(204).send("All items loaded")
         
+        if (result == "All items loaded") return res.status(204).send("All items loaded")
+
         let html = pug.renderFile(`${process.cwd()}/views/card.pug`, {
             data: result.groupedByProductId,
-            modelData: result.modelDataGroupedID,                
+            modelData: result.modelDataGroupedID,
         })
-    
-        let searchTimeEnd = new Date().getMilliseconds()    
 
-        
-        if (Object.keys(result.groupedByProductId).length < 24) {
+        let searchTimeEnd = new Date().getMilliseconds()
+
+
+        if (Object.keys(result.groupedByProductId).length < 24 || loadAll) {
 
             let obj = {
                 html,
@@ -103,14 +131,14 @@ router.get("/loadMore/:startIndex", async function(req, res, next) {
             }
             // console.log(obj)
             res.send(JSON.stringify(obj))
-        }     
-            
-      
-            
-    } catch (e) { 
+        }
+
+
+
+    } catch (e) {
         console.log(e)
     }
-    
+
 
 
 })
@@ -120,9 +148,11 @@ function getRandomName() {
 
     return locations[Math.floor(Math.random() * (locations.length - 1))]
 }
-async function getModels(startIndex) {
+async function getModels(startIndex, loadAll) {
     // StartIndex: (Total models loaded already)
     // E.g. startIndex = 24 if 24 models loaded
+
+    const limit = loadAll ? 1000000 : 24
     let conn = null
     try {
         conn = await pool.getConnection()
@@ -141,11 +171,18 @@ async function getModels(startIndex) {
         let numberOfProducts = await conn.query(`SELECT COUNT(row_ID) as total FROM data WHERE model_ID NOT IN (?)`, [inactiveModels])
         numberOfProducts = numberOfProducts[0][0].total
 
-        
-        
-        
+
+
+
         // Select the first 24 models (sorted by alphabetical)
-        let modelData = await conn.query(`SELECT * FROM model_data WHERE model_ID NOT IN (?) ORDER BY brand ASC, model_ID ASC LIMIT 24 OFFSET ?`, [inactiveModels, startIndex])
+        let modelData = await conn.query(`SELECT *, 
+            IF(processor_company = "-" OR processor_company = "", "pCompany:Unknown", processor_company) as processor_company_clean,
+            IF(processor_model = "-" OR processor_model = "", "pBrand:Unknown", processor_model) as processor_model_clean,
+            IF(ram = 0 OR ram = -1, "ram:Unknown", ram) as ram_clean,
+            IF(screen_size = 0 OR screen_size = -1, "display:Unknown", screen_size) as screen_clean,
+            IF(os = "-" OR os = "", "os:Unknown", os) AS os_clean
+            
+            FROM model_data WHERE model_ID NOT IN (?) ORDER BY brand ASC, model_ID ASC LIMIT ? OFFSET ?`, [inactiveModels, limit, startIndex])
         modelData = modelData[0]
         let availableModels = modelData.map(x => x.model_ID)
         if (!availableModels.length) availableModels = [""]
@@ -164,9 +201,9 @@ async function getModels(startIndex) {
             r[a.model_ID] = [...r[a.model_ID] || [], a];
             return r;
         }, {});
-        
-         
-  
+
+
+
 
         for (model_ID of Object.keys(groupedByProductId)) {
             // Ensure that at least ONE seller is active, if all sellers are not active, then, delete this key // TODO we can do something else perhaps gray it out here
@@ -174,15 +211,15 @@ async function getModels(startIndex) {
             let active = groupedByProductId[model_ID].some((element) => Boolean(element.active)) // return true if there is at least one element which is active
             // if (!active) delete groupedByProductId[model_ID]
             // else { 
-                groupedByProductId[model_ID] = groupedByProductId[model_ID].reduce((r, a) => {
-                    r[a.location] = [...r[a.location] || [], a];
-                    return r;
-                }, {});
+            groupedByProductId[model_ID] = groupedByProductId[model_ID].reduce((r, a) => {
+                r[a.location] = [...r[a.location] || [], a];
+                return r;
+            }, {});
             // } 
-            
-            
+
+
         }
-      
+
 
         conn.release()
         return {
@@ -200,8 +237,9 @@ async function getModels(startIndex) {
     }
 }
 
-async function getSearchModels(startIndex, searchString) {
+async function getSearchModels(startIndex, searchString, loadAll) {
     let conn = null
+    const limit = loadAll ? 1000000 : 24
     try {
         conn = await pool.getConnection()
         // Select the inactive models
@@ -222,7 +260,7 @@ async function getSearchModels(startIndex, searchString) {
             let numMatches = 0
             for (let j = 0; j < searchArr.length; j++) {
                 let searchTerm = searchArr[j]
-                let regex = new RegExp(searchTerm)
+                let regex = new RegExp(searchTerm.replace(/[#-}]/g, '\\$&'))
                 if (model.search_terms.match(regex)) {
                     numMatches++
                 }
@@ -236,9 +274,9 @@ async function getSearchModels(startIndex, searchString) {
         }
         console.log(searchedModels)
         if (!searchedModels.length) searchedModels = [""]
-        
+
         // Extract the required range
-        let limitedSearchModels = searchedModels.slice(startIndex, startIndex + 24)
+        let limitedSearchModels = searchedModels.slice(startIndex, startIndex + limit)
 
         // Total model count 
         let numberOfModels = await conn.query(`SELECT COUNT(*) as total FROM model_data WHERE model_ID IN (?)`, [searchedModels])
@@ -251,7 +289,14 @@ async function getSearchModels(startIndex, searchString) {
         numberOfProducts = numberOfProducts[0][0].total
 
         // Select the first 24 models (sorted by alphabetical)
-        let modelData = await conn.query(`SELECT * FROM model_data WHERE model_ID IN (?) ORDER BY brand ASC, model_ID ASC`, [limitedSearchModels, startIndex])
+        let modelData = await conn.query(`SELECT *, 
+            IF(processor_company = "-" OR processor_company = "", "pCompany:Unknown", processor_company) as processor_company_clean,
+            IF(processor_model = "-" OR processor_model = "", "pBrand:Unknown", processor_model) as processor_model_clean,
+            IF(ram = 0 OR ram = -1, "ram:Unknown", ram) as ram_clean,
+            IF(screen_size = 0 OR screen_size = -1, "display:Unknown", screen_size) as screen_clean,
+            IF(os = "-" OR os = "", "os:Unknown", os) AS os_clean
+            
+            FROM model_data WHERE model_ID IN (?) ORDER BY brand ASC, model_ID`, [limitedSearchModels])
         modelData = modelData[0]
 
         let data = await conn.query(`SELECT * FROM data WHERE model_ID IN (?) AND active = 1 ORDER BY brand ASC, model_ID ASC`, [limitedSearchModels])

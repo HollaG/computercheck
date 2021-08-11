@@ -154,3 +154,58 @@ img[data-loaded="true"], [data-loaded="true"] img { animation-name: showLazyImg;
   -o-animation: rotating 2s linear infinite;
   animation: rotating 2s linear infinite;
 }
+
+.select-container { 
+  min-height: 29px;
+}
+.selectr-container { 
+  /* margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important; */
+}
+.selectr-selected { 
+  padding: 3px 20px 3px 10px !important;
+  height: 100%;
+  border: none !important;
+  background-color: #fbfbfb;
+  min-width: 150px;
+}
+
+
+
+.selectr-selected::before {
+  
+  right: 8px !important
+}
+.selectr-placeholder { 
+  font-size: 12px;
+  margin-top: 2px;
+}
+.selectr-tag { 
+  
+  font-size: 11px;
+  padding: 1px ​20px 1px 7px !important;
+  margin: 0 2px 2px 0 !important;
+  cursor: default !important;
+  color: #4f4f4f!important;
+  border: none !important;
+  border-radius: 10px !important;
+  background: #f8f9fa !important;
+}
+
+.selectr-option { 
+  font-size: 12px;
+  padding: 5px 10px !important;
+}
+.selectr-tag-remove::after, .selectr-tag-remove::before {
+  background-color: #4f4f4f!important;
+}
+.selectr-options-container {
+  
+  border-style:none !important;
+  
+}
+.selectr-optgroup--label {
+  
+  margin-top: 0px !important;
+  padding: 3px 15px !important;
+}

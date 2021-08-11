@@ -169,8 +169,16 @@ String.prototype.lowerLize = function () {
                     text = text.replace(/©|℗|®|™|/gi, "")
                     text = text.replace(/ /g, " ")
 
-                    let os = text.match(/apple|mac/i) ? "Mac OS" : "Windows 10"
-                    if (text.match(/pro/i)) os = os + " Pro"
+                    let os = "-"
+
+                    if (text.match(/apple|mac/i)) { 
+                        os = "Mac OS"
+                    } else { 
+                        if (text.match(/\spro\s/i)) os = "Windows 10 Pro"
+                        else os = "Windows 10"
+                    }
+
+                    
                     return os
                 }
                 function getScreenSize(text) {

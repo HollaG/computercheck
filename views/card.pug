@@ -4,7 +4,7 @@ each products, model_ID in data
     - if (!modelData[model_ID]) modelData[model_ID] = [{}]
     - let model = modelData[model_ID][0]
     .col-12.col-xl-3.col-lg-4.col-md-6
-        .card.m-2
+        .card.m-2.product(data-terms=`${model.brand} ${model.processor_company} ${model.processor_model_clean} ${model.ram_clean}GB ${model.screen_clean}inch ${model.os_clean}`)
             img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}`)
             .card-body.parent-relative-apply.d-flex.flex-column.pb-0
                 p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}

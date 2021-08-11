@@ -21,12 +21,63 @@ block content
                                     button#submitButton.btn.btn-primary.btn-lg(type="submit") Search               
 
     .container.py-4#overall-container
-        .container.d-flex.justify-content-between
-            if (original)
-                h4 #{numberOfModels} search results for '#{original}'
-            else
-                h4 #{numberOfModels} results
-            button.btn.btn-primary(onclick="toggleExpand(this)") Expand all
+        .container
+            .d-flex.justify-content-between
+                if (original)
+                    h4 #{numberOfModels} search results for '#{original}'
+                else
+                    h4 #{numberOfModels} results
+                button.btn.btn-primary(onclick="toggleExpand(this)") Expand all
+            .d-flex.align-items-center.flex-wrap
+                //- button.me-4.btn.btn-light.px-3(data-mdb-ripple-color="dark") 
+                //-     i(class="fas fa-filter")
+                //-     p.fw-bold.d-inline-block.my-0.ms-2.me-0 Filters
+                .me-3.select-container.shadow-sm.bg-body.my-2         
+                    select#select-brand
+                        each brand in dataObj.brands
+                            option(value=brand.brand) #{brand.brand} (#{brand.total})
+
+                .me-3.select-container.shadow-sm.bg-body.my-2                              
+                    select#select-location
+                        each location in dataObj.locations
+                            option(value=location.location) #{location.location} (#{location.total})
+
+                .me-3.select-container.shadow-sm.bg-body.my-2                            
+                    select#select-p-brand   
+                        each models, pbrand in dataObj.processorTypes
+                            optgroup(label=pbrand)
+                                each model in models     
+                                    if (model.processor_model_clean == "AAUnknown")
+                                        option(value="pBrand:Unknown") Unknown (#{model.total})
+                                    else
+                                        option(value=model.processor_model_clean) #{model.processor_model_clean} (#{model.total})
+
+                        
+
+                .me-3.select-container.shadow-sm.bg-body.my-2                            
+                    select#select-ram                      
+                        each ramSize in dataObj.ramSizes   
+                            if (ramSize.ram_clean == "AAUnknown")
+                                option(value="ram:UnknownGB") Unknown (#{ramSize.total})
+                            else                         
+                                option(value=`${ramSize.ram_clean}GB`) #{ramSize.ram_clean} GB (#{ramSize.total})        
+                
+                .me-3.select-container.shadow-sm.bg-body.my-2                            
+                    select#select-display                      
+                        each screenSize in dataObj.screenSizes
+                            if (screenSize.screen_clean == "AAUnknown")
+                                option(value="display:Unknowninch") Unknown (#{screenSize.total})
+                            else
+                                option(value=`${screenSize.screen_clean}inch`) #{screenSize.screen_clean} inch (#{screenSize.total})     
+                .me-3.select-container.shadow-sm.bg-body.my-2                            
+                    select#select-os                      
+                        each os in dataObj.osTypes
+                            if (os.os_clean == "AAUnknown")
+                                option(value="os:Unknown") Unknown (#{os.total})
+                            else
+                                option(value=os.os_clean) #{os.os_clean} (#{os.total})  
+                          
+                
         .d-flex.flex-wrap.mt-3#item-container
             - let counter = 0
             each products, model_ID in data
@@ -34,7 +85,7 @@ block content
                 - if (!modelData[model_ID]) modelData[model_ID] = [{}]
                 - let model = modelData[model_ID][0]
                 .col-12.col-xl-3.col-lg-4.col-md-6
-                    .card.m-2
+                    .card.m-2.product(data-terms=`${model.brand} ${model.processor_company} ${model.processor_model_clean} ${model.ram_clean}GB ${model.screen_clean}inch ${model.os_clean}`)
                         img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}`)
                         .card-body.parent-relative-apply.d-flex.flex-column.pb-0
                             p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}
@@ -46,7 +97,7 @@ block content
                                         p.ms-2.mb-0.d-inline-block=location
                                         
                                         each product in products[location]
-                                            - console.log(product.active)
+                                            
                                             if (product.active == 1)
                                                 a.float-end(href=product.link target="_blank") $#{product.price}
                                             else
@@ -96,7 +147,7 @@ block content
                                     .col-7
                                         -
                                             let ramText = `${model.ram} GB`
-                                            if (model.ram == "-1") ramText = "Unknown"
+                                            if (model.ram == -1 || model.ram == 0) ramText = "Unknown"
                                         p.small-text=ramText
                                 .row
                                     .col-5
@@ -104,7 +155,7 @@ block content
                                     .col-7
                                         -
                                             let storageText = model.storage
-                                            if (model.storage == "-") storageText == "Unknown"
+                                            if (model.storage == "-" || model.storage === "") storageText == "Unknown"
                                         p.small-text=storageText
 
                                 .container-fluid.p-0.m-0.collapse.hiding(id=`collapse-${counter}`)
@@ -114,7 +165,7 @@ block content
                                         .col-7
                                             -
                                                 let gpuText = model.graphics_card
-                                                if (model.graphics_card == "-") gpuText = "Unknown"
+                                                if (model.graphics_card == "-" || model.graphics_card === "") gpuText = "Unknown"
                                             p.small-text=gpuText
                                     .row
                                         .col-5
@@ -154,80 +205,18 @@ block content
                 //- p.fst-italic#loaded-text All items loaded.
             else 
                 button.btn.btn-primary#load-more-btn(onclick='loadMore()') Load more
+                button.ms-2.btn.btn-primary#load-all-btn(onclick='loadMore("all")') Load all
                 p.fst-italic#loaded-text(style='display:none') All items loaded.
+    script(src="/javascripts/search.js")
+    script(src="/javascripts/main.js")
     script.
 
-        if (location.href.match("search")) document.getElementById('item-container').scrollIntoView()     
-        function toggleView(elem) { 
+        if (location.href.match("search")) document.getElementById('item-container').scrollIntoView()    
 
-            elem.querySelector("i").classList.toggle("flipped")
-            elem.querySelector("i").classList.toggle("unflipped")
+        
 
-            setTimeout(function() { 
-                if (elem.querySelector('p').innerText == "View more") elem.querySelector('p').innerText = "View less"
-                else elem.querySelector('p').innerText = "View more"
-            }, 350)
-            
-        }
 
-        function toggleExpand(elem) { 
-            elem.disabled = true
-            if (elem.innerText == "EXPAND ALL") {
-                document.querySelectorAll(".view-more-btn").forEach(e =>{
-                    if (e.querySelector('p').innerText == "View more") {
-                        e.click()
-                        elem.innerText = "HIDE ALL"
-                    }
-                })
-            } else { 
-                document.querySelectorAll(".view-more-btn").forEach(e =>{
-                    if (e.querySelector('p').innerText == "View less") {
-                        e.click()
-                        elem.innerText = "EXPAND ALL"
-                    }
-                })
-            }
-            setTimeout(function(){ elem.disabled = false}, 350)
-
-        }
-
-        let loadCount = 24
-        function loadMore() { 
-            let btn = document.querySelector("#load-more-btn")
-            btn.disabled = true
-
-            // Send request to server for the HTML
-            let xhttp = new XMLHttpRequest()
-            xhttp.onreadystatechange = function() {
-                
-                if (this.readyState == 4 && this.status == 200) {
-                    let obj = JSON.parse(this.responseText)
-                    //- console.log(obj)
-                    document.querySelector("#item-container").lastElementChild.insertAdjacentHTML('afterend', JSON.parse(this.responseText).html)
-                    observer.observe();
-
-                    if (obj.ended) {
-                        btn.style.display = 'none'
-                        document.querySelector("#loaded-text").style.display = 'block'
-                    }
-                   
-                }
-                if (this.status == 204) { 
-                    btn.style.display = 'none'
-                    document.querySelector("#loaded-text").style.display = 'block'
-                }
-                btn.disabled = false
-
-            }
-            let searchString = location.href.split("search=")[1]
-            if (searchString)
-                xhttp.open("GET", `/loadmore/${loadCount}?search=${searchString}`, true);
-            else
-                xhttp.open("GET", `/loadmore/${loadCount}`, true);
-
-            xhttp.send()
-            loadCount = loadCount + 24
-        }
+        
 
         const observer = lozad(); // lazy loads elements with default selector as '.lozad'
         observer.observe();
