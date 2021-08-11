@@ -1,6 +1,6 @@
 const fs = require("fs-extra")
 const mysql = require("mysql2/promise")
-const puppeteer = require("puppeteer")
+const puppeteer = require("puppeteer-extra")
 
 const db = require("../configuration/database.json")
 const pool = mysql.createPool(db)
@@ -10,6 +10,17 @@ const SearchScraper = require("puppeteer-search-scraper")
 var startTime = new Date().getTime()
 console.log("Started script at " + startTime)
 const headless = true
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+puppeteer.use(StealthPlugin())
+const CLUSTEROPTS = {
+    concurrency: Cluster.CONCURRENCY_CONTEXT,
+    maxConcurrency: 4,
+    timeout: 150 * 1000,
+    puppeteer,
+    sameDomainDelay: 500,
+    workerCreationDelay: 500,
+    monitor: true
+}
 String.prototype.lowerLize = function () {
     return this.charAt(0).toLowerCase() + this.slice(1);
 }
@@ -23,14 +34,7 @@ String.prototype.lowerLize = function () {
             // Sort into models
 
             const cluster = await Cluster.launch({
-                concurrency: Cluster.CONCURRENCY_PAGE,
-                maxConcurrency: 1,
-                timeout: 150 * 1000, // 2.5 min timeout per task
-                puppeteerOptions: {
-                    headless,
-                    args: ['--no-sandbox']
-                },
-                workerCreationDelay: 500
+                CLUSTEROPTS
             })
 
 

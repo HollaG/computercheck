@@ -306,8 +306,11 @@ const headless = true
 
                     for (let z = 0; z < products.length; z++) {
                         let product = products[z]
-                        items_data.push([
-                            0,
+
+                        let active = 1
+                        if (product.instock == "c-false") active = 0
+
+                        items_data.push([                           
                             model.trim().toUpperCase(),
                             product.name,
                             product.price.replace("$", ""),
@@ -315,7 +318,7 @@ const headless = true
                             product.location,
                             product.link,
                             product.image_url,
-                            1 // active?
+                            active // active?
                         ])
 
                     }
@@ -393,13 +396,20 @@ const headless = true
             
 
             await connection.query(`DELETE FROM temp_data`)
-            await connection.query(`INSERT INTO temp_data (row_ID, model_ID, name, price, brand, location, link, image_url, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
+            await connection.query(`INSERT INTO temp_data (model_ID, name, price, brand, location, link, image_url, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
 
-            // Find rows from DATA that are NOT in temp_data (i.e. products that are now discontinued) and set as inactive
-            await connection.query(`UPDATE data SET active = 1 WHERE row_ID IN (SELECT row_ID FROM data WHERE data.link NOT IN (SELECT temp_data.link FROM temp_data))`)
+            
+
+
+            // Find rows from DATA that are NOT in temp_data (i.e. products that are now discontinued / OOS) and set as inactive
+            await connection.query(`UPDATE data SET active = 0 WHERE row_ID IN (SELECT row_ID FROM data WHERE data.link NOT IN (SELECT temp_data.link FROM temp_data))`)
+
+            // Find rows that are in data AND temp_data (i.e. discontinued rows will NOT be selected)
+            await connection.query(`DELETE FROM data WHERE data.link IN (SELECT temp_data.link FROM temp_data)`)
+            await connection.query(`INSERT INTO data (model_ID, name, price, brand, location, link, image_url, active) VALUES ?`, [items_data])
 
             // Copy over any rows that are in TEMP_DATA but NOT in DATA (new items added)
-            await connection.query(`INSERT INTO data (SELECT * FROM temp_data WHERE temp_data.link NOT IN (SELECT data.link FROM data))`)
+            // await connection.query(`INSERT INTO data (SELECT * FROM temp_data WHERE temp_data.link NOT IN (SELECT data.link FROM data))`)
 
             // INSERT INTO data (SELECT row_ID, `model_ID`,`name`,`price`,`brand`,`location`,`link`,`date_updated`,`image_url`,`active` FROM temp_data WHERE temp_data.link NOT IN (SELECT data.link FROM data))
 
@@ -412,7 +422,7 @@ const headless = true
             console.log("Ended script at " + endTime)
             console.log("Time taken: " + (endTime - startTime))
 
-
+            return true
 
 
             // Insert rows for model_data
