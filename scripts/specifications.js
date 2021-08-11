@@ -73,7 +73,7 @@ String.prototype.lowerLize = function () {
                 })
 
             }
-            console.log(sortedModels)
+            // console.log(sortedModels)
 
             // cluster.queue({
             //     model_ID: 'FA506IV-1',
@@ -413,7 +413,7 @@ String.prototype.lowerLize = function () {
                             waitUntil: "networkidle2",
                             timeout: pageTimeout
                         })
-
+                        console.log("Loaded page")
 
                         let specifications = await page.evaluate(async () => {
                             try {
