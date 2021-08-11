@@ -42,11 +42,12 @@ const headless = true
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
 
+const pageTimeout = 2 * 1000 * 60
 const CLUSTEROPTS = {
     puppeteer,
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 1,
-    timeout: 15 * 1000 * 60,
+    timeout: 30 * 1000 * 60,
 
     sameDomainDelay: 500,
     workerCreationDelay: 500,
@@ -78,8 +79,8 @@ const brands = []
             const extras = await fs.readJSON(`${process.cwd()}/data/extras.json`)
 
 
-            await harvey()
-            await challenger()
+            // await harvey()
+            // await challenger()
             await gain()
             await courts()
             await best()
@@ -91,7 +92,7 @@ const brands = []
 
                 const gainPage = await browser.newPage()
 
-                await gainPage.goto(links["Gain City"][0], { waitUntil: 'networkidle0' })
+                await gainPage.goto(links["Gain City"][0], { waitUntil: 'networkidle2', timeout: pageTimeout })
                 await gainPage.exposeFunction("cleaner", cleaner)
 
 
@@ -176,7 +177,7 @@ const brands = []
                     const harveyPage = await browser.newPage()
 
                     // Go to harvey norman laptop page
-                    await harveyPage.goto(links["Harvey Norman"][0], { waitUntil: 'networkidle2', timeout: 0 })
+                    await harveyPage.goto(links["Harvey Norman"][0], { waitUntil: 'networkidle2', timeout: pageTimeout })
 
                     // Get the number of pages (Total / 20)
 
@@ -203,7 +204,7 @@ const brands = []
                             
                             let i = data.i
                             console.log("PUPPEETER-CLUSTER: Scraping page " + i + " of " + harveyPages)
-                            await page.goto(url, { waitUntil: 'networkidle2', timeout: 0 })
+                            await page.goto(url, { waitUntil: 'networkidle2', timeout: pageTimeout })
 
                             let products = await page.evaluate(() => {
                                 let items = document.querySelector(".col-xs-12.col-sm-9.col-md-9.omega").querySelectorAll('form')
@@ -236,7 +237,7 @@ const brands = []
                                 let product = products[j]
                                 // Query the product page to get the model data
 
-                                await page.goto(product.link, { waitUntil: "networkidle2", timeout: 0 })
+                                await page.goto(product.link, { waitUntil: "networkidle2", timeout: pageTimeout })
                                 let model_ID = await page.$eval("#content_features > div > table:nth-child(3)", table => {
                                     let headings = Array.from(table.querySelectorAll('tr > th'))
                                     let index;

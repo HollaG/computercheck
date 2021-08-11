@@ -12,10 +12,11 @@ console.log("Started script at " + startTime)
 const headless = true
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
+const pageTimeout = 2 * 1000 * 60
 const CLUSTEROPTS = {
     concurrency: Cluster.CONCURRENCY_CONTEXT,
     maxConcurrency: 1,
-    timeout: 15 * 1000 * 60,
+    timeout: 30 * 1000 * 60,
     puppeteer,
     sameDomainDelay: 500,
     workerCreationDelay: 500,
