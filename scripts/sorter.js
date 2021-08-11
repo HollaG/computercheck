@@ -402,7 +402,13 @@ const headless = true
 
 
             // Find rows from DATA that are NOT in temp_data (i.e. products that are now discontinued / OOS) and set as inactive
-            await connection.query(`UPDATE data SET active = 0 WHERE row_ID IN (SELECT row_ID FROM data WHERE data.link NOT IN (SELECT temp_data.link FROM temp_data))`)
+            await connection.query(`UPDATE data SET active = 0 WHERE row_ID IN
+            (
+                SELECT row_ID FROM (
+                    SELECT row_ID FROM data WHERE data.link NOT IN (SELECT temp_data.link FROM temp_data)
+                )  as arbitaryTableName
+            ) 
+            `)
 
             // Find rows that are in data AND temp_data (i.e. discontinued rows will NOT be selected)
             await connection.query(`DELETE FROM data WHERE data.link IN (SELECT temp_data.link FROM temp_data)`)
