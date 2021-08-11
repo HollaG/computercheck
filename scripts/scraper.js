@@ -185,11 +185,11 @@ const brands = []
                     await harveyPage.close()
 
                     const cluster = await Cluster.launch(CLUSTEROPTS);
-
+                    console.log("After launching cluster")
                     await cluster.task(async ({ page, data }) => {
                         try {
                             let url = data.url
-                            console.log(url)
+                            
                             let i = data.i
                             console.log("PUPPEETER-CLUSTER: Scraping page " + i + " of " + harveyPages)
                             await page.goto(url, { waitUntil: 'networkidle2', timeout: 0 })
@@ -255,6 +255,7 @@ const brands = []
 
                         let url = `https://www.harveynorman.com.sg/computing/computers-en/laptops-en/page-${i}/`
                         // console.log("queueing" + url)
+                        console.log("QUEUEING: ", url)
                         cluster.queue({ url, i })
                     }
 
