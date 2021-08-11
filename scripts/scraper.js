@@ -44,7 +44,7 @@ puppeteer.use(StealthPlugin())
 
 const CLUSTEROPTS = {
     puppeteer,
-    concurrency: Cluster.CONCURRENCY_BROWSER,
+    concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 1,
     timeout: 150 * 1000,
 
@@ -189,6 +189,13 @@ const brands = []
                     await harveyPage.close()
 
                     const cluster = await Cluster.launch(CLUSTEROPTS);
+                    cluster.on('taskerror', (err, data, willRetry) => {
+                        if (willRetry) {
+                          console.warn(`Encountered an error while crawling ${data}. ${err.message}\nThis job will be retried`);
+                        } else {
+                          console.error(`Failed to crawl ${data}: ${err.message}`);
+                        }
+                    });
                     console.log("After launching cluster")
                     await cluster.task(async ({ page, data }) => {
                         try {
