@@ -59,7 +59,8 @@ const CLUSTEROPTS = {
         '--no-first-run',
         '--no-zygote',
         '--single-process', // <- this one doesn't works in Windows
-        '--disable-gpu']
+        '--disable-gpu',
+    '--no-sandbox']
     }
 }
 
