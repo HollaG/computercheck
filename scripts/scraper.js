@@ -49,7 +49,10 @@ const CLUSTEROPTS = {
     puppeteer,
     sameDomainDelay: 500,
     workerCreationDelay: 500,
-    monitor: true
+    monitor: true,
+    puppeteerOptions: {
+        args: ['--no-sandbox']
+    }
 }
 
 const brands = []
@@ -163,6 +166,9 @@ const brands = []
                 await harveyPage.goto(links["Harvey Norman"][0], { waitUntil: 'networkidle0', timeout: 0 })
 
                 // Get the number of pages (Total / 20)
+
+                let html = await harveyPage.$eval(('body'), e => e.innerHTML)
+                
                 let harveyPages = await harveyPage.evaluate(() => Math.ceil(Number(document.querySelector("#pagination_contents > div.toolbar > div > div:nth-child(2) > div > div.pagination-amount.col-xs-4").innerText.split(" ")[0]) / 20))
                 console.log("PUPPEETER: Found pages: " + harveyPages)
 

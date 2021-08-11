@@ -19,7 +19,10 @@ const CLUSTEROPTS = {
     puppeteer,
     sameDomainDelay: 500,
     workerCreationDelay: 500,
-    monitor: true
+    monitor: true,
+    puppeteerOptions: {
+        args: ['--no-sandbox']
+    }
 }
 String.prototype.lowerLize = function () {
     return this.charAt(0).toLowerCase() + this.slice(1);
