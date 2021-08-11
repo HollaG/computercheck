@@ -15,7 +15,7 @@ puppeteer.use(StealthPlugin())
 const CLUSTEROPTS = {
     concurrency: Cluster.CONCURRENCY_CONTEXT,
     maxConcurrency: 1,
-    timeout: 86400 * 1000 * 60,
+    timeout: 2000000000,
     puppeteer,
     sameDomainDelay: 500,
     workerCreationDelay: 500,
