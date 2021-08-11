@@ -1,6 +1,7 @@
 {
     "host": "localhost",
-    "user": "root",
+    "user": "cc-bot",
+    "password": "cc-bot",
    
 
     "database": "computercheck",
