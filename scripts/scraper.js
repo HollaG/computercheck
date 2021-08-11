@@ -63,11 +63,11 @@ const brands = []
             const extras = await fs.readJSON(`${process.cwd()}/data/extras.json`)
 
 
-            // await harvey()
+            await harvey()
             await challenger()
-            // await gain()
-            // await courts()
-            // await best()
+            await gain()
+            await courts()
+            await best()
 
 
             /* SECTION FOR GAIN CITY */
