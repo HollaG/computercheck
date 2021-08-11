@@ -44,12 +44,15 @@ block content
                                     .container.mb-2.pb-2
                                         img.d-inline-block.logo-image(src=url)
                                         p.ms-2.mb-0.d-inline-block=location
-                                        if (products[location].length == 1)
-                                            a.float-end(href=products[location][0].link target="_blank") $#{products[location][0].price}
-                                        else
-                                            each product in products[location]
+                                        
+                                        each product in products[location]
+                                            - console.log(product.active)
+                                            if (product.active == 1)
                                                 a.float-end(href=product.link target="_blank") $#{product.price}
-                                                br
+                                            else
+                                                a.text-decoration-line-through.float-end(href=product.link target="_blank") $#{product.price}
+                                                
+                                            br
                                                 
                                 
                                 - var location = "Best Denki"
@@ -147,8 +150,11 @@ block content
 
                 - counter++
         .container.text-center.my-3
-            button.btn.btn-primary#load-more-btn(onclick='loadMore()') Load more
-            p.fst-italic#loaded-text(style='display:none') All items loaded.
+            if (ended)
+                //- p.fst-italic#loaded-text All items loaded.
+            else 
+                button.btn.btn-primary#load-more-btn(onclick='loadMore()') Load more
+                p.fst-italic#loaded-text(style='display:none') All items loaded.
     script.
 
         if (location.href.match("search")) document.getElementById('item-container').scrollIntoView()     
@@ -165,6 +171,7 @@ block content
         }
 
         function toggleExpand(elem) { 
+            elem.disabled = true
             if (elem.innerText == "EXPAND ALL") {
                 document.querySelectorAll(".view-more-btn").forEach(e =>{
                     if (e.querySelector('p').innerText == "View more") {
@@ -180,6 +187,7 @@ block content
                     }
                 })
             }
+            setTimeout(function(){ elem.disabled = false}, 350)
 
         }
 

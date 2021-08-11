@@ -14,12 +14,13 @@ each products, model_ID in data
                         .container.mb-2.pb-2
                             img.d-inline-block.logo-image(src=url)
                             p.ms-2.mb-0.d-inline-block=location
-                            if (products[location].length == 1)
-                                a.float-end(href=products[location][0].link target="_blank") $#{products[location][0].price}
-                            else
-                                each product in products[location]
+                            
+                            each product in products[location]
+                                if (product.active == 1)
                                     a.float-end(href=product.link target="_blank") $#{product.price}
-                                    br
+                                else
+                                    a.text-decoration-line-through.float-end(href=product.link target="_blank") $#{product.price}
+                                br
                                     
                     
                     - var location = "Best Denki"

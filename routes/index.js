@@ -28,9 +28,14 @@ router.get('/', async function (req, res, next) {
             result = await getModels(0)
         }
 
+        let ended = false
+        if (!Object.keys(result.groupedByProductId).length) ended = true
+        
+
         let searchTimeEnd = new Date().getMilliseconds()
         let diff = searchTimeEnd - searchTimeStart
-
+        
+        // console.log(result.groupedByProductId)
         res.render('main', {
             title: 'ComputerCheck: Singapore Laptop Database',
             data: result.groupedByProductId,
@@ -41,7 +46,8 @@ router.get('/', async function (req, res, next) {
             stringify,
             diff,
             original: req.query.search,
-            getRandomName
+            getRandomName,
+            ended
         });
         conn.release()
     } catch (e) {
@@ -70,7 +76,7 @@ router.get("/loadMore/:startIndex", async function(req, res, next) {
         } else {
             result = await getModels(startIndex)
         }
-        
+        console.log(result)
         if (result == "All items loaded") return res.status(204).send("All items loaded")
         
         let html = pug.renderFile(`${process.cwd()}/views/card.pug`, {
@@ -87,7 +93,7 @@ router.get("/loadMore/:startIndex", async function(req, res, next) {
                 html,
                 ended: true
             }
-            console.log(obj)
+            // console.log(obj)
 
             res.send(JSON.stringify(obj))
         } else {
@@ -95,7 +101,7 @@ router.get("/loadMore/:startIndex", async function(req, res, next) {
                 html,
                 ended: false
             }
-            console.log(obj)
+            // console.log(obj)
             res.send(JSON.stringify(obj))
         }     
             
@@ -120,24 +126,31 @@ async function getModels(startIndex) {
     let conn = null
     try {
         conn = await pool.getConnection()
+        let inactiveModels = await conn.query(`SELECT model_ID, active, COUNT(*) FROM data GROUP BY model_ID HAVING COUNT(*) = 1 AND active = 0`)
+        inactiveModels = inactiveModels[0].map(x => x.model_ID)
+        if (!inactiveModels.length) inactiveModels = [""]
+
 
         // Total model count 
-        let numberOfModels = await conn.query(`SELECT COUNT(row_ID) as total FROM model_data`)
+        let numberOfModels = await conn.query(`SELECT COUNT(row_ID) as total FROM model_data WHERE model_ID NOT IN (?)`, [inactiveModels])
         numberOfModels = numberOfModels[0][0].total
 
         if (startIndex > numberOfModels) return "All items loaded"
 
         // Total product count
-        let numberOfProducts = await conn.query(`SELECT COUNT(row_ID) as total FROM data`)
+        let numberOfProducts = await conn.query(`SELECT COUNT(row_ID) as total FROM data WHERE model_ID NOT IN (?)`, [inactiveModels])
         numberOfProducts = numberOfProducts[0][0].total
 
+        
+        
+        
         // Select the first 24 models (sorted by alphabetical)
-        let modelData = await conn.query(`SELECT * FROM model_data ORDER BY brand ASC, model_ID ASC LIMIT 24 OFFSET ?`, [startIndex])
+        let modelData = await conn.query(`SELECT * FROM model_data WHERE model_ID NOT IN (?) ORDER BY brand ASC, model_ID ASC LIMIT 24 OFFSET ?`, [inactiveModels, startIndex])
         modelData = modelData[0]
-
         let availableModels = modelData.map(x => x.model_ID)
+        if (!availableModels.length) availableModels = [""]
 
-        let data = await conn.query(`SELECT * FROM data WHERE model_ID IN (?) AND active = 1 ORDER BY brand ASC, model_ID ASC`, [availableModels])
+        let data = await conn.query(`SELECT * FROM data WHERE model_ID IN (?) ORDER BY brand ASC, model_ID ASC, active DESC`, [availableModels])
         data = data[0]
 
         // Group by product ID
@@ -151,12 +164,25 @@ async function getModels(startIndex) {
             r[a.model_ID] = [...r[a.model_ID] || [], a];
             return r;
         }, {});
+        
+         
+  
+
         for (model_ID of Object.keys(groupedByProductId)) {
-            groupedByProductId[model_ID] = groupedByProductId[model_ID].reduce((r, a) => {
-                r[a.location] = [...r[a.location] || [], a];
-                return r;
-            }, {});
+            // Ensure that at least ONE seller is active, if all sellers are not active, then, delete this key // TODO we can do something else perhaps gray it out here
+
+            let active = groupedByProductId[model_ID].some((element) => Boolean(element.active)) // return true if there is at least one element which is active
+            // if (!active) delete groupedByProductId[model_ID]
+            // else { 
+                groupedByProductId[model_ID] = groupedByProductId[model_ID].reduce((r, a) => {
+                    r[a.location] = [...r[a.location] || [], a];
+                    return r;
+                }, {});
+            // } 
+            
+            
         }
+      
 
         conn.release()
         return {
@@ -178,8 +204,12 @@ async function getSearchModels(startIndex, searchString) {
     let conn = null
     try {
         conn = await pool.getConnection()
+        // Select the inactive models
+        let inactiveModels = await conn.query(`SELECT model_ID, active, COUNT(*) FROM data GROUP BY model_ID HAVING COUNT(*) = 1 AND active = 0`)
+        inactiveModels = inactiveModels[0].map(x => x.model_ID)
+        if (!inactiveModels.length) inactiveModels = [""]
 
-        let modelSearchTerms = await conn.query(`SELECT search_terms, brand, model_ID FROM model_data ORDER BY model_ID`)
+        let modelSearchTerms = await conn.query(`SELECT search_terms, brand, model_ID FROM model_data WHERE model_ID NOT IN (?) ORDER BY model_ID`, [inactiveModels])
         modelSearchTerms = modelSearchTerms[0]
 
         let searchArr = searchString.split(" ")
@@ -205,6 +235,8 @@ async function getSearchModels(startIndex, searchString) {
 
         }
         console.log(searchedModels)
+        if (!searchedModels.length) searchedModels = [""]
+        
         // Extract the required range
         let limitedSearchModels = searchedModels.slice(startIndex, startIndex + 24)
 

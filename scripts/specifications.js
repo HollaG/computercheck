@@ -278,7 +278,7 @@ String.prototype.lowerLize = function () {
                     try {
                         let url = model.model["Courts"][0].link
                         await page.goto(url, {
-                            waitUntil: "networkidle2",
+                            waitUntil: "domcontentloaded",
                             timeout: pageTimeout
                         })
 
@@ -409,8 +409,9 @@ String.prototype.lowerLize = function () {
                     console.log("TRYING BEST ", model.model_ID)
                     let url = model.model["Best Denki"][0].link
                     try {
+                        console.log(url)
                         await page.goto(url, {
-                            waitUntil: "networkidle2",
+                            waitUntil: "domcontentloaded",
                             timeout: pageTimeout
                         })
                         console.log("Loaded page")
@@ -510,7 +511,7 @@ String.prototype.lowerLize = function () {
                     let url = model.model["Harvey Norman"][0].link
                     try {
                         await page.goto(url, {
-                            waitUntil: "networkidle2",
+                            waitUntil: "domcontentloaded",
                             timeout: pageTimeout
                         })
 
@@ -633,6 +634,7 @@ String.prototype.lowerLize = function () {
             return true
         } catch (e) {
             console.log(e)
+            return e
         }
 
 
