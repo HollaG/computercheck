@@ -46,7 +46,7 @@ const CLUSTEROPTS = {
     puppeteer,
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 1,
-    timeout: 2000000000,
+    timeout: 15 * 1000 * 60,
 
     sameDomainDelay: 500,
     workerCreationDelay: 500,
@@ -60,7 +60,7 @@ const CLUSTEROPTS = {
         // '--disable-accelerated-2d-canvas',
         // '--no-first-run',
         // '--no-zygote',
-        '--single-process', // <- this one doesn't works in Windows
+        // '--single-process', // <- this one doesn't works in Windows
         '--disable-gpu',
     // '--no-sandbox'
 ]
