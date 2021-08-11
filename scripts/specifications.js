@@ -17,7 +17,7 @@ const CLUSTEROPTS = {
     puppeteer,
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 1,
-    timeout: 60 * 1000 * 60,
+    timeout: 60 * 1000 * 60 * 24,
 
     sameDomainDelay: 500,
     workerCreationDelay: 500,
