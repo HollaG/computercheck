@@ -43,15 +43,16 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
 
 const CLUSTEROPTS = {
+    puppeteer,
     concurrency: Cluster.CONCURRENCY_CONTEXT,
     maxConcurrency: 4,
     timeout: 150 * 1000,
-    puppeteer,
+    
     sameDomainDelay: 500,
     workerCreationDelay: 500,
     monitor: true,
     puppeteerOptions: {
-        args: ['--no-sandbox']
+        headless
     }
 }
 
@@ -67,10 +68,10 @@ const brands = []
 
 
             await harvey()
-            await challenger()
-            await gain()
-            await courts()
-            await best()
+            // await challenger()
+            // await gain()
+            // await courts()
+            // await best()
 
 
             /* SECTION FOR GAIN CITY */
@@ -163,11 +164,11 @@ const brands = []
                 const harveyPage = await browser.newPage()
 
                 // Go to harvey norman laptop page
-                await harveyPage.goto(links["Harvey Norman"][0], { waitUntil: 'networkidle0', timeout: 0 })
+                await harveyPage.goto(links["Harvey Norman"][0], { waitUntil: 'networkidle2', timeout: 0 })
 
                 // Get the number of pages (Total / 20)
 
-                let html = await harveyPage.$eval(('body'), e => e.innerHTML)
+                
                 
                 let harveyPages = await harveyPage.evaluate(() => Math.ceil(Number(document.querySelector("#pagination_contents > div.toolbar > div > div:nth-child(2) > div > div.pagination-amount.col-xs-4").innerText.split(" ")[0]) / 20))
                 console.log("PUPPEETER: Found pages: " + harveyPages)
@@ -175,9 +176,7 @@ const brands = []
 
                 await harveyPage.close()
 
-                const cluster = await Cluster.launch({
-                    CLUSTEROPTS
-                });
+                const cluster = await Cluster.launch(CLUSTEROPTS);
 
                 await cluster.task(async ({ page, data }) => {
                     try {
@@ -185,7 +184,8 @@ const brands = []
                         console.log(url)
                         let i = data.i
                         console.log("PUPPEETER-CLUSTER: Scraping page " + i + " of " + harveyPages)
-                        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 })
+                        await page.goto(url, { waitUntil: 'networkidle2', timeout: 0 })
+                        
                         let products = await page.evaluate(() => {
                             let items = document.querySelector(".col-xs-12.col-sm-9.col-md-9.omega").querySelectorAll('form')
                             let products = []
@@ -362,9 +362,7 @@ const brands = []
 
                 await bestPage.close()
 
-                const cluster1 = await Cluster.launch({
-                    CLUSTEROPTS
-                });
+                const cluster1 = await Cluster.launch(CLUSTEROPTS);
 
                 await cluster1.task(async ({ page, data }) => {
                     try {
@@ -426,9 +424,7 @@ const brands = []
                 await cluster1.idle()
                 await cluster1.close()
 
-                const cluster2 = await Cluster.launch({
-                    CLUSTEROPTS
-                });
+                const cluster2 = await Cluster.launch(CLUSTEROPTS);
                 await cluster2.task(async ({ page, data }) => {
 
                     try {
@@ -518,9 +514,7 @@ const brands = []
 
                 await courtsPage.close()
 
-                const cluster = await Cluster.launch({
-                    CLUSTEROPTS
-                });
+                const cluster = await Cluster.launch(CLUSTEROPTS);
 
                 await cluster.task(async ({page, data}) => { 
                     try { 

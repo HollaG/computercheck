@@ -36,9 +36,7 @@ String.prototype.lowerLize = function () {
             items = items[0]
             // Sort into models
 
-            const cluster = await Cluster.launch({
-                CLUSTEROPTS
-            })
+            const cluster = await Cluster.launch(CLUSTEROPTS)
 
 
             let sortedModels = items.reduce((r, a) => {
