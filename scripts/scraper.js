@@ -44,8 +44,8 @@ puppeteer.use(StealthPlugin())
 
 const CLUSTEROPTS = {
     puppeteer,
-    concurrency: Cluster.CONCURRENCY_CONTEXT,
-    maxConcurrency: 2,
+    concurrency: Cluster.CONCURRENCY_BROWSER,
+    maxConcurrency: 1,
     timeout: 150 * 1000,
 
     sameDomainDelay: 500,
