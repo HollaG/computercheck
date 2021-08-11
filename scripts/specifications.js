@@ -14,14 +14,28 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
 const pageTimeout = 2 * 1000 * 60
 const CLUSTEROPTS = {
-    concurrency: Cluster.CONCURRENCY_CONTEXT,
-    maxConcurrency: 1,
-    timeout: 30 * 1000 * 60,
     puppeteer,
+    concurrency: Cluster.CONCURRENCY_PAGE,
+    maxConcurrency: 1,
+    timeout: 60 * 1000 * 60,
+
     sameDomainDelay: 500,
     workerCreationDelay: 500,
     monitor: true,
-    
+    puppeteerOptions: {
+        headless,
+        // TOGGLE ARGS FOR PUSH
+        args: [
+            // '--disable-setuid-sandbox',
+            // '--disable-dev-shm-usage',
+            // '--disable-accelerated-2d-canvas',
+            // '--no-first-run',
+            // '--no-zygote',
+            // '--single-process', // <- this one doesn't works in Windows
+            '--disable-gpu',
+            // '--no-sandbox'
+        ]
+    }
 }
 String.prototype.lowerLize = function () {
     return this.charAt(0).toLowerCase() + this.slice(1);

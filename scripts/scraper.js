@@ -57,14 +57,14 @@ const CLUSTEROPTS = {
         // TOGGLE ARGS FOR PUSH
         args: [
             // '--disable-setuid-sandbox',
-        // '--disable-dev-shm-usage',
-        // '--disable-accelerated-2d-canvas',
-        // '--no-first-run',
-        // '--no-zygote',
-        // '--single-process', // <- this one doesn't works in Windows
-        '--disable-gpu',
-    // '--no-sandbox'
-]
+            // '--disable-dev-shm-usage',
+            // '--disable-accelerated-2d-canvas',
+            // '--no-first-run',
+            // '--no-zygote',
+            // '--single-process', // <- this one doesn't works in Windows
+            '--disable-gpu',
+            // '--no-sandbox'
+        ]
     }
 }
 
@@ -192,16 +192,16 @@ const brands = []
                     const cluster = await Cluster.launch(CLUSTEROPTS);
                     cluster.on('taskerror', (err, data, willRetry) => {
                         if (willRetry) {
-                          console.warn(`Encountered an error while crawling ${data}. ${err.message}\nThis job will be retried`);
+                            console.warn(`Encountered an error while crawling ${data}. ${err.message}\nThis job will be retried`);
                         } else {
-                          console.error(`Failed to crawl ${data}: ${err.message}`);
+                            console.error(`Failed to crawl ${data}: ${err.message}`);
                         }
                     });
                     console.log("After launching cluster")
                     await cluster.task(async ({ page, data }) => {
                         try {
                             let url = data.url
-                            
+
                             let i = data.i
                             console.log("PUPPEETER-CLUSTER: Scraping page " + i + " of " + harveyPages)
                             await page.goto(url, { waitUntil: 'networkidle2', timeout: pageTimeout })
@@ -460,7 +460,7 @@ const brands = []
                         console.log("PUPPETEER-CLUSTER (2): Scraping model " + (i + 1) + " of " + BESTPRODUCTS.length)
                         await page.exposeFunction("cleaner", cleaner)
 
-                        await page.goto(url, { waitUntil: "networkidle2", timeout: pageTimeout})
+                        await page.goto(url, { waitUntil: "networkidle2", timeout: pageTimeout })
                         // bestPage.on('console', consoleObj => console.log(consoleObj.text()));
                         let model_ID = await page.evaluate(() => {
                             let elem = document.querySelector('#mCSB_1_container > div > div > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2)')
