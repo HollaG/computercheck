@@ -278,7 +278,8 @@ String.prototype.lowerLize = function () {
                     try {
                         let url = model.model["Courts"][0].link
                         await page.goto(url, {
-                            waitUntil: "networkidle2"
+                            waitUntil: "networkidle2",
+                            timeout: pageTimeout
                         })
 
 
@@ -332,8 +333,10 @@ String.prototype.lowerLize = function () {
                     // Go to gain city home page, enter data into search bar, search
                     try {
                         await page.goto(url, {
-                            waitUntil: 'networkidle2'
+                            waitUntil: "networkidle2",
+                            timeout: pageTimeout
                         })
+
 
                         console.log("Running for model: ", model.model_ID)
                         let specifications = await page.evaluate(async () => {
@@ -407,8 +410,10 @@ String.prototype.lowerLize = function () {
                     let url = model.model["Best Denki"][0].link
                     try {
                         await page.goto(url, {
-                            waitUntil: 'networkidle2'
+                            waitUntil: "networkidle2",
+                            timeout: pageTimeout
                         })
+
 
                         let specifications = await page.evaluate(async () => {
                             try {
@@ -505,8 +510,10 @@ String.prototype.lowerLize = function () {
                     let url = model.model["Harvey Norman"][0].link
                     try {
                         await page.goto(url, {
-                            waitUntil: "networkidle2"
+                            waitUntil: "networkidle2",
+                            timeout: pageTimeout
                         })
+
                         console.log(url)
                         let specifications = await page.evaluate(async (model) => {
                             try {
