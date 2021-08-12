@@ -50,17 +50,27 @@ router.get('/', async function (req, res, next) {
         let screenSizes = await conn.query(`SELECT t.screen_clean, COUNT(*) as total FROM (SELECT IF(screen_size = 0 OR screen_size = -1, 'AAUnknown', screen_size) as screen_clean FROM model_data) t GROUP BY t.screen_clean ORDER BY t.screen_clean ASC`)
         let osTypes = await conn.query(`SELECT t.os_clean, COUNT(*) as total FROM (SELECT IF(os = "" OR os = "-", 'AAUnknown', os) as os_clean FROM model_data) t GROUP BY t.os_clean ORDER BY t.os_clean ASC`)
 
+        let weightTypes = await conn.query(`SELECT t.weight_clean, COUNT(*) as total FROM (SELECT IF(weight = 0 OR weight = -1, 'AAUnknown', weight) as weight_clean FROM model_data) t GROUP BY t.weight_clean ORDER BY t.weight_clean+0 ASC`)
+        weightTypes = weightTypes[0]
+        let maxWeight = Number(weightTypes[weightTypes.length-1].weight_clean)
+        let minWeight = Number(weightTypes[1].weight_clean) // First one is AAUnknown
+
+            
+
         let dataObj = {
             brands: brands[0],
             locations: locations[0],
             processorTypes,
             ramSizes: ramSizes[0],
             screenSizes: screenSizes[0],
-            osTypes: osTypes[0]
-
+            osTypes: osTypes[0],
+            weightTypes,
+            maxWeight, minWeight
         }
 
-        console.log(dataObj)
+        console.log(result.groupedByProductId)
+
+        
         res.render('main', {
             title: 'ComputerCheck: Singapore Laptop Database',
             data: result.groupedByProductId,
@@ -73,7 +83,8 @@ router.get('/', async function (req, res, next) {
             original: req.query.search,
             getRandomName,
             ended,
-            dataObj
+            dataObj,
+            stringify: require("js-stringify")
         });
         conn.release()
     } catch (e) {
@@ -176,11 +187,13 @@ async function getModels(startIndex, loadAll) {
 
         // Select the first 24 models (sorted by alphabetical)
         let modelData = await conn.query(`SELECT *, 
-            IF(processor_company = "-" OR processor_company = "", "pCompany:Unknown", processor_company) as processor_company_clean,
-            IF(processor_model = "-" OR processor_model = "", "pBrand:Unknown", processor_model) as processor_model_clean,
-            IF(ram = 0 OR ram = -1, "ram:Unknown", ram) as ram_clean,
-            IF(screen_size = 0 OR screen_size = -1, "display:Unknown", screen_size) as screen_clean,
-            IF(os = "-" OR os = "", "os:Unknown", os) AS os_clean
+            IF(processor_company = "-" OR processor_company = "", "Unknown", processor_company) as processor_company_clean,
+            IF(processor_model = "-" OR processor_model = "", "Unknown", processor_model) as processor_model_clean,
+            IF(ram = 0 OR ram = -1, "Unknown", ram) as ram_clean,
+            IF(screen_size = 0 OR screen_size = -1, "Unknown", screen_size) as screen_clean,
+            IF(os = "-" OR os = "", "Unknown", os) AS os_clean,
+            IF(weight = 0 OR weight = -1, "Unknown", weight) as weight_clean
+            
             
             FROM model_data WHERE model_ID NOT IN (?) ORDER BY brand ASC, model_ID ASC LIMIT ? OFFSET ?`, [inactiveModels, limit, startIndex])
         modelData = modelData[0]
@@ -236,7 +249,9 @@ async function getModels(startIndex, loadAll) {
         return e
     }
 }
-
+function escapeRegex(string) {
+    return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
 async function getSearchModels(startIndex, searchString, loadAll) {
     let conn = null
     const limit = loadAll ? 1000000 : 24
@@ -247,6 +262,7 @@ async function getSearchModels(startIndex, searchString, loadAll) {
         inactiveModels = inactiveModels[0].map(x => x.model_ID)
         if (!inactiveModels.length) inactiveModels = [""]
 
+        console.log(inactiveModels, 'asdas')
         let modelSearchTerms = await conn.query(`SELECT search_terms, brand, model_ID FROM model_data WHERE model_ID NOT IN (?) ORDER BY model_ID`, [inactiveModels])
         modelSearchTerms = modelSearchTerms[0]
 
@@ -260,7 +276,8 @@ async function getSearchModels(startIndex, searchString, loadAll) {
             let numMatches = 0
             for (let j = 0; j < searchArr.length; j++) {
                 let searchTerm = searchArr[j]
-                let regex = new RegExp(searchTerm.replace(/[#-}]/g, '\\$&'))
+                let regex = new RegExp(escapeRegex(searchTerm))
+                console.log(regex)
                 if (model.search_terms.match(regex)) {
                     numMatches++
                 }
@@ -290,11 +307,12 @@ async function getSearchModels(startIndex, searchString, loadAll) {
 
         // Select the first 24 models (sorted by alphabetical)
         let modelData = await conn.query(`SELECT *, 
-            IF(processor_company = "-" OR processor_company = "", "pCompany:Unknown", processor_company) as processor_company_clean,
-            IF(processor_model = "-" OR processor_model = "", "pBrand:Unknown", processor_model) as processor_model_clean,
-            IF(ram = 0 OR ram = -1, "ram:Unknown", ram) as ram_clean,
-            IF(screen_size = 0 OR screen_size = -1, "display:Unknown", screen_size) as screen_clean,
-            IF(os = "-" OR os = "", "os:Unknown", os) AS os_clean
+            IF(processor_company = "-" OR processor_company = "", "Unknown", processor_company) as processor_company_clean,
+            IF(processor_model = "-" OR processor_model = "", "Unknown", processor_model) as processor_model_clean,
+            IF(ram = 0 OR ram = -1, "Unknown", ram) as ram_clean,
+            IF(screen_size = 0 OR screen_size = -1, "Unknown", screen_size) as screen_clean,
+            IF(os = "-" OR os = "", "", os) AS os_clean,
+            IF(weight = 0 OR weight = -1, "Unknown", weight) as weight_clean
             
             FROM model_data WHERE model_ID IN (?) ORDER BY brand ASC, model_ID`, [limitedSearchModels])
         modelData = modelData[0]

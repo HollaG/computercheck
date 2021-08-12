@@ -27,56 +27,75 @@ block content
                     h4 #{numberOfModels} search results for '#{original}'
                 else
                     h4 #{numberOfModels} results
-                button.btn.btn-primary(onclick="toggleExpand(this)") Expand all
+                button.btn.btn-primary.text-nowrap(onclick="toggleExpand(this)") Expand all
             .d-flex.align-items-center.flex-wrap
-                //- button.me-4.btn.btn-light.px-3(data-mdb-ripple-color="dark") 
-                //-     i(class="fas fa-filter")
-                //-     p.fw-bold.d-inline-block.my-0.ms-2.me-0 Filters
-                .me-3.select-container.shadow-sm.bg-body.my-2         
+                button.text-nowrap.me-4.btn.btn-light.px-3.my-2#toggle-filters-btn(data-mdb-ripple-color="dark" onclick='showFilters()') 
+                    i(class="fas fa-filter")
+                    p.fw-bold.d-inline-block.my-0.ms-2.me-0 Filters
+                //- button.btn-light.btn.btn-sm Single mode
+                .me-3.select-container.shadow-sm.my-2(style='display:none')        
                     select#select-brand
                         each brand in dataObj.brands
-                            option(value=brand.brand) #{brand.brand} (#{brand.total})
+                            option(value=`brand:${brand.brand}`) #{brand.brand} (#{brand.total})
 
-                .me-3.select-container.shadow-sm.bg-body.my-2                              
+                .me-3.select-container.shadow-sm.my-2(style='display:none')                                
                     select#select-location
                         each location in dataObj.locations
-                            option(value=location.location) #{location.location} (#{location.total})
+                            option(value=`location:${location.location}`) #{location.location} (#{location.total})
 
-                .me-3.select-container.shadow-sm.bg-body.my-2                            
+                .me-3.select-container.shadow-sm.my-2(style='display:none')                              
                     select#select-p-brand   
                         each models, pbrand in dataObj.processorTypes
+                            if (pbrand == "Unknown")
+                                option(value="processor_model:Unknown") Unknown (#{models[0].total})
+                                - delete dataObj.processorTypes[pbrand]
+                                - break
+                        each models, pbrand in dataObj.processorTypes                        
                             optgroup(label=pbrand)
                                 each model in models     
-                                    if (model.processor_model_clean == "AAUnknown")
-                                        option(value="pBrand:Unknown") Unknown (#{model.total})
-                                    else
-                                        option(value=model.processor_model_clean) #{model.processor_model_clean} (#{model.total})
+                                        option(value=`processor_model:${model.processor_model_clean}`) #{model.processor_model_clean}
 
                         
 
-                .me-3.select-container.shadow-sm.bg-body.my-2                            
-                    select#select-ram                      
+                .me-3.select-container.shadow-sm.my-2(style='display:none')                              
+                    select#select-ram
+                        
                         each ramSize in dataObj.ramSizes   
                             if (ramSize.ram_clean == "AAUnknown")
-                                option(value="ram:UnknownGB") Unknown (#{ramSize.total})
-                            else                         
-                                option(value=`${ramSize.ram_clean}GB`) #{ramSize.ram_clean} GB (#{ramSize.total})        
+                                option(value="ram:Unknown") Unknown (#{ramSize.total})  
+                                - dataObj.ramSizes.splice(dataObj.ramSizes.indexOf(ramSize), 1)   
+                                - break
+                                                        
+                        each ramSize in dataObj.ramSizes                          
+                            option(value=`ram:${ramSize.ram_clean}`) #{ramSize.ram_clean} GB 
                 
-                .me-3.select-container.shadow-sm.bg-body.my-2                            
+                .me-3.select-container.shadow-sm.my-2(style='display:none')                              
                     select#select-display                      
                         each screenSize in dataObj.screenSizes
                             if (screenSize.screen_clean == "AAUnknown")
-                                option(value="display:Unknowninch") Unknown (#{screenSize.total})
-                            else
-                                option(value=`${screenSize.screen_clean}inch`) #{screenSize.screen_clean} inch (#{screenSize.total})     
-                .me-3.select-container.shadow-sm.bg-body.my-2                            
+                                option(value="screen_size:Unknown") Unknown (#{screenSize.total})
+                                - dataObj.screenSizes.splice(dataObj.screenSizes.indexOf(screenSize), 1)   
+                                - break
+                        each screenSize in dataObj.screenSizes
+                            option(value=`screen_size:${screenSize.screen_clean}`) #{screenSize.screen_clean} inch
+                .me-3.select-container.shadow-sm.my-2(style='display:none')                              
                     select#select-os                      
                         each os in dataObj.osTypes
                             if (os.os_clean == "AAUnknown")
                                 option(value="os:Unknown") Unknown (#{os.total})
-                            else
-                                option(value=os.os_clean) #{os.os_clean} (#{os.total})  
-                          
+                                - dataObj.osTypes.splice(dataObj.osTypes.indexOf(os), 1)
+                                - break
+                        each os in dataObj.osTypes    
+                            option(value=`os:${os.os_clean}`) #{os.os_clean}
+                    
+                .me-3.select-container.shadow-sm.my-2.select-weight-container(style='display:none')
+                    .d-flex.align-items-center.me-2.flex-wrap
+                        p.m-1.ms-2.font-small.align-middle#select-weight-text Weight: #{dataObj.minWeight}g - #{dataObj.maxWeight}g
+                        .weight-container.ms-2
+                            #select-weight
+                        .form-check.font-small.d-flex.align-items-center#weight-unknown-container.ms-2
+                            input.form-check-input#weight-unknown(type='checkbox' value="" checked onchange="filter()")
+                            label.form-check-label.align-middle#weight-unknown-label(for='weight-unknown') Show unknown
                 
         .d-flex.flex-wrap.mt-3#item-container
             - let counter = 0
@@ -85,7 +104,24 @@ block content
                 - if (!modelData[model_ID]) modelData[model_ID] = [{}]
                 - let model = modelData[model_ID][0]
                 .col-12.col-xl-3.col-lg-4.col-md-6
-                    .card.m-2.product(data-terms=`${model.brand} ${model.processor_company} ${model.processor_model_clean} ${model.ram_clean}GB ${model.screen_clean}inch ${model.os_clean}`)
+                    -
+                        let locations = []
+                        for (location of Object.keys(products)) { 
+                            locations.push(location)
+                        }
+
+                        let filters = {
+                            brand: model.brand,                            
+                            processor_company: model.processor_company_clean,
+                            processor_model: model.processor_model_clean,
+                            ram: model.ram_clean,
+                            screen_size: model.screen_clean,
+                            os: model.os_clean,
+                            locations,
+                            weight: model.weight_clean
+                        }
+                        console.log(filters)
+                    .card.m-2.product(data-terms=JSON.stringify(filters))
                         img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}`)
                         .card-body.parent-relative-apply.d-flex.flex-column.pb-0
                             p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}
@@ -192,6 +228,14 @@ block content
                                                 let osText = model.os
                                                 if (model.os == "-" || !model.os) osText = "Unknown"
                                             p.small-text=osText
+                                    .row
+                                        .col-5
+                                            p.small-text.fw-bold Weight
+                                        .col-7
+                                            -
+                                                let weightText = model.weight_clean == "Unknown" ? "Unknown" : `${Number(model.weight_clean) > 1000 ? `${Number(model.weight_clean)/1000}kg` : `${model.weight_clean}g`}`
+                                            p.small-text #{weightText}
+                                                
                                 .row.mb-1
                                     .container.text-center
                                         a.view-more-btn(id=`button-${counter}` role='button' data-bs-toggle="collapse" data-bs-target=`#collapse-${counter}` aria-expanded="false" onclick='toggleView(this)') 
@@ -210,12 +254,44 @@ block content
     script(src="/javascripts/search.js")
     script(src="/javascripts/main.js")
     script.
-
+        
+        let dataObj = !{stringify(dataObj)}
         if (location.href.match("search")) document.getElementById('item-container').scrollIntoView()    
 
+        let range = document.querySelector("#select-weight")
         
+        let weightSlider = noUiSlider.create(range, {
+            range: {
+                'min': dataObj.minWeight,
+                'max': dataObj.maxWeight
+            },
+            step: 1,
+            //- pips: {
+            //-     mode: 'steps',
+            //-     stepped: true,
+            //-     density: 1
+            //- },
+            start: [dataObj.minWeight, dataObj.maxWeight],
+            connect: true,
+            behaviour: 'tap-drag',
+            tooltips: true,
+            format: {
+                to: function(value) { 
+                    return value
+                },
+                from: function(value) { 
+                    return Number(value)
+                }
+            }
+            
+        })
 
-
+        
+        weightSlider.on('end', function(values, handle) { 
+            console.log(values, handle)
+            document.getElementById('select-weight-text').innerHTML = `Weight: ${values.join("g - ")}g`
+            filter(null, values)
+        })
         
 
         const observer = lozad(); // lazy loads elements with default selector as '.lozad'

@@ -1,3 +1,4 @@
+console.log("----------------- EXECUTING FILE: sorter.js -----------------")
 
 const fs = require("fs-extra")
 const mysql = require("mysql2/promise")
@@ -13,7 +14,7 @@ const headless = true
 
     ; (async () => {
         try {
-
+            
 
 
             const dictionary = await fs.readJSON(`${process.cwd()}/data/dictionary.json`)
@@ -645,5 +646,8 @@ const headless = true
             }
         } catch (e) {
             console.log(e)
+            return false
         }
     })();
+console.log("----------------- COMPLETED EXECUTING FILE: sorter.js -----------------")
+require('specifications.js')

@@ -4,7 +4,22 @@ each products, model_ID in data
     - if (!modelData[model_ID]) modelData[model_ID] = [{}]
     - let model = modelData[model_ID][0]
     .col-12.col-xl-3.col-lg-4.col-md-6
-        .card.m-2.product(data-terms=`${model.brand} ${model.processor_company} ${model.processor_model_clean} ${model.ram_clean}GB ${model.screen_clean}inch ${model.os_clean}`)
+        -
+            let locations = []
+            for (location of Object.keys(products)) { 
+                locations.push(location)
+            }
+            let filters = {
+                brand: model.brand,                            
+                processor_company: model.processor_company_clean,
+                processor_model: model.processor_model_clean,
+                ram: model.ram_clean,
+                screen_size: model.screen_clean,
+                os: model.os_clean,
+                locations,
+                weight: model.weight_clean
+            }
+        .card.m-2.product(data-terms=filters)
             img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}`)
             .card-body.parent-relative-apply.d-flex.flex-column.pb-0
                 p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}
@@ -109,6 +124,13 @@ each products, model_ID in data
                                     let osText = model.os
                                     if (model.os == "-" || !model.os) osText = "Unknown"
                                 p.small-text=osText
+                        .row
+                            .col-5
+                                p.small-text.fw-bold Weight
+                            .col-7
+                                -
+                                    let weightText = model.weight_clean == "Unknown" ? "Unknown" : `${Number(model.weight_clean) > 1000 ? `${Number(model.weight_clean)/1000}kg` : `${model.weight_clean}g`}`
+                                p.small-text #{weightText}
                     .row.mb-1
                         .container.text-center
                             a.view-more-btn(id=`button-${counter}` role='button' data-bs-toggle="collapse" data-bs-target=`#collapse-${counter}` aria-expanded="false" onclick='toggleView(this)') 

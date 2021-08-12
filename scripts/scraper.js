@@ -1,3 +1,5 @@
+console.log("----------------- EXECUTING FILE: scraper.js -----------------")
+
 const puppeteer = require("puppeteer-extra")
 const { Cluster } = require('puppeteer-cluster');
 const fs = require('fs-extra')
@@ -747,3 +749,5 @@ function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+console.log("----------------- COMPLETED EXECUTING FILE: scraper.js -----------------")
+require("sorter.js")
