@@ -44,7 +44,7 @@ const headless = true
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
 
-const pageTimeout = 2 * 1000 * 60
+const pageTimeout = 5 * 1000 * 60
 const CLUSTEROPTS = {
     puppeteer,
     concurrency: Cluster.CONCURRENCY_PAGE,
@@ -179,7 +179,7 @@ const brands = []
                     const harveyPage = await browser.newPage()
 
                     // Go to harvey norman laptop page
-                    await harveyPage.goto(links["Harvey Norman"][0], { waitUntil: 'networkidle2', timeout: pageTimeout })
+                    await harveyPage.goto(links["Harvey Norman"][0], { waitUntil: 'domcontentloaded', timeout: pageTimeout })
 
                     // Get the number of pages (Total / 20)
 
