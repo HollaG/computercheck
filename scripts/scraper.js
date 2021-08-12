@@ -738,7 +738,9 @@ const brands = []
 
 
             }
+            console.log("----------------- COMPLETED EXECUTING FILE: scraper.js -----------------")
 
+            require(`${__dirname}/sorter.js`)
         } catch (e) {
             console.log(e)
         }
@@ -749,5 +751,3 @@ function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-console.log("----------------- COMPLETED EXECUTING FILE: scraper.js -----------------")
-require("sorter.js")

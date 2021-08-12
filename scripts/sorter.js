@@ -429,6 +429,8 @@ const headless = true
             console.log("Ended script at " + endTime)
             console.log("Time taken: " + (endTime - startTime))
 
+            console.log("----------------- COMPLETED EXECUTING FILE: sorter.js -----------------")
+            require(`${process.cwd()}/scripts/specifications.js`)
             return true
 
 
@@ -649,5 +651,4 @@ const headless = true
             return false
         }
     })();
-console.log("----------------- COMPLETED EXECUTING FILE: sorter.js -----------------")
-require('specifications.js')
+
