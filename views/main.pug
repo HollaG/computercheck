@@ -97,6 +97,13 @@ block content
                             input.form-check-input#weight-unknown(type='checkbox' value="" checked onchange="filter()")
                             label.form-check-label.align-middle#weight-unknown-label(for='weight-unknown') Show unknown
                 
+                //- .me-3.select-container  
+                    //- button.btn.btn-light.btn-sm 
+                    //-     i(class="fas fa-clipboard")
+                    //-     p.fw-bold Copy share link
+                button.text-nowrap.btn-sm.btn.btn-light.px-3.my-2#copy-filters-btn(data-mdb-ripple-color="dark" onclick='copyFilters()' style="display:none") 
+                    i(class="fas fa-clipboard")
+                    p.fw-bold.d-inline-block.my-0.ms-2.me-0 Copy link
         .d-flex.flex-wrap.mt-3#item-container
             - let counter = 0
             each products, model_ID in data
@@ -251,50 +258,17 @@ block content
                 button.btn.btn-primary#load-more-btn(onclick='loadMore()') Load more
                 button.ms-2.btn.btn-primary#load-all-btn(onclick='loadMore("all")') Load all
                 p.fst-italic#loaded-text(style='display:none') All items loaded.
-    script(src="/javascripts/search.js")
-    script(src="/javascripts/main.js")
+    
     script.
         
         let dataObj = !{stringify(dataObj)}
         if (location.href.match("search")) document.getElementById('item-container').scrollIntoView()    
 
-        let range = document.querySelector("#select-weight")
         
-        let weightSlider = noUiSlider.create(range, {
-            range: {
-                'min': dataObj.minWeight,
-                'max': dataObj.maxWeight
-            },
-            step: 1,
-            //- pips: {
-            //-     mode: 'steps',
-            //-     stepped: true,
-            //-     density: 1
-            //- },
-            start: [dataObj.minWeight, dataObj.maxWeight],
-            connect: true,
-            behaviour: 'tap-drag',
-            tooltips: true,
-            format: {
-                to: function(value) { 
-                    return value
-                },
-                from: function(value) { 
-                    return Number(value)
-                }
-            }
-            
-        })
-
-        
-        weightSlider.on('end', function(values, handle) { 
-            console.log(values, handle)
-            document.getElementById('select-weight-text').innerHTML = `Weight: ${values.join("g - ")}g`
-            filter(null, values)
-        })
         
 
         const observer = lozad(); // lazy loads elements with default selector as '.lozad'
         observer.observe();
 
-        
+    script(src="/javascripts/search.js")
+    script(src="/javascripts/main.js")
