@@ -269,10 +269,14 @@ weightSlider.on('end', function (values, handle) {
     filter(null, values)
 })
 
-if (filterObjFromURL.weight) weightSlider.set(filterObjFromURL.weight)
+if (filterObjFromURL.weight) {
+    weightSlider.set(filterObjFromURL.weight)
+    filter(null, filterObjFromURL.weight)
+}
 
 if (!filterObjFromURL.showUnknownWeight) {
     document.querySelector("#weight-unknown").checked = false
+    filter()
 
 }
 
