@@ -55,8 +55,11 @@ router.get('/', async function (req, res, next) {
         let maxWeight = Number(weightTypes[weightTypes.length-1].weight_clean)
         let minWeight = Number(weightTypes[1].weight_clean) // First one is AAUnknown
 
-            
+        let prices = await conn.query(`SELECT MAX(price) as max, MIN(price) as min FROM data WHERE active = 1`)
+        let maxPrice = Number(prices[0][0].max)
+        let minPrice = Number(prices[0][0].min)
 
+        
         let dataObj = {
             brands: brands[0],
             locations: locations[0],
@@ -65,7 +68,8 @@ router.get('/', async function (req, res, next) {
             screenSizes: screenSizes[0],
             osTypes: osTypes[0],
             weightTypes,
-            maxWeight, minWeight
+            maxWeight, minWeight,
+            maxPrice, minPrice
         }
 
         console.log(result.groupedByProductId)

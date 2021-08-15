@@ -13,7 +13,7 @@ let shown = false
 let queryString = window.location.search
 let urlParams = new URLSearchParams(queryString)
 let filterObjFromURL = urlParams.get("filters")
-console.log(filterObjFromURL)
+
 if (filterObjFromURL) {
     filterObjFromURL = JSON.parse(filterObjFromURL)
     filter()
@@ -24,17 +24,20 @@ if (filterObjFromURL) {
 
 
 
-function filter(option, sliderOption) {
+function filter(option, sliderOption, sliderOptionPrice) {
 
     if (sliderOption) {
         // slider was slid
         filterObj["weight"] = sliderOption
     }
+    if (sliderOptionPrice) {
+        filterObj["price"] = sliderOptionPrice
+    }
 
     if (option) {
         let filterType = option.getAttribute("value").split(":")[0]
         let filterValue = option.getAttribute("value").split(":")[1]
-        console.log(filterType, filterValue)
+        
         if (option.getAttribute("selected") === "") {
             // this option was selected
             filters.push(option.getAttribute("value"))
@@ -58,7 +61,7 @@ function filter(option, sliderOption) {
         }
     }
 
-    console.log(filterObj)
+    
 
     // Get all elements
     let cardsLoaded = document.querySelectorAll(".product")
@@ -77,52 +80,51 @@ function filter(option, sliderOption) {
 
             let termsObj = JSON.parse(terms)
 
-            console.log(termsObj)
-            let matchedAll = true
+           
+            let matchedAll = true // If matchedAll is set to false, this item will be hidden (cos it failed one filter check)
 
             for (filterType of Object.keys(filterObj)) {
 
-                // Special case for location, 
-                if (filterType == "location") {
-                    // Check if the termsObj['location'] array 
-                    matchedAll = findCommonElements(filterObj['location'], termsObj['locations'])
-                    if (!matchedAll) break
-                } else if (filterType == "weight") {
-                    // Special case for weight  
-                    // See if termsObj['weight'] falls between the filterObj[filterType][0] and [1]
-                    console.log(termsObj[filterType])
-
-                    
-                    console.log(showUnknown)
-
-
-                    if (showUnknown && termsObj[filterType] == "Unknown") {
-
-                    } else if (termsObj[filterType] == "Unknown" || Number(termsObj[filterType]) < filterObj[filterType][0] || Number(termsObj[filterType]) > filterObj[filterType][1]) {
-                        // Either the weight was unknown, or the weight was less than min weight, or weight was more than minweight
-                        matchedAll = false
+                let endLoop = false
+                switch (filterType) { 
+                    case "location":
+                        matchedAll = findCommonElements(filterObj['location'], termsObj['locations'])                        
                         break;
-                    }
+                    case "weight": 
+                        if (showUnknown && termsObj[filterType] == "Unknown") {
 
+                        } else if (termsObj[filterType] == "Unknown" || Number(termsObj[filterType]) < filterObj[filterType][0] || Number(termsObj[filterType]) > filterObj[filterType][1]) {
+                            // Either the weight was unknown, or the weight was less than min weight, or weight was more than minweight
+                            matchedAll = false
+                            
+                        }
+                        break;
+                    case "showUnknownWeight":
+                        
+                        break;
+                    case "price":
+                        if (Number(termsObj[filterType]) < filterObj[filterType][0] || Number(termsObj[filterType]) > filterObj[filterType][1]) matchedAll = false
+                        break;
+                    default:
+                        if (!filterObj[filterType].includes(termsObj[filterType])) {
 
-
-                } else if (filterType == "showUnknownWeight"){ 
-                    // Ignore
-                } else if (!filterObj[filterType].includes(termsObj[filterType])) {
-
-                    // For the selected filter (e.g. BRAND filter for 'acer'), this product is an acer
-
-                    // termsObj[filterType] --> termsObj["brand"] == 'ACER' (A)
-                    // filterObj[filterType] --> filterObj["brand"] == ['ACER', 'LENOVO'] (B)
-                    // Array (B) includes String (A) --> Match
-
-                    // All filterTypes MUST match at least once to return true. If one match fails, then we have to hide this product
-
-                    // If we've gotten onto this block, it means that this item should be hidden
-
-                    matchedAll = false
-                    break;
+                            // For the selected filter (e.g. BRAND filter for 'acer'), this product is an acer
+        
+                            // termsObj[filterType] --> termsObj["brand"] == 'ACER' (A)
+                            // filterObj[filterType] --> filterObj["brand"] == ['ACER', 'LENOVO'] (B)
+                            // Array (B) includes String (A) --> Match
+        
+                            // All filterTypes MUST match at least once to return true. If one match fails, then we have to hide this product
+        
+                            // If we've gotten onto this block, it means that this item should be hidden
+        
+                            matchedAll = false
+                            break;
+                        }
                 }
+                if (!matchedAll) endLoop = true
+
+
             }
 
             if (matchedAll) {
@@ -132,27 +134,6 @@ function filter(option, sliderOption) {
 
             }
 
-
-
-            continue
-
-            let isMatch = false
-            for (filter_sel of filters) {
-                if (terms.includes(filter_sel)) {
-                    isMatch = true
-                    break;
-
-                }
-            }
-            if (isMatch) {
-                // show
-                card.parentElement.style.display = "block"
-
-            } else {
-                // hide
-                card.parentElement.style.display = "none"
-
-            }
         }
 
 
@@ -177,11 +158,16 @@ function showFilters() {
         if (!filterObj["weight"]) {
             document.querySelector(".select-weight-container").style.display = "none"
         }
+        if (!filterObj["price"]) { 
+            document.querySelector(".select-price-container").style.display = "none"
+
+        }
         shown = false
     } else {
         document.querySelectorAll(".selectr-container").forEach(e => e.parentElement.style.display = "block")
         document.querySelector("#toggle-filters-btn").classList.add("active")
         document.querySelector("#copy-filters-btn").style.display = "block"
+        document.querySelector(".select-price-container").style.display = "block"
 
         document.querySelector(".select-weight-container").style.display = "block"
         shown = true
@@ -189,12 +175,25 @@ function showFilters() {
 }
 
 function copyFilters() {
+
+
     let text = window.location.origin
 
     if (urlParams.get("search")) text = text + `?search=${urlParams.get("search")}&filters=${JSON.stringify(filterObj)}`
     else text = text + `?filters=${JSON.stringify(filterObj)}`
 
     copyTextToClipboard(text)
+
+    document.querySelector("#copy-link-check").style.display = "inline-block"
+    document.querySelector("#copy-link-clip").style.display = "none"
+    document.querySelector("#copy-link-text").innerHTML = "Link copied!"
+    setTimeout(function() {
+        document.querySelector("#copy-link-clip").style.display = "inline-block"
+        document.querySelector("#copy-link-check").style.display = "none"
+
+        document.querySelector("#copy-link-text").innerHTML = "Copy link"
+    }, 1000)
+
 }
 
 
@@ -234,9 +233,12 @@ sOs.on("selectr.select", filter)
 sOs.on("selectr.deselect", filter)
 if (filterObjFromURL.os) sOs.setValue(filterObjFromURL.os.map(x => `os:${x}`))
 
-let range = document.querySelector("#select-weight")
 
-let weightSlider = noUiSlider.create(range, {
+
+// Weight slider handler
+let weightRange = document.querySelector("#select-weight")
+
+let weightSlider = noUiSlider.create(weightRange, {
     range: {
         'min': dataObj.minWeight,
         'max': dataObj.maxWeight
@@ -262,22 +264,64 @@ let weightSlider = noUiSlider.create(range, {
 
 })
 
-
 weightSlider.on('end', function (values, handle) {
-    console.log(values, handle)
+    
     document.getElementById('select-weight-text').innerHTML = `Weight: ${values.join("g - ")}g`
     filter(null, values)
 })
 
 if (filterObjFromURL.weight) {
     weightSlider.set(filterObjFromURL.weight)
+    document.getElementById('select-weight-text').innerHTML = `Weight: ${filterObjFromURL.weight.join("g - ")}g`
     filter(null, filterObjFromURL.weight)
 }
 
-if (!filterObjFromURL.showUnknownWeight) {
-    document.querySelector("#weight-unknown").checked = false
+if (filterObjFromURL.showUnknownWeight) {
+    document.querySelector("#weight-unknown").checked = true
     filter()
 
+}
+
+// Price slider handler
+let priceRange = document.querySelector("#select-price")
+
+let priceSlider = noUiSlider.create(priceRange, {
+    range: {
+        'min': dataObj.minPrice,
+        'max': dataObj.maxPrice
+    },
+    step: 1,
+    //- pips: {
+    //-     mode: 'steps',
+    //-     stepped: true,
+    //-     density: 1
+    //- },
+    start: [dataObj.minPrice, dataObj.maxPrice],
+    connect: true,
+    behaviour: 'tap-drag',
+    tooltips: true,
+    format: {
+        to: function (value) {
+            return Math.round(value * 100) / 100
+        },
+        from: function (value) {
+            return Math.round(value * 100) / 100
+        }
+    }
+
+})
+
+priceSlider.on('end', function (values, handle) {
+    
+    document.getElementById('select-price-text').innerHTML = `Price: $${values.join(" - $")}`
+    filter(null, null, values)
+})
+
+
+if (filterObjFromURL.price) {
+    priceSlider.set(filterObjFromURL.price)
+    document.getElementById('select-price-text').innerHTML = `Price: $${filterObjFromURL.price.join(" - $")}`
+    filter(null, null, filterObjFromURL.price)
 }
 
 function findCommonElements(arr1, arr2) {
@@ -314,9 +358,10 @@ function copyTextToClipboard(text) {
     }
     navigator.clipboard.writeText(text).then(function () {
         console.log('Async: Copying to clipboard was successful!');
+        
     }, function (err) {
         console.error('Async: Could not copy text: ', err);
     });
 }
 
-if (filterObjFromURL) showFilters()
+if (Object.keys(filterObjFromURL).length) showFilters()

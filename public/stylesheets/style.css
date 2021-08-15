@@ -212,7 +212,7 @@ img[data-loaded="true"], [data-loaded="true"] img { animation-name: showLazyImg;
   padding: 3px 15px !important;
 }
 
-#select-weight { 
+#select-weight, #select-price { 
   width: 200px;
   -webkit-transform: scale(0.65);
   -moz-transform: scale(0.65);
@@ -221,10 +221,10 @@ img[data-loaded="true"], [data-loaded="true"] img { animation-name: showLazyImg;
   transform: scale(0.65);
   left: -30px;
 }
-.weight-container { 
+.weight-container, .price-container { 
   width: 160px;
 }
-#select-weight-text {
+#select-weight-text, #select-price-text {
   width: 125px;
   color: #6c7a86;
 }
@@ -243,11 +243,11 @@ img[data-loaded="true"], [data-loaded="true"] img { animation-name: showLazyImg;
   background: var(--bs-primary)
 }
 
-.select-weight-container { 
+.select-weight-container, .select-price-container { 
   background-color: #fbfbfb;
 }
 
-#weight-unknown { 
+#weight-unknown, #price-unknown { 
   -webkit-transform: scale(0.8);
   -moz-transform: scale(0.8);
   -o-transform: scale(0.8);
@@ -255,7 +255,7 @@ img[data-loaded="true"], [data-loaded="true"] img { animation-name: showLazyImg;
   transform: scale(0.8);
 }
 
-#weight-unknown-label { 
+#weight-unknown-label, #weight-unknown-label { 
   color: #6c7a86;
 }
 #weight-unknown-container { 

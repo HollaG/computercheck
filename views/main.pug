@@ -27,7 +27,13 @@ block content
                     h4 #{numberOfModels} search results for '#{original}'
                 else
                     h4 #{numberOfModels} results
-                button.btn.btn-primary.text-nowrap(onclick="toggleExpand(this)") Expand all
+                    
+                //- button.btn.btn-primary.text-nowrap(onclick="toggleExpand(this)") Expand all
+                button.btn.btn-primary#load-all-btn.text-nowrap.px-3(onclick='loadMore("all")')
+                    i.me-2.plus-icon(class="fas fa-plus")
+                    i.me-2.spinner-icon(class="fas fa-spinner fa-pulse" style='display:none')
+
+                    p.d-inline Load all
             .d-flex.align-items-center.flex-wrap
                 button.text-nowrap.me-4.btn.btn-light.px-3.my-2#toggle-filters-btn(data-mdb-ripple-color="dark" onclick='showFilters()') 
                     i(class="fas fa-filter")
@@ -95,15 +101,23 @@ block content
                             #select-weight
                         .form-check.font-small.d-flex.align-items-center#weight-unknown-container.ms-2
                             input.form-check-input#weight-unknown(type='checkbox' value="" checked onchange="filter()")
-                            label.form-check-label.align-middle#weight-unknown-label(for='weight-unknown') Show unknown
-                
+                            label.form-check-label.align-middle#weight-unknown-label(for='weight-unknown') Show unknown weights
+
+                .me-3.select-container.shadow-sm.my-2.select-price-container(style='display:none')
+                    .d-flex.align-items-center.me-2.flex-wrap
+                        p.m-1.ms-2.font-small.align-middle#select-price-text Price: $#{dataObj.minPrice} - $#{dataObj.maxPrice}
+                        .price-container.ms-2
+                            #select-price
+                        
+                            
                 //- .me-3.select-container  
                     //- button.btn.btn-light.btn-sm 
                     //-     i(class="fas fa-clipboard")
                     //-     p.fw-bold Copy share link
-                button.text-nowrap.btn-sm.btn.btn-light.px-3.my-2#copy-filters-btn(data-mdb-ripple-color="dark" onclick='copyFilters()' style="display:none") 
-                    i(class="fas fa-clipboard")
-                    p.fw-bold.d-inline-block.my-0.ms-2.me-0 Copy link
+                button.text-nowrap.btn-sm.btn.btn-light.px-3.my-2#copy-filters-btn.shadow-sm(data-mdb-ripple-color="dark" onclick='copyFilters()' style="display:none") 
+                    i#copy-link-clip(class="fas fa-clipboard")
+                    i#copy-link-check(class="fas fa-check" style='display:none') 
+                    p.fw-bold.d-inline-block.my-0.ms-2.me-0#copy-link-text Copy link
         .d-flex.flex-wrap.mt-3#item-container
             - let counter = 0
             each products, model_ID in data
@@ -113,9 +127,12 @@ block content
                 .col-12.col-xl-3.col-lg-4.col-md-6
                     -
                         let locations = []
+                        let totalprice = []
                         for (location of Object.keys(products)) { 
                             locations.push(location)
+                            for (product of products[location]) totalprice.push(Number(product.price))
                         }
+                        let avgPrice = Math.round((totalprice.reduce((a, b) => a + b, 0)) / totalprice.length)
 
                         let filters = {
                             brand: model.brand,                            
@@ -125,9 +142,10 @@ block content
                             screen_size: model.screen_clean,
                             os: model.os_clean,
                             locations,
-                            weight: model.weight_clean
+                            weight: model.weight_clean,
+                            price: avgPrice
                         }
-                        console.log(filters)
+                        
                     .card.m-2.product(data-terms=JSON.stringify(filters))
                         img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}`)
                         .card-body.parent-relative-apply.d-flex.flex-column.pb-0
@@ -246,7 +264,7 @@ block content
                                 .row.mb-1
                                     .container.text-center
                                         a.view-more-btn(id=`button-${counter}` role='button' data-bs-toggle="collapse" data-bs-target=`#collapse-${counter}` aria-expanded="false" onclick='toggleView(this)') 
-                                            p.d-inline-block.me-1 View more
+                                            p.d-inline-block.me-1 View more specs
                                             i.unflipped(class="fas fa-angle-down")
 
 
@@ -255,8 +273,11 @@ block content
             if (ended)
                 //- p.fst-italic#loaded-text All items loaded.
             else 
-                button.btn.btn-primary#load-more-btn(onclick='loadMore()') Load more
-                button.ms-2.btn.btn-primary#load-all-btn(onclick='loadMore("all")') Load all
+                button.btn.btn-primary#load-more-btn.px-3(onclick='loadMore()') 
+                    i.me-2.plus-icon(class="fas fa-plus")
+                    i.me-2.spinner-icon(class="fas fa-spinner fa-pulse" style='display:none')
+                    p.d-inline Load more
+                
                 p.fst-italic#loaded-text(style='display:none') All items loaded.
     
     script.

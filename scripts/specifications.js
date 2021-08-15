@@ -228,13 +228,27 @@ String.prototype.lowerLize = function () {
                     text = text.replace(/ /g, " ")
 
                     // Check for Nvidia
-                    if (text.match(/([GR]TX\s?\d\d\d\d(\s?ti)?(\s?super)?(\s?mobile)?(\s?max-?q)?)|MX\d\d\d/mi)) return `NVIDIA ${text.match(/([GR]TX\s?\d\d\d\d(\s?ti)?(\s?super)?(\s?mobile)?(\s?max-?q)?)|MX\d\d\d/mi)[0].toUpperCase()}`
+                    if (text.match(/([GR]TX\s?\d\d\d\d(\s?ti)?(\s?super)?(\s?mobile)?(\s?max-?q)?)|MX\d\d\d/mi)) return `${text.match(/([GR]TX\s?\d\d\d\d(\s?ti)?(\s?super)?(\s?mobile)?(\s?max-?q)?)|MX\d\d\d/mi)[0].toUpperCase().replace(/nvidia/i, "")}`
 
                     // Check for AMD
-                    if (text.match(/(RX\s?\d\d\d\dM?)|(RX\s?\d\d\dx?)|(RX\s?vega\s?.?)/mi)) return `AMD ${text.match(/(RX\s?\d\d\d\dM?)|(RX\s?\d\d\dx?)|(RX\s?vega\s?.?)/mi)[0]}`
+                    if (text.match(/(RX\s?\d\d\d\dM?)|(RX\s?\d\d\dx?)|(RX\s?vega\s?.?)/mi)) return `${text.match(/(RX\s?\d\d\d\dM?)|(RX\s?\d\d\dx?)|(RX\s?vega\s?.?)/mi)[0].replace(/amd/i, "").toUpperCase()}`
 
-                    if (text.match(/(iris)|(intel)|(XE)/mi)) return text
+                    if (text.match(/(iris)|(intel)|(XE)/mi)) return text.replace(/intel/i, "").toUpperCase()
                     return "-"
+                }
+
+                function getGraphicsCompany(text) { 
+                    // Nvidia
+                    if (!text) return "-"
+                    if (text.match(/([GR]TX\s?\d\d\d\d(\s?ti)?(\s?super)?(\s?mobile)?(\s?max-?q)?)|MX\d\d\d/mi)) return "Nvidia"
+
+                    // Check for AMD
+                    if (text.match(/(RX\s?\d\d\d\dM?)|(RX\s?\d\d\dx?)|(RX\s?vega\s?.?)/mi)) return `AMD`
+
+                    if (text.match(/(iris)|(intel)|(XE)/mi)) return "Intel"
+                    return "-" 
+
+
                 }
 
                 function getWeightInG(text) {
@@ -268,6 +282,7 @@ String.prototype.lowerLize = function () {
                 await page.exposeFunction("getScreenResolution", getScreenResolution)
                 await page.exposeFunction("getStorage", getStorage)
                 await page.exposeFunction("getGraphics", getGraphics)
+                await page.exposeFunction("getGraphicsCompany", getGraphicsCompany)
                 await page.exposeFunction('getWeightInG', getWeightInG)
                 // page.on('console', consoleObj => console.log(consoleObj.text()));
                 // page.on('console', async msg => {
@@ -352,6 +367,7 @@ String.prototype.lowerLize = function () {
                                 let ram = await getRam(specifications['Main Memory'])
                                 let storage = specifications['Internal Storage']
                                 let graphics = await getGraphics(specifications["Dedicated Graphics Processor"])
+                                let graphicsCompany = await getGraphicsCompany(graphics)
 
                                 let osText = specifications["Body Type"] ? specifications["Body Type"] : specifications["Operating System"]
                                 let os = await getOS(osText)
@@ -363,43 +379,22 @@ String.prototype.lowerLize = function () {
 
                                 let weight = await getWeightInG(specifications["Weight"])
                                 return {
-                                    processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, os, weight
+                                    processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, graphicsCompany, os, weight
                                 }
-
-                                // let processor = await getProcessor(document.querySelector("#maincontent > div.columns > div > div.product-info-main > div.product-info-main-left > div.product-navision-desc > ul > li:nth-child(2) > span:nth-child(2)").innerText)
-
-                                // let processorCompany = await getProcessorCompany(document.querySelector("#maincontent > div.columns > div > div.product-info-main > div.product-info-main-left > div.product-navision-desc > ul > li:nth-child(2) > span:nth-child(2)").innerText)
-
-                                // let ram = await getRam(document.querySelector('#maincontent > div.columns > div > div.product-info-main > div.product-info-main-left > div.product-navision-desc > ul > li:nth-child(3) > span:nth-child(2)').innerText)
-
-                                // let storage = document.querySelector('#maincontent > div.columns > div > div.product-info-main > div.product-info-main-left > div.product-navision-desc > ul > li:nth-child(4) > span:nth-child(2)').innerText
-
-                                // let graphics = "-"
-
-                                // let os = await getOS(document.querySelector("#maincontent > div.columns > div > div.product-info-main > div.product-info-main-left > div.product-navision-desc > ul > li:nth-child(5) > span:nth-child(2)").innerText)
-
-                                // let screenSize = await getScreenSize(document.querySelector("#maincontent > div.columns > div > div.product-info-main > div.product-info-main-left > div.product-navision-desc > ul > li:nth-child(1) > span:nth-child(2)").innerText)
-
-                                // let screenResolution = "-1X-1"
-
-                                // return {
-                                //     processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, os,
-                                // }
 
                             } catch (e) {
                                 console.log(e)
                                 return e
-
                             }
 
 
                         })
                         if (!specifications) return false
                         console.log(specifications, model.model_ID)
-                        let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, Number(specifications.screenResolution.split("X")[0]), Number(specifications.screenResolution.split("X")[1]), specifications.graphics.toUpperCase(), specifications.os, specifications.weight, model.model_ID]
+                        let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, Number(specifications.screenResolution.split("X")[0]), Number(specifications.screenResolution.split("X")[1]), specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
                         console.log(arr)
                        
-                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                         await page.waitForTimeout(1000) // Timeout to prevent spam
 
@@ -438,12 +433,13 @@ String.prototype.lowerLize = function () {
 
                                 let storage = document.querySelector('#product\\.info\\.description > div > div > ul > li:nth-child(2) > span.usp_value').innerText
 
-                                let graphics, os, screenSize, screenResolution
+                                let graphics, graphicsCompany, os, screenSize, screenResolution
 
                                 let weight = -1 // not listed anywhere
 
                                 if (text.match(/graphics/i)) {
-                                    graphics = document.querySelector("#product\\.info\\.description > div > div > ul > li:nth-child(4) > span.usp_value").innerText
+                                    graphics = await getGraphics(document.querySelector("#product\\.info\\.description > div > div > ul > li:nth-child(4) > span.usp_value").innerText)
+                                    graphicsCompany = await getGraphicsCompany(graphics)
 
                                     os = await getOS(document.querySelector("#product\\.info\\.description > div > div > ul > li:nth-child(6) > span.usp_value").innerText)
 
@@ -451,8 +447,8 @@ String.prototype.lowerLize = function () {
 
                                     screenResolution = await getScreenResolution(document.querySelector("#product\\.info\\.description > div > div > ul > li:nth-child(5) > span.usp_value").innerText)
                                 } else {
-                                    graphics = "-"
-
+                                    graphics = "-"  
+                                    graphicsCompany = "-"
                                     os = await getOS(document.querySelector("#product\\.info\\.description > div > div > ul > li:nth-child(5) > span.usp_value").innerText)
 
                                     screenSize = await getScreenSize(document.querySelector("#product\\.info\\.description > div > div > ul > li:nth-child(4) > span.usp_value").innerText)
@@ -461,7 +457,7 @@ String.prototype.lowerLize = function () {
                                 }
 
                                 return {
-                                    processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, os, weight
+                                    processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, graphicsCompany, os, weight
                                 }
 
 
@@ -474,9 +470,9 @@ String.prototype.lowerLize = function () {
 
                         if (!specifications) return false
                         console.log(specifications, model.model_ID)
-                        let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, specifications.screenResolution.split("X")[0], specifications.screenResolution.split("X")[1], specifications.graphics.toUpperCase(), specifications.os, specifications.weight, model.model_ID]
+                        let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, specifications.screenResolution.split("X")[0], specifications.screenResolution.split("X")[1], specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
-                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
                         await page.waitForTimeout(1000) // Timeout to prevent spam
 
                         return true
@@ -516,7 +512,8 @@ String.prototype.lowerLize = function () {
 
                                 let storage = await getStorage(text)
 
-                                let graphics = textArray[3]
+                                let graphics = await getGraphics(textArray[3])
+                                let graphicsCompany = await getGraphicsCompany(graphics)
 
                                 let os = await getOS(text)
 
@@ -527,7 +524,7 @@ String.prototype.lowerLize = function () {
                                 let weight = -1 // cannot identify
 
                                 return {
-                                    processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, os, weight
+                                    processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, graphicsCompany, os, weight
                                 }
 
                             } catch (e) {
@@ -539,9 +536,9 @@ String.prototype.lowerLize = function () {
                         if (!specifications) return false
 
                         console.log(specifications, model.model_ID)
-                        let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, specifications.screenResolution.split("X")[0], specifications.screenResolution.split("X")[1], specifications.graphics.toUpperCase(), specifications.os, specifications.weight, model.model_ID]
+                        let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, specifications.screenResolution.split("X")[0], specifications.screenResolution.split("X")[1], specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
-                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
                         await page.waitForTimeout(1000) // Timeout to prevent spam
                         return true
 
@@ -574,6 +571,7 @@ String.prototype.lowerLize = function () {
                         let storage = getStorage(text)
 
                         let graphics = '-'
+                        let graphicsCompany = "-"
 
                         let os = getOS(text)
 
@@ -583,9 +581,9 @@ String.prototype.lowerLize = function () {
 
                         let weight = -1
 
-                        let arr = [processorCompany, processor, ram, storage, screenSize, screenResolution.split("X")[0], screenResolution.split("X")[1], graphics.toUpperCase(), os, weight, model.model_ID]
+                        let arr = [processorCompany, processor, ram, storage, screenSize, screenResolution.split("X")[0], screenResolution.split("X")[1], graphics.toUpperCase(), graphicsCompany, os, weight, model.model_ID]
                         console.log(arr, model.model_ID)
-                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
                         return true
                     } catch (e) {
                         console.log(e)
@@ -608,7 +606,7 @@ String.prototype.lowerLize = function () {
 
                                 // 2 scenarios: "specifications tab" vs "main tab"  
                                 let text = document.querySelector("#content_description > div > ul:nth-child(4)")
-                                let processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, os, weight
+                                let processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, graphicsCompany, os, weight
                                 if (text) {
                                     processor = await getProcessor(text)
                                     processorCompany = await getProcessorCompany(text)
@@ -619,6 +617,7 @@ String.prototype.lowerLize = function () {
                                     screenSize = -1 // Unable to determine
                                     screenResolution = await getScreenResolution(text)
                                     graphics = await getGraphics(text) // Unable to determine
+                                    graphicsCompany = await getGraphicsCompany(graphics)
                                     os = await getOS(text)
                                     weight = -1 // unable to determine
                                 } else {
@@ -644,6 +643,8 @@ String.prototype.lowerLize = function () {
                                     screenSize = await getScreenSize(obj["Screen Size"])
                                     screenResolution = await getScreenResolution(text)
                                     graphics = await getGraphics(obj["Graphics Card"])
+                                    graphicsCompany = await getGraphicsCompany(graphics)
+
 
                                     os = await getOS(obj["Operating System"])
 
@@ -665,7 +666,7 @@ String.prototype.lowerLize = function () {
 
 
                                 return {
-                                    processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, os, weight
+                                    processorCompany, processor, ram, storage, screenSize, screenResolution, graphics, graphicsCompany, os, weight
                                 }
 
                             } catch (e) {
@@ -677,9 +678,9 @@ String.prototype.lowerLize = function () {
                         if (!specifications) return false
                         console.log(specifications, model.model_ID)
 
-                        let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, specifications.screenResolution.split("X")[0], specifications.screenResolution.split("X")[1], specifications.graphics.toUpperCase(), specifications.os, specifications.weight, model.model_ID]
+                        let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, specifications.screenResolution.split("X")[0], specifications.screenResolution.split("X")[1], specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
-                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                         await page.waitForTimeout(1000) // Timeout to prevent spam
 
@@ -711,12 +712,13 @@ String.prototype.lowerLize = function () {
                         let screen_resolution_w = -1
                         let screen_resolution_h = -1
                         let graphics = "-"
+                        let graphicsCompany = "-"
                         let weight = -1
 
-                        let arr = [processorCompany, processor, ram, storage, screen_size, screen_resolution_w, screen_resolution_h, graphics, os, weight, model.model_ID]
+                        let arr = [processorCompany, processor, ram, storage, screen_size, screen_resolution_w, screen_resolution_h, graphics, graphicsCompany, os, weight, model.model_ID]
                         console.log(arr, model.model_ID)
 
-                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                        await conn.query(`UPDATE model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                         await page.waitForTimeout(1000) // Timeout to prevent spam
 
@@ -735,6 +737,15 @@ String.prototype.lowerLize = function () {
             await cluster.idle()
             // await conn.commit()
             await cluster.close();
+
+
+            // ---------------------------------------
+            // Try to classify CPUs
+            let cpuClass = await conn.query(`SELECT row_ID, processor_company, processor_model FROM `)
+
+
+
+
             await conn.release()
             return true
         } catch (e) {
