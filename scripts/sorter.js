@@ -21,6 +21,8 @@ const headless = true
             const extras = await fs.readJSON(`${process.cwd()}/data/extras.json`)
 
             const files = await fs.readdir(`${process.cwd()}/data/raw`)
+
+            await fs.ensureDir(`${process.cwd()}/public/images/product-images`)
             const PRODUCTS = []
             console.log(files)
             for (var i = 0; i < files.length; i++) {
