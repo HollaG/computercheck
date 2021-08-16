@@ -80,6 +80,14 @@ const brands = []
             const dictionary = await fs.readJSON(`${process.cwd()}/data/dictionary.json`)
             const extras = await fs.readJSON(`${process.cwd()}/data/extras.json`)
 
+            await fs.ensureDir(`${process.cwd()}/data/raw`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/harvey.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/challenger.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/gain.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/courts.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/best.json`)
+            
+
 
             await harvey()
             await challenger()
