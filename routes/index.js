@@ -482,4 +482,37 @@ router.get("/raw", async function (req, res, next) {
     }
 })
 
+router.get("/:brand/:model_ID", async function (req, res, next) { 
+    let conn = null
+    try {
+        conn = await pool.getConnection()
+
+        let brand = req.params.brand
+        let model_ID = req.params.model_ID
+        let model = await conn.query(`SELECT * FROM model_data WHERE model_ID = ? AND brand = ?`, [model_ID, brand])
+        model = model[0][0]
+
+        let products = await conn.query(`SELECT * FROM data WHERE model_ID = ? AND brand = ?`, [model_ID, brand])
+        products = products[0]
+
+        console.log(products, 'adsfbnadsfnjaksdnf')
+        let totalPrice = 0
+        products.forEach(p => totalPrice+=Number(p.price))
+        
+        let avgPrice = Math.round(totalPrice / products.length)
+      
+        
+        res.render("model.pug", {
+            model, products,
+            title: `${brand} ${model_ID}`,
+            avgPrice
+        })
+
+        conn.release()
+    } catch (e) { 
+        conn.release()
+        console.log(e)
+    }
+})
+
 module.exports = router;

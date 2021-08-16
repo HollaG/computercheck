@@ -25,10 +25,12 @@ each products, model_ID in data
                 price: avgPrice
             }
         .card.m-2.product(data-terms=filters)
-            img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}`)
+            .bg-image.hover-overlay.ripple(data-mdb-ripple-color="light")
+                a(href=`/${model.brand}/${model_ID}`)
+                    img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}`)
             .card-body.parent-relative-apply.d-flex.flex-column.pb-0
                 p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}
-                p.text-truncate.mt-2.card-title=model.name
+                a(href=`/${model.brand}/${model_ID}`).text-truncate.mt-2.card-title=model.name
                 .container-fluid.px-0.mt-2.pt-1
                     mixin prices(location, url)
                         .container.mb-2.pb-2

@@ -1,0 +1,70 @@
+extends layout
+
+block content
+    .container.py-4.mt-5
+        .row
+            .col-lg-5.text-center
+                img.w-75(src=`${model.image_url ? model.image_url : "/images/missing.jpg"}`)
+            .col-lg-7.p-3
+                .row
+                    h4.text-dark.mb-3 #{model.name}
+                    //- .col-12.text-center.mb-2
+                    //-     h5.text-dark.fw-bold Details 
+                .row.d-flex.flex-wrap
+                    .col-4
+                        p.fw-bold.text-dark Brand
+                    .col-8
+                        p #{model.brand}
+                    .col-4
+                        p.fw-bold.text-dark Model
+                    .col-8
+                        p #{model.model_ID}
+                    .col-4
+                        p.fw-bold.text-dark Average price
+                    .col-8
+                        p $#{avgPrice}
+                
+        .container.d-flex.flex-wrap.mt-4(style='max-width: 1000px')
+
+            .col-12.text-center.mb-2
+                h5.text-dark.fw-bold Technical specifications    
+            .col-md-3.col-4.px-3
+                p.fw-bold.text-dark Processor
+            .col-md-3.col-8.text-end.px-3
+                p #{model.processor_company} #{model.processor_model}
+            .col-md-3.col-4.px-3
+                p.fw-bold.text-dark RAM
+            .col-md-3.col-8.text-end.px-3
+                p #{model.ram} GB
+            .col-md-3.col-4.px-3
+                p.fw-bold.text-dark Storage
+            .col-md-3.col-8.text-end.px-3
+                p #{model.storage}
+            .col-md-3.col-4.px-3
+                p.fw-bold.text-dark Graphics Card
+            .col-md-3.col-8.text-end.px-3
+                p #{model.graphics_company} #{model.graphics_card}
+            .col-md-3.col-4.px-3
+                p.fw-bold.text-dark Screen size
+            .col-md-3.col-8.text-end.px-3
+                p #{model.screen_size} inch 
+            .col-md-3.col-4.px-3
+                p.fw-bold.text-dark Screen resolution
+            .col-md-3.col-8.text-end.px-3
+                p #{model.screen_resolution_w} x #{model.screen_resolution_h}
+            .col-md-3.col-4.px-3
+                p.fw-bold.text-dark Weight
+            .col-md-3.col-8.text-end.px-3
+                p #{model.weight} g
+            .col-md-3.col-4.px-3
+                p.fw-bold.text-dark Operating system
+            .col-md-3.col-8.text-end.px-3
+                p #{model.os}
+
+        .container.mt-4
+            .col-12.text-center.mb-2
+                h5.text-dark.fw-bold Retailers
+         
+                        
+                    
+                            

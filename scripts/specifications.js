@@ -741,7 +741,7 @@ String.prototype.lowerLize = function () {
 
             // ---------------------------------------
             // Try to classify CPUs
-            let cpuClass = await conn.query(`SELECT row_ID, processor_company, processor_model FROM `)
+            // let cpuClass = await conn.query(`SELECT row_ID, processor_company, processor_model FROM `)
 
 
 
