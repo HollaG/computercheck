@@ -1,7 +1,7 @@
 extends layout
 
 block content
-    .container.py-4.mt-5
+    .container.py-4.mt-3
         .row
             .col-lg-5.text-center
                 img.w-75(src=`${model.image_url ? model.image_url : "/images/missing.jpg"}`)
@@ -31,41 +31,60 @@ block content
             .col-md-3.col-4.px-3
                 p.fw-bold.text-dark Processor
             .col-md-3.col-8.text-end.px-3
-                p #{model.processor_company} #{model.processor_model}
+                p=model.processor
             .col-md-3.col-4.px-3
                 p.fw-bold.text-dark RAM
             .col-md-3.col-8.text-end.px-3
-                p #{model.ram} GB
+                p=model.ram
             .col-md-3.col-4.px-3
                 p.fw-bold.text-dark Storage
             .col-md-3.col-8.text-end.px-3
-                p #{model.storage}
+                p=model.storage
             .col-md-3.col-4.px-3
                 p.fw-bold.text-dark Graphics Card
             .col-md-3.col-8.text-end.px-3
-                p #{model.graphics_company} #{model.graphics_card}
+                p=model.graphics
             .col-md-3.col-4.px-3
                 p.fw-bold.text-dark Screen size
             .col-md-3.col-8.text-end.px-3
-                p #{model.screen_size} inch 
+                p=model.screen_size
             .col-md-3.col-4.px-3
                 p.fw-bold.text-dark Screen resolution
             .col-md-3.col-8.text-end.px-3
-                p #{model.screen_resolution_w} x #{model.screen_resolution_h}
+                p=model.screen_resolution
             .col-md-3.col-4.px-3
                 p.fw-bold.text-dark Weight
             .col-md-3.col-8.text-end.px-3
-                p #{model.weight} g
+                p=model.weight
             .col-md-3.col-4.px-3
                 p.fw-bold.text-dark Operating system
             .col-md-3.col-8.text-end.px-3
-                p #{model.os}
+                p=model.os
 
         .container.mt-4
             .col-12.text-center.mb-2
                 h5.text-dark.fw-bold Retailers
+            .d-flex.flex-wrap
                 
-         
-                        
+                each product in products
+                    .col-12.col-xl-3.col-lg-4.col-md-6
+                        .card.m-2
+                            .bg-image.hover-overlay.ripple.text-center(data-mdb-ripple-color="light")
+                                a(href=`${product.link}` target="_blank")
+                                    img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${product.image_url}`)
+                            .card-body.parent-relative-apply.d-flex.flex-column.pb-0
+                                //- p.text-muted.fw-light.text-center.small-text.mb-0 $#{product.price}
+                                .container
+                                    img.d-inline-block.logo-image(src=`/images/logos/${product.location}.jpg`)
+                                    p.ms-2.mb-0.d-inline-block=product.location
+                                    a.float-end(href=product.link target="_blank") $#{product.price}
+                                            
+                                a(href=`${product.link}` target="_blank").mt-2.card-title=product.name
+                            .card-footer
+                                p.text-muted.small-text.text-center.mb-0 Updated #{product.date_updated}
+
+    script.
+        const observer = lozad(); // lazy loads elements with default selector as '.lozad'
+        observer.observe();
                     
                             

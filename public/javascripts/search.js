@@ -240,8 +240,8 @@ let weightRange = document.querySelector("#select-weight")
 
 let weightSlider = noUiSlider.create(weightRange, {
     range: {
-        'min': dataObj.minWeight,
-        'max': dataObj.maxWeight
+        'min': dataObj.minWeight ? dataObj.minWeight : -1 ,
+        'max': dataObj.maxWeight ? dataObj.maxWeight : -1
     },
     step: 1,
     //- pips: {
@@ -287,8 +287,8 @@ let priceRange = document.querySelector("#select-price")
 
 let priceSlider = noUiSlider.create(priceRange, {
     range: {
-        'min': dataObj.minPrice,
-        'max': dataObj.maxPrice
+        'min': dataObj.minPrice ? dataObj.minPrice : -1,
+        'max': dataObj.maxPrice ? dataObj.maxPrice : -1
     },
     step: 1,
     //- pips: {

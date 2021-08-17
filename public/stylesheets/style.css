@@ -59,6 +59,10 @@ th, td {
   word-wrap: break-word;
 } */
 
+
+html {
+  overflow-y: scroll;
+}
 #overall-container { 
   min-height: 100vh;
 }
@@ -70,6 +74,13 @@ th, td {
   padding: 20px
 }
 
+.fixed-logo-size { 
+  width: 80%;
+  height: 100px;
+  object-fit: contain;
+  padding: 20px;
+  padding-bottom: 0px
+}
 .card { 
   height: 97%
 }

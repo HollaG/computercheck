@@ -52,14 +52,14 @@ router.get('/', async function (req, res, next) {
 
         let weightTypes = await conn.query(`SELECT t.weight_clean, COUNT(*) as total FROM (SELECT IF(weight = 0 OR weight = -1, 'AAUnknown', weight) as weight_clean FROM model_data) t GROUP BY t.weight_clean ORDER BY t.weight_clean+0 ASC`)
         weightTypes = weightTypes[0]
-        let maxWeight = Number(weightTypes[weightTypes.length-1].weight_clean)
+        let maxWeight = Number(weightTypes[weightTypes.length - 1].weight_clean)
         let minWeight = Number(weightTypes[1].weight_clean) // First one is AAUnknown
 
         let prices = await conn.query(`SELECT MAX(price) as max, MIN(price) as min FROM data WHERE active = 1`)
         let maxPrice = Number(prices[0][0].max)
         let minPrice = Number(prices[0][0].min)
 
-        
+
         let dataObj = {
             brands: brands[0],
             locations: locations[0],
@@ -74,7 +74,7 @@ router.get('/', async function (req, res, next) {
 
         console.log(result.groupedByProductId)
 
-        
+
         res.render('main', {
             title: 'ComputerCheck: Singapore Laptop Database',
             data: result.groupedByProductId,
@@ -104,22 +104,22 @@ router.get('/', async function (req, res, next) {
 router.get("/loadMore/:code", async function (req, res, next) {
     try {
         let searchTimeStart = new Date().getMilliseconds()
-        
+
         let startIndex = Number(req.params.code.split("-_-")[0])
         let loadAll = req.params.code.split("-_-")[1] == "true" ? true : false
         if (Number.isNaN(startIndex)) return res.status(404).send("Not found")
 
 
         let searchString = req.query.search ? req.query.search.trim().toUpperCase() : ""
-        
-        
+
+
         let result;
         if (searchString) {
             result = await getSearchModels(startIndex, searchString, loadAll)
         } else {
             result = await getModels(startIndex, loadAll)
         }
-        
+
         if (result == "All items loaded") return res.status(204).send("All items loaded")
 
         let html = pug.renderFile(`${process.cwd()}/views/card.pug`, {
@@ -482,7 +482,7 @@ router.get("/raw", async function (req, res, next) {
     }
 })
 
-router.get("/:brand/:model_ID", async function (req, res, next) { 
+router.get("/:brand/:model_ID", async function (req, res, next) {
     let conn = null
     try {
         conn = await pool.getConnection()
@@ -492,27 +492,126 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
         let model = await conn.query(`SELECT * FROM model_data WHERE model_ID = ? AND brand = ?`, [model_ID, brand])
         model = model[0][0]
 
-        let products = await conn.query(`SELECT * FROM data WHERE model_ID = ? AND brand = ?`, [model_ID, brand])
+        let products = await conn.query(`SELECT * FROM data WHERE model_ID = ? AND brand = ? AND active = 1 ORDER BY price ASC, location ASC`, [model_ID, brand])
         products = products[0]
 
-        console.log(products, 'adsfbnadsfnjaksdnf')
+        
+        // Format the model text appropiately
+        console.log(model, '-----------')
+        if (!model) model = {}
+        let modelData = {
+            brand: model.brand,
+            model_ID: model.model_ID,
+            image_url: `${model.image_url ? model.image_url : "/images/missing.jpg"}`,
+            name: model.name,
+            processor: "Unknown",
+            ram: "Unknown",
+            storage: "Unknown",
+            graphics: "Unknown",
+            screen_size: "Unknown",
+            screen_resolution: "Unknown",
+            weight: "Unknown",
+            os: "Unknown",
+        }
+
+        if (model.processor_company == "-") {
+            if (model.processor_model != "-") {                        
+                modelData['processor'] = model.processor_model
+            }
+        } else { 
+            if (model.processor_model == "-") {
+                modelData['processor'] = model.processor_company
+            } else { 
+                modelData['processor'] = `${model.processor_company} ${model.processor_model}`
+            }
+        }
+        
+        if (model.ram != -1) {
+            modelData["ram"] = `${model.ram} GB`
+        }
+
+        if (model.storage != "-") {
+            modelData["storage"] = model.storage
+        }
+
+        if (model.graphics_company == "-") {
+            if (model.graphics_card != "-") {                        
+                modelData['graphics'] = model.graphics_card
+            }
+        } else { 
+            if (model.graphics_card == "-") {
+                modelData['graphics'] = model.graphics_company
+            } else { 
+                modelData['graphics'] = `${model.graphics_company} ${model.graphics_card}`
+            }
+        }
+
+        if (model.screen_size != -1) {
+            modelData['screen_size'] = `${model.screen_size} inch`
+        }
+
+        if (model.screen_resolution_w != -1 && model.screen_resolution_h != -1) { 
+            modelData['screen_resolution'] = `${model.screen_resolution_w} x ${model.screen_resolution_h}`  
+        }
+
+        if (model.weight != -1) { 
+            if (Number(model.weight) > 1000) { 
+                modelData['weight'] = `${Math.round(model.weight/1000 * 100) / 100} kg`
+            } else {
+                modelData['weight'] = `${model.weight} g`
+            }
+        }
+
+        if (model.os != "-") { 
+            modelData['os'] = model.os
+        }
+
         let totalPrice = 0
-        products.forEach(p => totalPrice+=Number(p.price))
-        
+        products.forEach(p => {
+            totalPrice += Number(p.price)
+            console.log(p.date_updated)
+            // Split timestamp into [ Y, M, D, h, m, s ]
+            // var t = p.date_updated.split(/[- :]/);
+
+            let d = new Date(p.date_updated)
+
+
+            // Apply each element to the Date function  
+            // var d = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
+            p.date_updated = formatDate(d)
+        })
+
         let avgPrice = Math.round(totalPrice / products.length)
-      
-        
+
+
         res.render("model.pug", {
-            model, products,
+            model: modelData, products,
             title: `${brand} ${model_ID}`,
             avgPrice
         })
 
         conn.release()
-    } catch (e) { 
+    } catch (e) {
         conn.release()
         console.log(e)
     }
 })
+
+router.get("/faq", function(req, res) {res.render("faq.pug", {title: "FAQ"})})
+
+function formatDate(d) {
+    var d = d
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    return [day, month, year].join('/');
+}
+
 
 module.exports = router;
