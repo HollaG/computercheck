@@ -510,6 +510,9 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
             graphics: "Unknown",
             screen_size: "Unknown",
             screen_resolution: "Unknown",
+            screen_tech: "Unknown",
+            screen_ppi: "Unknown",
+
             weight: "Unknown",
             os: "Unknown",
         }
@@ -552,6 +555,14 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
 
         if (model.screen_resolution_w != -1 && model.screen_resolution_h != -1) { 
             modelData['screen_resolution'] = `${model.screen_resolution_w} x ${model.screen_resolution_h}`  
+        }
+
+        if (model.screen_tech != "-") { 
+            modelData['screen_tech'] = model.screen_tech
+        }
+
+        if (model.screen_size != -1 && model.screen_resolution_w != -1 && model.screen_resolution_h != -1) { 
+            modelData['screen_ppi'] = `${ppi(model.screen_size, model.screen_resolution_w, model.screen_resolution_h)} ppi`
         }
 
         if (model.weight != -1) { 
@@ -612,6 +623,11 @@ function formatDate(d) {
 
     return [day, month, year].join('/');
 }
+
+function ppi(inches, s_w, s_h) {
+    return Math.round(Math.sqrt(Math.pow(s_w, 2) + Math.pow(s_h, 2)) / inches)
+}
+
 
 
 module.exports = router;
