@@ -154,41 +154,20 @@ block content
                             p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}
                             a(href=`/${model.brand}/${model_ID}`).text-truncate.mt-2.card-title=model.name
                             .container-fluid.px-0.mt-2.pt-1
-                                mixin prices(location, url)
+                                mixin prices(location)
                                     .container.mb-2.pb-2
-                                        img.d-inline-block.logo-image(src=url)
+                                        img.d-inline-block.logo-image(src=`/images/logos/${location.replace(/ /g, "_").toLowerCase()}.jpg`)
                                         p.ms-2.mb-0.d-inline-block=location
                                         
                                         each product in products[location]
-                                            
                                             if (product.active == 1)
                                                 a.float-end(href=product.link target="_blank") $#{product.price}
                                             else
                                                 a.text-decoration-line-through.float-end(href=product.link target="_blank") $#{product.price}
-                                                
                                             br
                                                 
-                                
-                                - var location = "Best Denki"
-                                - var url = "/images/logos/Best Denki.jpg"
-                                if products[location]
-                                    +prices(location, url)
-                                - var location = "Courts"
-                                - var url = "/images/logos/Courts.jpg"
-                                if products[location]
-                                    +prices(location, url)
-                                - var location = "Challenger"
-                                - var url = "/images/logos/Challenger.jpg"
-                                if products[location]
-                                    +prices(location, url)
-                                - var location = "Gain City"
-                                - var url = "/images/logos/Gain City.jpg"
-                                if products[location]
-                                    +prices(location, url)
-                                - var location = "Harvey Norman"
-                                - var url = "/images/logos/Harvey Norman.jpg"
-                                if products[location]
-                                    +prices(location, url)
+                                each prodsInLoc, location in products
+                                    +prices(location)
 
 
 

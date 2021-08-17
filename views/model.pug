@@ -75,7 +75,7 @@ block content
                             .card-body.parent-relative-apply.d-flex.flex-column.pb-0
                                 //- p.text-muted.fw-light.text-center.small-text.mb-0 $#{product.price}
                                 .container
-                                    img.d-inline-block.logo-image(src=`/images/logos/${product.location}.jpg`)
+                                    img.d-inline-block.logo-image(src=`/images/logos/${product.location.replace(/ /g, "_").toLowerCase()}.jpg`)
                                     p.ms-2.mb-0.d-inline-block=product.location
                                     a.float-end(href=product.link target="_blank") $#{product.price}
                                             
