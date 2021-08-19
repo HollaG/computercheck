@@ -4,7 +4,7 @@ const fs = require("fs-extra")
 const mysql = require("mysql2/promise")
 const puppeteer = require("puppeteer-extra")
 
-const db = require("../configuration/database.json")
+const db = require("../../configuration/database.json")
 const pool = mysql.createPool(db)
 const { Cluster } = require('puppeteer-cluster');
 const axios = require("axios")
@@ -308,6 +308,35 @@ String.prototype.lowerLize = function () {
 
                 let locations = Object.keys(model.model)
                 // console.log(locations)
+
+
+                if (locations.includes("ACER Online Store")) {
+                    console.log("Trying acer")
+                    let pass = await tryAcer()
+                    if (pass) return true
+                }
+                if (locations.includes("ASUS Online Store")) {
+                    console.log("Trying ASUS")
+                    let pass = await tryAsus()
+                    if (pass) return true
+                }
+                if (locations.includes("DELL Online Store")) {
+                    console.log("Trying DELL")
+                    let pass = await tryDell()
+                    if (pass) return true
+                }
+                if (locations.includes("LENOVO Online Store")) {
+                    console.log("Trying LENOVO")
+                    let pass = await tryLenovo()
+                    if (pass) return true
+                }
+                if (locations.includes("RAZER Online Store")) {
+                    console.log("Trying RAZER")
+                    let pass = await tryRazer()
+                    if (pass) return true
+                }
+
+
                 if (locations.includes("Courts")) {                
                     // try courts
                     console.log("Tryng courts")

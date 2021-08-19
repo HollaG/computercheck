@@ -3,7 +3,7 @@ console.log("----------------- EXECUTING FILE: sorter.js -----------------")
 const fs = require("fs-extra")
 const mysql = require("mysql2/promise")
 
-const db = require("../configuration/database.json")
+const db = require("../../configuration/database.json")
 const pool = mysql.createPool(db)
 
 var startTime = new Date().getTime()
@@ -20,7 +20,7 @@ const headless = true
             const dictionary = await fs.readJSON(`${process.cwd()}/data/dictionary.json`)
             const extras = await fs.readJSON(`${process.cwd()}/data/extras.json`)
 
-            const files = await fs.readdir(`${process.cwd()}/data/raw`)
+            const files = await fs.readdir(`${process.cwd()}/data/raw/laptops`)
 
             await fs.ensureDir(`${process.cwd()}/public/images/product-images`)
             const PRODUCTS = []
@@ -28,9 +28,11 @@ const headless = true
             for (var i = 0; i < files.length; i++) {
 
                 var file = files[i]
-                var data = await fs.readJSON(`${process.cwd()}/data/raw/${file}`)
+                var data = await fs.readJSON(`${process.cwd()}/data/raw/laptops/${file}`)
                 for (var j = 0; j < data.length; j++) {
                     var item = data[j]
+
+                    item.name = item.name.toUpperCase().trim()
                     // delete all non numbers from price
                     let price = item.price.replace("U.P.", "")
                     price = "$" + price.replace(/[A-za-z \s$,]/g, "")
@@ -42,6 +44,9 @@ const headless = true
 
                     if (!item.link.match(/^https?:\/\//g)) item.link = "https://" + item.link
                     if (!item.model_ID) item.model_ID = "UNIDENTIFIED"
+
+                    if (!Object.keys(item).includes("customizable")) item.customizable = false
+                    if (!Object.keys(item).includes("instock")) item.instock = ""
 
                 }
                 PRODUCTS.push(...data)
@@ -313,6 +318,8 @@ const headless = true
                         let active = 1
                         if (product.instock == "c-false") active = 0
 
+                        
+
                         items_data.push([                           
                             model.trim().toUpperCase(),
                             product.name,
@@ -321,7 +328,10 @@ const headless = true
                             product.location,
                             product.link,
                             product.image_url,
-                            active // active?
+                            product.customizable,
+                            active // active?,
+                            
+
                         ])
 
                     }
@@ -399,7 +409,7 @@ const headless = true
             
 
             await connection.query(`DELETE FROM temp_data`)
-            await connection.query(`INSERT INTO temp_data (model_ID, name, price, brand, location, link, image_url, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
+            await connection.query(`INSERT INTO temp_data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
 
             
 
@@ -415,16 +425,9 @@ const headless = true
 
             // Find rows that are in data AND temp_data (i.e. discontinued rows will NOT be selected)
             await connection.query(`DELETE FROM data WHERE data.link IN (SELECT temp_data.link FROM temp_data)`)
-            await connection.query(`INSERT INTO data (model_ID, name, price, brand, location, link, image_url, active) VALUES ?`, [items_data])
+            await connection.query(`INSERT INTO data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data])
 
-            // Copy over any rows that are in TEMP_DATA but NOT in DATA (new items added)
-            // await connection.query(`INSERT INTO data (SELECT * FROM temp_data WHERE temp_data.link NOT IN (SELECT data.link FROM data))`)
-
-            // INSERT INTO data (SELECT row_ID, `model_ID`,`name`,`price`,`brand`,`location`,`link`,`date_updated`,`image_url`,`active` FROM temp_data WHERE temp_data.link NOT IN (SELECT data.link FROM data))
-
-
-            // await connection.query(`DELETE FROM data`)
-            // await connection.query(`INSERT INTO data (row_ID, model_ID, name, price, brand, location, link, image_url, active) VALUES ?`, [items_data])
+           
 
             await connection.release()
             var endTime = new Date().getTime()
@@ -432,7 +435,7 @@ const headless = true
             console.log("Time taken: " + (endTime - startTime))
 
             console.log("----------------- COMPLETED EXECUTING FILE: sorter.js -----------------")
-            require(`${process.cwd()}/scripts/specifications.js`)
+            // require(`${process.cwd()}/scripts/specifications.js`)
             return true
 
 
