@@ -105,16 +105,16 @@ const brands = []
             await fs.ensureFile(`${process.cwd()}/data/raw/laptops/razer.json`)
 
 
-            await acer()
-            await asus()
-            // await dell() // Don't do this
-            await hp()
-            await lenovo()
-            await razer()
+            // await acer()
+            // await asus()
+            // // await dell() // Don't do this
+            // await hp()
+            // await lenovo()
+            // await razer()
 
 
-            await harvey()
-            await challenger()
+            // await harvey()
+            // await challenger()
             await gain()
             await courts()
             await best()
