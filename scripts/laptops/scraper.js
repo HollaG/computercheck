@@ -46,7 +46,7 @@ const puppeteerLinks = {
 };
 
 
-const headless = false
+const headless = true
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 // const { clearCustomQueryHandlers } = require("puppeteer");
 puppeteer.use(StealthPlugin());

@@ -11,7 +11,7 @@ const axios = require("axios")
 const SearchScraper = require("puppeteer-search-scraper")
 var startTime = new Date().getTime()
 console.log("Started script at " + startTime)
-const headless = false
+const headless = true
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
 const pageTimeout = 5 * 1000 * 60
