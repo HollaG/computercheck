@@ -105,18 +105,18 @@ const brands = []
             await fs.ensureFile(`${process.cwd()}/data/raw/laptops/razer.json`)
 
 
-            // await acer()
-            // await asus()
+            await acer()
+            await asus()
             // await dell() // Don't do this
-            // await hp()
-            // await lenovo()
-            // await razer()
+            await hp()
+            await lenovo()
+            await razer()
 
 
-            // await harvey()
-            // await challenger()
-            // await gain()
-            // await courts()
+            await harvey()
+            await challenger()
+            await gain()
+            await courts()
             await best()
 
 
@@ -473,6 +473,7 @@ const brands = []
 
                                 let image_url = item.querySelector("div.image-container > a > img").dataset.original
                                 if (!image_url.match(/^https?:\/\//g)) image_url = "https:" + image_url
+                                if (image_url == "https:") image_url = "/images/missing.jpg"
 
                                 let instock = item.dataset.productstatus != 'available' ? "c-false" : ""
 

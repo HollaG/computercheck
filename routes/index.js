@@ -496,7 +496,9 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
         let products = await conn.query(`SELECT * FROM data WHERE model_ID = ? AND brand = ? AND active = 1 ORDER BY price ASC, location ASC`, [model_ID, brand])
         products = products[0]
 
-        
+        let expiredProducts = await conn.query(`SELECT * FROM data WHERE model_ID = ? AND brand = ? AND active = 0 ORDER BY price ASC, location ASC`, [model_ID, brand])
+        expiredProducts = expiredProducts[0]
+
         // Format the model text appropiately
         console.log(model, '-----------')
         if (!model) model = {}
@@ -593,11 +595,16 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
             p.date_updated = formatDate(d)
         })
 
+        expiredProducts.forEach(p => {
+            let d = new Date(p.date_updated)
+            p.date_updated = formatDate(d)
+        })
+
         let avgPrice = Math.round(totalPrice / products.length)
 
 
         res.render("model.pug", {
-            model: modelData, products,
+            model: modelData, products, expiredProducts,
             title: `${brand} ${model_ID}`,
             avgPrice
         })

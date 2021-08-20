@@ -37,13 +37,22 @@ each products, model_ID in data
                             img.d-inline-block.logo-image(src=`/images/logos/${location.replace(/ /g, "_").toLowerCase()}.jpg`)
                             p.ms-2.mb-0.d-inline-block=location
                             
+                            - let numOOS = 0
                             each product in products[location]
                                 if (product.active == 1)
                                     a.float-end(href=product.link target="_blank") $#{product.price}
+                                    br
                                 //- TODO: Show or hide inactive products?                                
-                                //- else
+                                else
+                                    - numOOS++
+                                if (product.customizable == 1)
+                                    a.float-end(href=product.link target="_blank") (Customizable)
+                                    br
                                 //-     a.text-decoration-line-through.float-end(href=product.link target="_blank") $#{product.price}
+                            if (numOOS != 0)
+                                a.float-end(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}`) #{numOOS} out of stock
                                 br
+
                                     
                     each prodsInLoc, location in products
                         +prices(location)
