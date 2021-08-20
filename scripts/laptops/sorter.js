@@ -14,7 +14,7 @@ const headless = true
 
     ; (async () => {
         try {
-            
+
 
 
             const dictionary = await fs.readJSON(`${process.cwd()}/data/dictionary.json`)
@@ -254,17 +254,17 @@ const headless = true
                             } else if (leftModel_ID.length < presentModel.length) {
                                 // Current model ID is shorter, swap them
 
-                                
-                                 
+
+
                                 items[brand][leftModel_ID] = items[brand][presentModel]
                                 delete items[brand][presentModel]
-                                
 
 
 
 
 
-                                
+
+
                             }
 
                             // No need to loop further for this item
@@ -304,11 +304,10 @@ const headless = true
             const reducer = (accumulator, currentVal) => accumulator + " " + currentVal.name + " " + currentVal.location.toUpperCase()
             let counter = 0
             for (brand of Object.keys(items)) {
-                
+
                 let models = items[brand]
 
                 for (model of Object.keys(models)) {
-                    counter++
                     let search_terms = []
                     let products = models[model]
 
@@ -318,9 +317,9 @@ const headless = true
                         let active = 1
                         if (product.instock == "c-false") active = 0
 
-                        
 
-                        items_data.push([                           
+
+                        items_data.push([
                             model.trim().toUpperCase(),
                             product.name,
                             product.price.replace("$", ""),
@@ -330,28 +329,30 @@ const headless = true
                             product.image_url,
                             product.customizable,
                             active // active?,
-                            
+
 
                         ])
 
                     }
 
+
+
+
                     let search_string = removeDuplicatesString(products.reduce(reducer, brand).replace(/  /g, " "))
 
-                    
                     // Check the IMAGE_URL
                     let image_link = ""
-                    try { 
-                        
-                        let res = await axios.get(products[0].image_url,{
-                            
+                    try {
+                       
+                        let res = await axios.get(products[0].image_url, {
+
                             responseType: 'arraybuffer'
-                        })  
-                        // console.log(res.data.toString())
+                        })
                         let data = Buffer.from(res.data, "binary")
                         
-                        console.log(products[0].image_url, counter)
-                        await sharp(data)
+
+                        let fileName = model.replace(/[^a-z0-9]/gi, '_').toUpperCase();
+                        sharp(data)
                             .flatten({ background: '#FFFFFF' })
                             .trim(25)
                             .resize({
@@ -359,19 +360,31 @@ const headless = true
                                 width: 300,
                                 height: 200,
                                 background: { r: 255, g: 255, b: 255, alpha: 1 },
-                                
+
                             })
-                            .jpeg()
+                            .jpeg()                            
+                            .toFile(`${process.cwd()}/public/images/product-images/${fileName}.jpg`, (err, info) => {
+                                // console.log(info)
+                                if (err) {
+                                    console.log(err)
+                                    console.log('MIssing image for ' + counter)
+                                    image_link = "/images/missing.jpg"
+
+                                } else { 
+                                    console.log(products[0].image_url, counter)
+                                }
+                            })
                             
-                            .toFile(`${process.cwd()}/public/images/product-images/${counter}.jpg`, (err, info) => {
-                                if (err) console.log(err)
-                            })
-                        image_link = `/images/product-images/${counter}.jpg`
-                    } catch (e) { 
-                        console.log(e)
+                        
+                        image_link = `/images/product-images/${fileName}.jpg`
+                    } catch (e) {
+                        // console.log(e)
+                        console.log('MIssing image for ' + counter)
                         image_link = "/images/missing.jpg"
                     }
-
+                    // await timeout(500)
+                    
+                    
                     model_data.push([
                         model.trim().toUpperCase(),
                         products[0].name.trim().toUpperCase(),
@@ -387,6 +400,12 @@ const headless = true
                             search_string.split(" ")[j]
                         ])
                     }
+                    counter++
+
+                    
+                    
+                    
+
 
                 }
             }
@@ -397,7 +416,7 @@ const headless = true
             // await connection.query(`DELETE FROM model_keywords`)
             // await connection.query(`INSERT INTO model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
 
-
+            
             await connection.query(`DELETE FROM temp_model_data`)
             await connection.query(`INSERT INTO temp_model_data (model_ID, name, brand, search_terms, image_url) VALUES ?`, [model_data])
             await connection.query(`INSERT INTO model_data (SELECT * FROM temp_model_data WHERE temp_model_data.model_ID NOT IN (SELECT model_data.model_ID FROM model_data))`)
@@ -405,13 +424,13 @@ const headless = true
             await connection.query(`DELETE FROM temp_model_keywords`)
             await connection.query(`INSERT INTO temp_model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
             await connection.query(`INSERT INTO model_keywords (SELECT * FROM temp_model_keywords WHERE temp_model_keywords.model_ID NOT IN (SELECT model_keywords.model_ID FROM model_keywords))`)
-            
-            
+
+
 
             await connection.query(`DELETE FROM temp_data`)
             await connection.query(`INSERT INTO temp_data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
 
-            
+            console.log(model_data)
 
 
             // Find rows from DATA that are NOT in temp_data (i.e. products that are now discontinued / OOS) and set as inactive
@@ -427,7 +446,7 @@ const headless = true
             await connection.query(`DELETE FROM data WHERE data.link IN (SELECT temp_data.link FROM temp_data)`)
             await connection.query(`INSERT INTO data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data])
 
-           
+
 
             await connection.release()
             var endTime = new Date().getTime()
@@ -657,3 +676,11 @@ const headless = true
         }
     })();
 
+process.on('uncaughtException', function (exception) {
+    console.log(exception); // to see your exception details in the console
+    // if you are on production, maybe you can send the exception details to your
+    // email as well ?
+});
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

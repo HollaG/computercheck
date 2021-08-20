@@ -52,8 +52,9 @@ router.get('/', async function (req, res, next) {
 
         let weightTypes = await conn.query(`SELECT t.weight_clean, COUNT(*) as total FROM (SELECT IF(weight = 0 OR weight = -1, 'AAUnknown', weight) as weight_clean FROM model_data) t GROUP BY t.weight_clean ORDER BY t.weight_clean+0 ASC`)
         weightTypes = weightTypes[0]
-        let maxWeight = Number(weightTypes[weightTypes.length - 1].weight_clean)
-        let minWeight = Number(weightTypes[1].weight_clean) // First one is AAUnknown
+        if (!weightTypes) weightTypes = []
+        let maxWeight = weightTypes[weightTypes.length - 1] ? Number(weightTypes[weightTypes.length - 1].weight_clean) : 0
+        let minWeight = weightTypes[1] ? Number(weightTypes[1].weight_clean) : 0 // First one is AAUnknown
 
         let prices = await conn.query(`SELECT MAX(price) as max, MIN(price) as min FROM data WHERE active = 1`)
         let maxPrice = Number(prices[0][0].max)

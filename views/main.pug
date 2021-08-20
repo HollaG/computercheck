@@ -162,8 +162,9 @@ block content
                                         each product in products[location]
                                             if (product.active == 1)
                                                 a.float-end(href=product.link target="_blank") $#{product.price}
-                                            else
-                                                a.text-decoration-line-through.float-end(href=product.link target="_blank") $#{product.price}
+                                            //- TODO: Show or hide inactive products?
+                                            //- else
+                                            //-     a.text-decoration-line-through.float-end(href=product.link target="_blank") $#{product.price}
                                             br
                                                 
                                 each prodsInLoc, location in products
