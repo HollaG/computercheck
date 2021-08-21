@@ -292,19 +292,6 @@ const headless = true
             const connection = await pool.getConnection()
 
 
-
-            // Clear the directory of all model images that are IN the new dataset (i.e. refresh them)
-            // Don't clear all files
-
-            for (let i = 0; i < MODEL_IDs.length; i++) { 
-                let fileName = MODEL_IDs[0]
-                let file = `${process.cwd()}/public/images/product-images/${fileName}.jpg`
-                if (fs.existsSync(file)) { 
-                    // exists, remove it
-                    fs.removeSync(file)
-                }
-            }
-
             // fs.emptyDirSync(`${process.cwd()}/public/images/product-images`)
 
             // TABLE: model_data
