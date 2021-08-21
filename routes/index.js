@@ -41,7 +41,7 @@ router.get('/', async function (req, res, next) {
         let brands = await conn.query(`SELECT brand, COUNT(*) as total FROM model_data GROUP BY brand ORDER BY brand ASC`)
         let locations = await conn.query(`SELECT location, COUNT(*) as total FROM data GROUP BY location ORDER BY location ASC`)
         let processorTypes = await conn.query(`
-        SELECT t.processor_model_clean, t.processor_company_clean, COUNT(*) as total FROM (SELECT IF(processor_company = "" OR processor_company = "-", 'Unknown', processor_company) as processor_company_clean, IF(processor_model = "" OR processor_model = "-", 'AAUnknown', processor_model) as processor_model_clean FROM model_data) t GROUP BY t.processor_model_clean ORDER BY t.processor_model_clean ASC`)
+        SELECT t.processor_model_clean, t.processor_company_clean, COUNT(*) as total FROM (SELECT IF(processor_company = "" OR processor_company = "-", 'Unknown', processor_company) as processor_company_clean, IF(processor_model = "" OR processor_model = "-", 'Unknown', processor_model) as processor_model_clean FROM model_data) t GROUP BY t.processor_model_clean ORDER BY t.processor_model_clean ASC`)
         processorTypes = processorTypes[0].reduce((r, a) => {
             r[a.processor_company_clean] = [...r[a.processor_company_clean] || [], a];
             return r;
@@ -91,7 +91,7 @@ router.get('/', async function (req, res, next) {
             dataObj,
             stringify: require("js-stringify")
         });
-        conn.release()
+        await conn.release()
     } catch (e) {
         console.log(e)
         conn.release()
@@ -135,7 +135,8 @@ router.get("/loadMore/:code", async function (req, res, next) {
 
             let obj = {
                 html,
-                ended: true
+                ended: true,
+                number: Object.keys(result.modelDataGroupedID).length
             }
             // console.log(obj)
 
@@ -143,7 +144,9 @@ router.get("/loadMore/:code", async function (req, res, next) {
         } else {
             let obj = {
                 html,
-                ended: false
+                ended: false,
+                number: Object.keys(result.modelDataGroupedID).length
+
             }
             // console.log(obj)
             res.send(JSON.stringify(obj))
@@ -168,6 +171,7 @@ async function getModels(startIndex, loadAll) {
     // StartIndex: (Total models loaded already)
     // E.g. startIndex = 24 if 24 models loaded
 
+    // loadAll = true 
     const limit = loadAll ? 1000000 : 24
     let conn = null
     try {
@@ -239,7 +243,7 @@ async function getModels(startIndex, loadAll) {
         }
 
 
-        conn.release()
+        await conn.release()
         return {
             groupedByProductId,
             modelDataGroupedID,
@@ -342,7 +346,7 @@ async function getSearchModels(startIndex, searchString, loadAll) {
                 return r;
             }, {});
         }
-        conn.release()
+        await conn.release()
 
         return {
             groupedByProductId,

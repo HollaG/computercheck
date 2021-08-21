@@ -24,6 +24,7 @@ const headless = true
 
             await fs.ensureDir(`${process.cwd()}/public/images/product-images`)
             const PRODUCTS = []
+            const MODEL_IDs = []
             console.log(files)
             for (var i = 0; i < files.length; i++) {
 
@@ -48,6 +49,7 @@ const headless = true
                     if (!Object.keys(item).includes("customizable")) item.customizable = false
                     if (!Object.keys(item).includes("instock")) item.instock = ""
 
+                    MODEL_IDs.push(makeFileName(item.model_ID))
                 }
                 PRODUCTS.push(...data)
 
@@ -196,8 +198,6 @@ const headless = true
             const items = {}
 
 
-            // Clear the directory of old model images
-            fs.emptyDirSync(`${process.cwd()}/public/images/product-images`)
 
             for (brand of Object.keys(brandGrouped)) {
                 var products = brandGrouped[brand]
@@ -291,13 +291,28 @@ const headless = true
             // MYSQL STUFF
             const connection = await pool.getConnection()
 
+
+
+            // Clear the directory of all model images that are IN the new dataset (i.e. refresh them)
+            // Don't clear all files
+
+            for (let i = 0; i < MODEL_IDs.length; i++) { 
+                let fileName = MODEL_IDs[0]
+                let file = `${process.cwd()}/public/images/product-images/${fileName}.jpg`
+                if (fs.existsSync(file)) { 
+                    // exists, remove it
+                    fs.removeSync(file)
+                }
+            }
+
+            // fs.emptyDirSync(`${process.cwd()}/public/images/product-images`)
+
             // TABLE: model_data
             // GENERATE: 
             // 1) model_ID
             // 2) name
             // 3) brand
             // 4) search_terms
-
             const model_data = []
             const model_keywords = []
             const items_data = []
@@ -343,48 +358,56 @@ const headless = true
                     // Check the IMAGE_URL
                     let image_link = ""
                     try {
-                       
-                        let res = await axios.get(products[0].image_url, {
+                        let fileName = makeFileName(model)
 
-                            responseType: 'arraybuffer'
-                        })
-                        let data = Buffer.from(res.data, "binary")
-                        
+                        let file = `${process.cwd()}/public/images/product-images/${fileName}.jpg`
+                        if (fs.existsSync(file)) { 
+                            // already exists
+                            console.log("File already exists for " + counter)
+                        } else {
+                            let res = await axios.get(products[0].image_url, {
 
-                        let fileName = model.replace(/[^a-z0-9]/gi, '_').toUpperCase();
-                        sharp(data)
-                            .flatten({ background: '#FFFFFF' })
-                            .trim(25)
-                            .resize({
-                                fit: "contain",
-                                width: 300,
-                                height: 200,
-                                background: { r: 255, g: 255, b: 255, alpha: 1 },
-
+                                responseType: 'arraybuffer'
                             })
-                            .jpeg()                            
-                            .toFile(`${process.cwd()}/public/images/product-images/${fileName}.jpg`, (err, info) => {
-                                // console.log(info)
-                                if (err) {
-                                    console.log(err)
-                                    console.log('MIssing image for ' + counter)
-                                    image_link = "/images/missing.jpg"
-
-                                } else { 
-                                    console.log(products[0].image_url, counter)
-                                }
-                            })
+                            let data = Buffer.from(res.data, "binary")
+    
+    
+                            sharp(data)
+                                .flatten({ background: '#FFFFFF' })
+                                .trim(25)
+                                .resize({
+                                    fit: "contain",
+                                    width: 300,
+                                    height: 200,
+                                    background: { r: 255, g: 255, b: 255, alpha: 1 },
+    
+                                })
+                                .jpeg()
+                                .toFile(`${process.cwd()}/public/images/product-images/${fileName}.jpg`, (err, info) => {
+                                    // console.log(info)
+                                    if (err) {
+                                        console.log(err)
+                                        console.log('MIssing image for ' + counter)
+                                        image_link = "/images/missing.jpg"
+    
+                                    } else {
+                                        console.log(products[0].image_url, counter)
+                                    }
+                                })
+    
+    
                             
-                        
+                        }
                         image_link = `/images/product-images/${fileName}.jpg`
+                        
                     } catch (e) {
                         // console.log(e)
                         console.log('MIssing image for ' + counter)
                         image_link = "/images/missing.jpg"
                     }
                     // await timeout(500)
-                    
-                    
+
+
                     model_data.push([
                         model.trim().toUpperCase(),
                         products[0].name.trim().toUpperCase(),
@@ -402,35 +425,38 @@ const headless = true
                     }
                     counter++
 
-                    
-                    
-                    
+
+
+
 
 
                 }
             }
 
-            // await connection.query(`DELETE FROM model_data`)
-            // await connection.query(`INSERT INTO model_data (model_ID, name, brand, search_terms, image_url) VALUES ?`, [model_data])
-            // // console.log(keywords)
-            // await connection.query(`DELETE FROM model_keywords`)
-            // await connection.query(`INSERT INTO model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
 
-            
+
             await connection.query(`DELETE FROM temp_model_data`)
             await connection.query(`INSERT INTO temp_model_data (model_ID, name, brand, search_terms, image_url) VALUES ?`, [model_data])
-            await connection.query(`INSERT INTO model_data (SELECT * FROM temp_model_data WHERE temp_model_data.model_ID NOT IN (SELECT model_data.model_ID FROM model_data))`)
 
             await connection.query(`DELETE FROM temp_model_keywords`)
             await connection.query(`INSERT INTO temp_model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
-            await connection.query(`INSERT INTO model_keywords (SELECT * FROM temp_model_keywords WHERE temp_model_keywords.model_ID NOT IN (SELECT model_keywords.model_ID FROM model_keywords))`)
 
 
 
             await connection.query(`DELETE FROM temp_data`)
             await connection.query(`INSERT INTO temp_data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
 
-            console.log(model_data)
+            // console.log(model_data)
+
+
+            const mod = require(`${__dirname}/specifications.js`)
+            await mod.specs()
+            
+            console.log("----------------- COPYING OVER DATABASE -----------------")
+
+            await connection.beginTransaction()
+            await connection.query(`INSERT INTO model_data (SELECT * FROM temp_model_data WHERE temp_model_data.model_ID NOT IN (SELECT model_data.model_ID FROM model_data))`)
+            await connection.query(`INSERT INTO model_keywords (SELECT * FROM temp_model_keywords WHERE temp_model_keywords.model_ID NOT IN (SELECT model_keywords.model_ID FROM model_keywords))`)
 
 
             // Find rows from DATA that are NOT in temp_data (i.e. products that are now discontinued / OOS) and set as inactive
@@ -445,7 +471,8 @@ const headless = true
             // Find rows that are in data AND temp_data (i.e. discontinued rows will NOT be selected)
             await connection.query(`DELETE FROM data WHERE data.link IN (SELECT temp_data.link FROM temp_data)`)
             await connection.query(`INSERT INTO data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data])
-
+            await connection.commit()
+            console.log("----------------- COMPLETED COPYING OVER DATABASE -----------------")
 
 
             await connection.release()
@@ -454,90 +481,11 @@ const headless = true
             console.log("Time taken: " + (endTime - startTime))
 
             console.log("----------------- COMPLETED EXECUTING FILE: sorter.js -----------------")
-            // require(`${process.cwd()}/scripts/specifications.js`)
+            
             return true
 
 
-            // Insert rows for model_data
-            // const modelData = []
-            // const keywords = []
-            // var unmatchedModels = main["unmatched"]
-            // for (let model_ID of Object.keys(unmatchedModels)) { 
-            //     let product = unmatchedModels[model_ID]
-            //     let searchString = product.name
-            //     searchString = searchString + " " + product.brand
-            //     searchString.split(" ").forEach(string => {
-            //         if (string) {
-            //             keywords.push([
-            //                 model_ID.toUpperCase().trim(),
-            //                 string
-            //             ])
-            //         }
-            //     })
 
-            //     let newModelName = generateModelName(searchString, model_ID.toUpperCase().trim())
-
-            //     if (!newModelName) newModelName = model_ID.trim().toUpperCase()
-            //     modelData.push([
-            //         model_ID.toUpperCase(), 
-            //         newModelName,
-            //         product.brand.toUpperCase(),
-            //         product.name
-            //     ])
-
-            // }
-            // var matchedModels = main["matched"]
-            // for (let model_ID of Object.keys(matchedModels)) { 
-            //     let products = matchedModels[model_ID]
-            //     let searchString = products[0].brand
-            //     products.forEach(product => { 
-            //         searchString = searchString + " " + product.name
-            //     })
-            //     searchString = removeDuplicatesString(searchString)
-            //     searchString.toUpperCase().trim()
-            //     let newModelName = generateModelName(searchString, model_ID.toUpperCase().trim())
-
-            //     if (!newModelName) newModelName = model_ID
-            //     modelData.push([
-            //         model_ID.toUpperCase().trim(),
-            //         newModelName.toUpperCase().trim(), 
-            //         products[0].brand.toUpperCase().trim(),
-            //         searchString
-
-            //     ])
-
-            //     searchString.split(" ").forEach(string => {
-            //         if (string) {
-            //             keywords.push([
-            //                 model_ID.toUpperCase().trim(),
-            //                 string
-            //             ])
-            //         }
-            //     })
-
-            // }
-
-            // await connection.query(`DELETE FROM model_data`)
-            // await connection.query(`INSERT INTO model_data (model_ID, name, brand, search_terms) VALUES ?`, [modelData])
-            // // console.log(keywords)
-            // await connection.query(`DELETE FROM model_keywords`)
-            // await connection.query(`INSERT INTO model_keywords (model_ID, keyword) VALUES ?`, [keywords])
-
-            // const temp = []
-            // for (var i = 0; i < PRODUCTS.length; i++) { 
-            //     temp.push([
-            //         PRODUCTS[i].name.toUpperCase().trim(), 
-            //         PRODUCTS[i].price.toUpperCase().trim(), 
-            //         PRODUCTS[i].brand.toUpperCase().trim(), 
-            //         PRODUCTS[i].location.trim(),
-            //         PRODUCTS[i].model_ID.toUpperCase().trim(),
-            //         PRODUCTS[i].link.trim()
-            //     ])
-            // }
-
-            // await connection.query(`DELETE FROM data`)
-            // await connection.query(`INSERT INTO data (name, price, brand, location, model_ID, link) VALUES ?`, [temp])
-            // await connection.release()
 
 
 
@@ -683,4 +631,8 @@ process.on('uncaughtException', function (exception) {
 });
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function makeFileName(name) {
+    return name.replace(/[^a-z0-9]/gi, '_').toUpperCase();
 }
