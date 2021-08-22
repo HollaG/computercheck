@@ -142,8 +142,11 @@ module.exports.specs = async () => {
                 // Detect strings that have spaces between the model i.e. <space>i5<space>
                 if (text.match(/\si\d\s/i)) return text.match(/\si\d\s/i)[0].trim().lowerLize()
 
-                // R5-5600U / i7-117G6
-                if (text.match(/([ir]\d[-\s]\d\d\d\d\w?\w?[kqe]?)/mi)) return text.match(/([ir]\d[-\s]\d\d\d\d\w?\w?[kqe]?)/mi)[0].replace(/\s/gi, "-").toUpperCase().lowerLize().trim()
+                // i7-117G6
+                if (text.match(/([i]\d[-\s]\d\d\d\d\w?\w?[kqe]?)/mi)) return text.match(/([i]\d[-\s]\d\d\d\d\w?\w?[kqe]?)/mi)[0].replace(/\s/gi, "-").toUpperCase().lowerLize().trim()
+
+                // r5 5800HX
+                if (text.match(/([r]\d[-\s]\d\d\d\d\w?\w?[kqe]?)/mi)) return convertAMDShortToLong(text.match(/([r]\d[-\s]\d\d\d\d\w?\w?[kqe]?)/mi)[0].replace(/\s/gi, "-").toUpperCase().trim())
                 if (text.match(/intel(\s?core)?\si\d/mi)) return text.match(/intel(\s?core)?\si\d/mi)[0].split(" ")[text.match(/intel(\s?core)?\si\d/mi)[0].split(" ").length - 1].lowerLize().trim() // For 'INTEL i7' / 'INTEL I5'
                 return text.match(/((ryzen)?\s\d\s\d\d\d\d(\d?|(\d\d)?)\w\w?)|(ryzen [3579])/im) ? convertAMDShortToLong(text.match(/((ryzen)?\s\d\s\d\d\d\d(\d?|(\d\d)?)\w\w?)|(ryzen [3579])/im)[0].trim().toUpperCase()) : "-"
             }

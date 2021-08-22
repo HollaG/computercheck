@@ -50,8 +50,12 @@ each products, model_ID in data
                                     br
                                 //-     a.text-decoration-line-through.float-end(href=product.link target="_blank") $#{product.price}
                             if (numOOS != 0)
-                                a.float-end(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}`) #{numOOS} out of stock
-                                br
+                                if (numOOS == 1)
+                                    a.float-end(href=products[location][0].link target="_blank") Out of stock
+                                    br
+                                else
+                                    a.float-end(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}`) #{numOOS} out of stock
+                                    br
 
                                     
                     each prodsInLoc, location in products

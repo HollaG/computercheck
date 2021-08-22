@@ -85,7 +85,7 @@ router.get('/', async function (req, res, next) {
             numberOfProducts: result.numberOfProducts,
             stringify,
             diff,
-            original: req.query.search,
+            original: req.query.search ? req.query.search.trim() : "",
             getRandomName,
             ended,
             dataObj,
@@ -275,8 +275,7 @@ async function getSearchModels(startIndex, searchString, loadAll) {
         let modelSearchTerms = await conn.query(`SELECT search_terms, brand, model_ID FROM model_data WHERE model_ID NOT IN (?) ORDER BY model_ID`, [inactiveModels])
         modelSearchTerms = modelSearchTerms[0]
 
-        let searchArr = searchString.split(" ")
-
+        let searchArr = searchString.trim().toUpperCase().split(" ")
         let searchedModels = []
 
         for (let i = 0; i < modelSearchTerms.length; i++) {
@@ -286,8 +285,8 @@ async function getSearchModels(startIndex, searchString, loadAll) {
             for (let j = 0; j < searchArr.length; j++) {
                 let searchTerm = searchArr[j]
                 let regex = new RegExp(escapeRegex(searchTerm))
-                console.log(regex)
-                if (model.search_terms.match(regex)) {
+
+                if (model.search_terms.toUpperCase().match(regex)) {
                     numMatches++
                 }
             }
@@ -296,8 +295,15 @@ async function getSearchModels(startIndex, searchString, loadAll) {
                 searchedModels.push(model.model_ID)
             }
 
+            if (i == 10) break 
 
         }
+
+
+
+
+
+
         console.log(searchedModels)
         if (!searchedModels.length) searchedModels = [""]
 
@@ -525,17 +531,17 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
         }
 
         if (model.processor_company == "-") {
-            if (model.processor_model != "-") {                        
+            if (model.processor_model != "-") {
                 modelData['processor'] = model.processor_model
             }
-        } else { 
+        } else {
             if (model.processor_model == "-") {
                 modelData['processor'] = model.processor_company
-            } else { 
+            } else {
                 modelData['processor'] = `${model.processor_company} ${model.processor_model}`
             }
         }
-        
+
         if (model.ram != -1) {
             modelData["ram"] = `${model.ram} GB`
         }
@@ -545,13 +551,13 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
         }
 
         if (model.graphics_company == "-") {
-            if (model.graphics_card != "-") {                        
+            if (model.graphics_card != "-") {
                 modelData['graphics'] = model.graphics_card
             }
-        } else { 
+        } else {
             if (model.graphics_card == "-") {
                 modelData['graphics'] = model.graphics_company
-            } else { 
+            } else {
                 modelData['graphics'] = `${model.graphics_company} ${model.graphics_card}`
             }
         }
@@ -560,27 +566,27 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
             modelData['screen_size'] = `${model.screen_size} inch`
         }
 
-        if (model.screen_resolution_w != -1 && model.screen_resolution_h != -1) { 
-            modelData['screen_resolution'] = `${model.screen_resolution_w} x ${model.screen_resolution_h}`  
+        if (model.screen_resolution_w != -1 && model.screen_resolution_h != -1) {
+            modelData['screen_resolution'] = `${model.screen_resolution_w} x ${model.screen_resolution_h}`
         }
 
-        if (model.screen_tech != "-") { 
+        if (model.screen_tech != "-") {
             modelData['screen_tech'] = model.screen_tech
         }
 
-        if (model.screen_size != -1 && model.screen_resolution_w != -1 && model.screen_resolution_h != -1) { 
+        if (model.screen_size != -1 && model.screen_resolution_w != -1 && model.screen_resolution_h != -1) {
             modelData['screen_ppi'] = `${ppi(model.screen_size, model.screen_resolution_w, model.screen_resolution_h)} ppi`
         }
 
-        if (model.weight != -1) { 
-            if (Number(model.weight) > 1000) { 
-                modelData['weight'] = `${Math.round(model.weight/1000 * 100) / 100} kg`
+        if (model.weight != -1) {
+            if (Number(model.weight) > 1000) {
+                modelData['weight'] = `${Math.round(model.weight / 1000 * 100) / 100} kg`
             } else {
                 modelData['weight'] = `${model.weight} g`
             }
         }
 
-        if (model.os != "-") { 
+        if (model.os != "-") {
             modelData['os'] = model.os
         }
 
@@ -620,11 +626,11 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
     }
 })
 
-router.get("/faq", function(req, res) {res.render("faq.pug", {title: "FAQ"})})
+router.get("/faq", function (req, res) { res.render("faq.pug", { title: "FAQ" }) })
 
 function formatDate(d) {
     var d = d
-        month = '' + (d.getMonth() + 1),
+    month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
 

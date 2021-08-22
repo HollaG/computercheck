@@ -16,7 +16,7 @@ block content
                         form#searchForm(action='/' method='get')                           
                             .row
                                 .col
-                                    input#modelSearch.form-control.form-control-lg(type="text" placeholder="Search model..." name='search' value=original)                                    
+                                    input#modelSearch.form-control.form-control-lg(type="text" placeholder="Search model..." name='search' value=original maxlength="75")                                    
                                 .col-auto
                                     button#submitButton.btn.btn-primary.btn-lg(type="submit") Search               
 
@@ -172,8 +172,12 @@ block content
                                                 a.float-end(href=product.link target="_blank") (Customizable)
                                                 br
                                         if (numOOS != 0)
-                                            a.float-end(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}`) #{numOOS} out of stock
-                                            br
+                                            if (numOOS == 1)
+                                                a.float-end(href=products[location][0].link target="_blank") Out of stock
+                                                br
+                                            else
+                                                a.float-end(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}`) #{numOOS} out of stock
+                                                br
                                             
                                                 
                                 each prodsInLoc, location in products
