@@ -319,7 +319,7 @@ const headless = true
                     let products = models[model]
 
                     let totalPrice = 0
-
+                    let model_name = ""
                     for (let z = 0; z < products.length; z++) {
                         let product = products[z]
 
@@ -327,7 +327,7 @@ const headless = true
                         if (product.instock == "c-false") active = 0
 
                         totalPrice = totalPrice + Number(product.price.replace("$", ""))
-
+                        if (model_name.length < product.name.length) model_name = product.name
 
                         items_data.push([
                             model.trim().toUpperCase(),
@@ -405,7 +405,7 @@ const headless = true
 
                     model_data.push([
                         model.trim().toUpperCase(),
-                        products[0].name.trim().toUpperCase(),
+                        model_name.trim().toUpperCase(),
                         products[0].brand.trim().toUpperCase(),
                         avgPrice,
                         search_string,

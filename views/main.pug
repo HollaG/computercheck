@@ -42,8 +42,13 @@ block content
                     i(class="fas fa-filter")
                     p.fw-bold.d-inline-block.my-0.ms-2.me-0 Filters
                 //- button.btn-light.btn.btn-sm Single mode
+
+               
+                    
+
                 .me-3.select-container.shadow-sm.my-2(style='display:none')        
                     select#select-brand
+                        
                         each brand in dataObj.brands
                             option(value=`brand:${brand.brand}`) #{brand.brand} (#{brand.total})
 

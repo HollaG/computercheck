@@ -176,10 +176,12 @@ async function getModels(startIndex, loadAll) {
     let conn = null
     try {
         conn = await pool.getConnection()
-        let inactiveModels = await conn.query(`SELECT model_ID, active, COUNT(*) FROM data GROUP BY model_ID HAVING COUNT(*) = 1 AND active = 0`)
-        inactiveModels = inactiveModels[0].map(x => x.model_ID)
-        if (!inactiveModels.length) inactiveModels = [""]
-        console.log(inactiveModels)
+        // let inactiveModels = await conn.query(`SELECT model_ID, active, COUNT(*), SUM(active) as s FROM data GROUP BY model_ID HAVING s = 0`) // all models whose products are all inactive
+        // inactiveModels = inactiveModels[0].map(x => x.model_ID)
+        // if (!inactiveModels.length) inactiveModels = [""]
+        // console.log(inactiveModels)
+
+        let inactiveModels = [""]
 
         // Total model count 
         let numberOfModels = await conn.query(`SELECT COUNT(row_ID) as total FROM model_data WHERE model_ID NOT IN (?)`, [inactiveModels])
@@ -193,8 +195,8 @@ async function getModels(startIndex, loadAll) {
 
 
 
-        
-        // Select the first 24 models (sorted by alphabetical)
+
+        // Select the first 24 models (sorted by price)
         let modelData = await conn.query(`SELECT *, 
             IF(processor_company = "-" OR processor_company = "", "Unknown", processor_company) as processor_company_clean,
             IF(processor_model = "-" OR processor_model = "", "Unknown", processor_model) as processor_model_clean,
@@ -202,19 +204,26 @@ async function getModels(startIndex, loadAll) {
             IF(screen_size = 0 OR screen_size = -1, "Unknown", screen_size) as screen_clean,
             IF(os = "-" OR os = "", "Unknown", os) AS os_clean,
             IF(weight = 0 OR weight = -1, "Unknown", weight) as weight_clean
-            
-            
-            FROM model_data WHERE model_ID NOT IN (?) ORDER BY avg_price ASC LIMIT ? OFFSET ?`, [inactiveModels, limit, startIndex])
-        modelData = modelData[0]    
+    
+            FROM model_data
+            LEFT JOIN (
+                SELECT model_ID, IF(e.s = 0, 0, 1) as model_active, s as sum_active, model_count FROM
+                (SELECT model_ID, SUM(active) as s, COUNT(*) as model_count FROM data GROUP BY model_ID) as e
+            ) as d
+   
+            ON model_data.model_ID = d.model_ID 
+            WHERE model_data.model_ID NOT IN (?) 
+            ORDER BY model_active DESC, avg_price ASC LIMIT ? OFFSET ?`, [inactiveModels, limit, startIndex])
+        modelData = modelData[0]
         
-        
+
         let availableModels = modelData.map(x => x.model_ID)
         if (!availableModels.length) availableModels = [""]
-       
+
 
         let data = await conn.query(`SELECT * FROM data LEFT JOIN model_data ON data.model_ID = model_data.model_ID WHERE data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [availableModels])
 
-        
+
         data = data[0]
 
         // Group by product ID
@@ -228,7 +237,7 @@ async function getModels(startIndex, loadAll) {
             r[a.model_ID] = [...r[a.model_ID] || [], a];
             return r;
         }, {});
-        
+
 
 
         for (model_ID of Object.keys(groupedByProductId)) {
@@ -271,9 +280,11 @@ async function getSearchModels(startIndex, searchString, loadAll) {
     try {
         conn = await pool.getConnection()
         // Select the inactive models
-        let inactiveModels = await conn.query(`SELECT model_ID, active, COUNT(*) FROM data GROUP BY model_ID HAVING COUNT(*) = 1 AND active = 0`)
-        inactiveModels = inactiveModels[0].map(x => x.model_ID)
-        if (!inactiveModels.length) inactiveModels = [""]
+        // let inactiveModels = await conn.query(`SELECT model_ID, active, COUNT(*), SUM(active) as s FROM data GROUP BY model_ID HAVING s = 0`)
+        // inactiveModels = inactiveModels[0].map(x => x.model_ID)
+        // if (!inactiveModels.length) inactiveModels = [""]
+
+        let inactiveModels = [""]
 
         console.log(inactiveModels, 'asdas')
         let modelSearchTerms = await conn.query(`SELECT search_terms, brand, model_ID FROM model_data WHERE model_ID NOT IN (?) ORDER BY model_ID`, [inactiveModels])
@@ -285,11 +296,14 @@ async function getSearchModels(startIndex, searchString, loadAll) {
         for (let i = 0; i < modelSearchTerms.length; i++) {
 
             let model = modelSearchTerms[i]
+           
             let numMatches = 0
             for (let j = 0; j < searchArr.length; j++) {
                 let searchTerm = searchArr[j]
-                let regex = new RegExp(escapeRegex(searchTerm))
-
+                
+                let regex = new RegExp(escapeRegex(searchTerm.toUpperCase()))
+                
+                // console.log(regex)
                 if (model.search_terms.toUpperCase().match(regex)) {
                     numMatches++
                 }
@@ -299,7 +313,7 @@ async function getSearchModels(startIndex, searchString, loadAll) {
                 searchedModels.push(model.model_ID)
             }
 
-            if (i == 10) break 
+            // if (i == 10) break
 
         }
 
@@ -333,7 +347,15 @@ async function getSearchModels(startIndex, searchString, loadAll) {
             IF(os = "-" OR os = "", "", os) AS os_clean,
             IF(weight = 0 OR weight = -1, "Unknown", weight) as weight_clean
             
-            FROM model_data WHERE model_ID IN (?) ORDER BY avg_price ASC`, [limitedSearchModels])
+            FROM model_data 
+            LEFT JOIN (
+                SELECT model_ID, IF(e.s = 0, 0, 1) as model_active, s as sum_active, model_count FROM
+             	(SELECT model_ID, SUM(active) as s, COUNT(*) as model_count FROM data GROUP BY model_ID) as e
+            ) as d           
+            
+            ON model_data.model_ID = d.model_ID
+            
+            WHERE model_data.model_ID IN (?) ORDER BY  model_active DESC, avg_price ASC`, [limitedSearchModels])
         modelData = modelData[0]
 
         let data = await conn.query(`SELECT * FROM data LEFT JOIN model_data ON data.model_ID = model_data.model_ID WHERE data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [limitedSearchModels])

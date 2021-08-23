@@ -513,7 +513,7 @@ const brands = []
                     const razerPage = await browser.newPage()
 
                     await razerPage.goto(links['RAZER Store'][0], { waitUntil: "networkidle2" })
-
+                    await razerPage.waitForTimeout(2500)
                     // await razerPage.exposeFunction('cleaner', cleaner)
                     let products = await razerPage.evaluate(async () => {
                         try {

@@ -175,6 +175,7 @@ const opts = {
     sortSelected: true
 }
 
+
 const filters = []
 
 let filterObj = {}
@@ -403,6 +404,7 @@ const sBrand = new Selectr('#select-brand', opts)
 sBrand.on("selectr.select", filter)
 sBrand.on("selectr.deselect", filter)
 if (filterObjFromURL.brand) sBrand.setValue(filterObjFromURL.brand.map(x => `brand:${x}`))
+
 
 opts.placeholder = "Store:"
 const sLocation = new Selectr('#select-location', opts)

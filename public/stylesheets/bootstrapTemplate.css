@@ -6356,7 +6356,7 @@ textarea.form-control-lg {
 .offcanvas.show {
   transform: none;
 }
-
+/* 
 .placeholder {
   display: inline-block;
   min-height: 1em;
@@ -6419,7 +6419,7 @@ textarea.form-control-lg {
     -webkit-mask-position: -200% 0%;
             mask-position: -200% 0%;
   }
-}
+} */
 .clearfix::after {
   display: block;
   clear: both;

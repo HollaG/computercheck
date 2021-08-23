@@ -168,12 +168,13 @@ img[data-loaded="true"], [data-loaded="true"] img { animation-name: showLazyImg;
   animation: rotating 2s linear infinite;
 }
 
+
+
 .select-container { 
   min-height: 29px;
 }
 .selectr-container:not(.has-selected) { 
-  /* margin-top: 0.5rem !important;
-  margin-bottom: 0.5rem !important; */
+  
   min-width: 150px;
 }
 
@@ -182,7 +183,7 @@ img[data-loaded="true"], [data-loaded="true"] img { animation-name: showLazyImg;
   height: 100%;
   border: none !important;
   background-color: #fbfbfb;
-  /* min-width: 150px; */
+ 
 }
 
 
