@@ -307,23 +307,27 @@ module.exports.specs = async () => {
                 if (Number.isNaN(Number(text))) {
                     // carry on with cleaning
                     text = text.replace(/,/g, ".")
-                    if (text.match(/\d?\d((\.)\d\d?\d?)?\s?(kg|lbs)|(\d\d\d\d?\s?g\s)/mi)) {
-                        text = text.match(/\d?\d((\.)\d\d?\d?)?\s?(kg|lbs)|(\d\d\d\d?\s?g\s)/mi)[0]
+                    if (text.match(/(^|\s)\d?\d((\.)\d\d?\d?)?\s?(kg|lbs)|(^|\s)(\d\d\d\d?\s?g\s)/mi)) {
+                        text = text.match(/(^|\s)\d?\d((\.)\d\d?\d?)?\s?(kg|lbs)|(^|\s)(\d\d\d\d?\s?g\s)/mi)[0].trim()
                         let textInNumber = Number(text.replace(/[^0-9.,]/g, ''))
                         let weightInG = textInNumber
                         if (text.match(/kg/i)) {
                             weightInG = Number(textInNumber * 1000)
                         } else if (text.match(/lbs/i)) {
                             weightInG = Number(textInNumber * 454)
-                        } else { 
-                            // assume kg if not specified
+                        } else if (weightInG < 10) { 
                             weightInG = Number(textInNumber * 1000)
- 
                         }
                         return Math.round(weightInG)
                     } else return -1
                 } else {
-                    return Number(text)
+                    if (Number(text) < 10) { 
+                        // is kg
+                        return Number(text) * 1000
+                    } else { 
+                        return Number(text)
+                    }
+                    
                 }
             }
 
