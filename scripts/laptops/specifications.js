@@ -75,18 +75,16 @@ module.exports.specs = async () => {
                 queue_number
             })
 
+            
+
+
         }
 
 
-        // cluster.queue({
-        //     model_ID: 'FA506IV-1',
-        //     model: { "Gain City": [{ link: 'https://www.gaincity.com/catalog/product/view/id/106853/s/T0156540/category/160/', name: 'ASUS LAPTOP 15.6" R7-4800H FA506IV-RTX20601' }] }
-        // })
 
 
 
-        let models = await conn.query(`SELECT * FROM temp_model_data`)
-        models = models[0]
+    
 
 
 
@@ -138,7 +136,8 @@ module.exports.specs = async () => {
                 }
                 // Pentium chips
                 if (text.match(/N\d\d\d\d/i)) return text.match(/N\d\d\d\d/i)[0].trim()
-                if (text.match(/\d\d\d\dy/i)) return text.match(/\d\d\d\dy/i)[0].trim()
+                if (text.match(/(m[3579][-\s])?\d\d\d\dy/i)) return text.match(/(m[3579][-\s])?\d\d\d\dy/i)[0].trim().lowerLize()
+
                 // Detect strings that have spaces between the model i.e. <space>i5<space>
                 if (text.match(/\si\d\s/i)) return text.match(/\si\d\s/i)[0].trim().lowerLize()
 
@@ -157,8 +156,8 @@ module.exports.specs = async () => {
                 text = text.replace(/©|℗|®|™|/gi, "")
                 text = text.replace(/ /g, " ")
 
-                if (text.match(/(AMD)|(ryzen)|(r\d[-\s])/im)) return "AMD"
-                if (text.match(/(intel)|(i\d)|(i\d[-\s]\d\d\d\d\w?\w?[kqe]?)/mi)) return "Intel"
+                if (text.match(/(AMD)|(ryzen)/im)) return "AMD"
+                if (text.match(/(intel)|(i\d)|(i\d[-\s]\d\d\d\d\w?\w?[kqe]?)|(pentium)|(celeron)/mi)) return "Intel"
                 if (text.match(/N\d\d\d\d/i)) return "Intel" // Pentiun N4000
                 if (text.match(/(microsoft)|(surface)/i)) {
                     // Test for microsoft SQ1/2 chips
@@ -307,15 +306,19 @@ module.exports.specs = async () => {
                 if (!text) return -1
                 if (Number.isNaN(Number(text))) {
                     // carry on with cleaning
-                    text = text.replace(/,/g, "")
+                    text = text.replace(/,/g, ".")
                     if (text.match(/\d?\d((\.)\d\d?\d?)?\s?(kg|lbs)|(\d\d\d\d?\s?g\s)/mi)) {
                         text = text.match(/\d?\d((\.)\d\d?\d?)?\s?(kg|lbs)|(\d\d\d\d?\s?g\s)/mi)[0]
                         let textInNumber = Number(text.replace(/[^0-9.,]/g, ''))
                         let weightInG = textInNumber
-                        if (text.match('kg')) {
+                        if (text.match(/kg/i)) {
                             weightInG = Number(textInNumber * 1000)
-                        } else if (text.match('lbs')) {
+                        } else if (text.match(/lbs/i)) {
                             weightInG = Number(textInNumber * 454)
+                        } else { 
+                            // assume kg if not specified
+                            weightInG = Number(textInNumber * 1000)
+ 
                         }
                         return Math.round(weightInG)
                     } else return -1

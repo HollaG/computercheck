@@ -73,7 +73,7 @@ router.get('/', async function (req, res, next) {
             maxPrice, minPrice
         }
 
-        console.log(result.groupedByProductId)
+        // console.log(result.groupedByProductId)
 
 
         res.render('main', {
@@ -130,8 +130,8 @@ router.get("/loadMore/:code", async function (req, res, next) {
 
         let searchTimeEnd = new Date().getMilliseconds()
 
-
-        if (Object.keys(result.groupedByProductId).length < 24 || loadAll) {
+        console.log(Object.keys(result.groupedByProductId).length)
+        if (Object.keys(result.groupedByProductId).length < 2 || loadAll) {
 
             let obj = {
                 html,
@@ -179,7 +179,7 @@ async function getModels(startIndex, loadAll) {
         let inactiveModels = await conn.query(`SELECT model_ID, active, COUNT(*) FROM data GROUP BY model_ID HAVING COUNT(*) = 1 AND active = 0`)
         inactiveModels = inactiveModels[0].map(x => x.model_ID)
         if (!inactiveModels.length) inactiveModels = [""]
-
+        console.log(inactiveModels)
 
         // Total model count 
         let numberOfModels = await conn.query(`SELECT COUNT(row_ID) as total FROM model_data WHERE model_ID NOT IN (?)`, [inactiveModels])
@@ -193,7 +193,7 @@ async function getModels(startIndex, loadAll) {
 
 
 
-
+        
         // Select the first 24 models (sorted by alphabetical)
         let modelData = await conn.query(`SELECT *, 
             IF(processor_company = "-" OR processor_company = "", "Unknown", processor_company) as processor_company_clean,
@@ -204,12 +204,17 @@ async function getModels(startIndex, loadAll) {
             IF(weight = 0 OR weight = -1, "Unknown", weight) as weight_clean
             
             
-            FROM model_data WHERE model_ID NOT IN (?) ORDER BY brand ASC, model_ID ASC LIMIT ? OFFSET ?`, [inactiveModels, limit, startIndex])
-        modelData = modelData[0]
+            FROM model_data WHERE model_ID NOT IN (?) ORDER BY avg_price ASC LIMIT ? OFFSET ?`, [inactiveModels, limit, startIndex])
+        modelData = modelData[0]    
+        
+        
         let availableModels = modelData.map(x => x.model_ID)
         if (!availableModels.length) availableModels = [""]
+       
 
-        let data = await conn.query(`SELECT * FROM data WHERE model_ID IN (?) ORDER BY brand ASC, model_ID ASC, active DESC`, [availableModels])
+        let data = await conn.query(`SELECT * FROM data LEFT JOIN model_data ON data.model_ID = model_data.model_ID WHERE data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [availableModels])
+
+        
         data = data[0]
 
         // Group by product ID
@@ -223,8 +228,7 @@ async function getModels(startIndex, loadAll) {
             r[a.model_ID] = [...r[a.model_ID] || [], a];
             return r;
         }, {});
-
-
+        
 
 
         for (model_ID of Object.keys(groupedByProductId)) {
@@ -329,10 +333,10 @@ async function getSearchModels(startIndex, searchString, loadAll) {
             IF(os = "-" OR os = "", "", os) AS os_clean,
             IF(weight = 0 OR weight = -1, "Unknown", weight) as weight_clean
             
-            FROM model_data WHERE model_ID IN (?) ORDER BY brand ASC, model_ID`, [limitedSearchModels])
+            FROM model_data WHERE model_ID IN (?) ORDER BY avg_price ASC`, [limitedSearchModels])
         modelData = modelData[0]
 
-        let data = await conn.query(`SELECT * FROM data WHERE model_ID IN (?) AND active = 1 ORDER BY brand ASC, model_ID ASC`, [limitedSearchModels])
+        let data = await conn.query(`SELECT * FROM data LEFT JOIN model_data ON data.model_ID = model_data.model_ID WHERE data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [limitedSearchModels])
         data = data[0]
 
         // Group by product ID
@@ -546,7 +550,7 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
             modelData["ram"] = `${model.ram} GB`
         }
 
-        if (model.storage != "-") {
+        if (model.storage != "-" || !model.storage) {
             modelData["storage"] = model.storage
         }
 

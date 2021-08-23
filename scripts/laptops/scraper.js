@@ -111,7 +111,7 @@ const brands = []
             await harvey()
             await challenger()
             
-            // await courts() // Illegal
+            await courts() // Illegal
             await best()
 
 
@@ -1009,7 +1009,7 @@ const brands = []
                                     let link = item.querySelector(".product-item-name > a").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
                                     if (!link.match(/^https?:\/\//g)) link = "https://" + link
 
-                                    let model_ID = await cleaner(childName) ? await cleaner(childName) : "UNIDENTIFIED"
+                                    let model_ID = await cleaner(childName) ? await cleaner(childName) : childName
 
                                     let image_url = item.querySelector(".product-image-photo").getAttribute("data-original")
                                     if (!image_url.match(/^https?:\/\//g)) image_url = "https://" + image_url

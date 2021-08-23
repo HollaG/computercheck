@@ -178,7 +178,7 @@ img[data-loaded="true"], [data-loaded="true"] img { animation-name: showLazyImg;
 }
 
 .selectr-selected { 
-  padding: 4px 20px 4px 10px !important;
+  padding: 4px 42px 4px 10px !important;
   height: 100%;
   border: none !important;
   background-color: #fbfbfb;

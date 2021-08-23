@@ -44,7 +44,7 @@ const headless = true
                     if (item.brand.toUpperCase() == "SURFACE") item.brand = "MICROSOFT"
 
                     if (!item.link.match(/^https?:\/\//g)) item.link = "https://" + item.link
-                    if (!item.model_ID) item.model_ID = "UNIDENTIFIED"
+                    if (!item.model_ID) item.model_ID = item.name
 
                     if (!Object.keys(item).includes("customizable")) item.customizable = false
                     if (!Object.keys(item).includes("instock")) item.instock = ""
@@ -292,6 +292,9 @@ const headless = true
             const connection = await pool.getConnection()
 
 
+            
+
+
             // fs.emptyDirSync(`${process.cwd()}/public/images/product-images`)
 
             // TABLE: model_data
@@ -309,9 +312,13 @@ const headless = true
 
                 let models = items[brand]
 
+
+
                 for (model of Object.keys(models)) {
                     let search_terms = []
                     let products = models[model]
+
+                    let totalPrice = 0
 
                     for (let z = 0; z < products.length; z++) {
                         let product = products[z]
@@ -319,6 +326,7 @@ const headless = true
                         let active = 1
                         if (product.instock == "c-false") active = 0
 
+                        totalPrice = totalPrice + Number(product.price.replace("$", ""))
 
 
                         items_data.push([
@@ -337,7 +345,7 @@ const headless = true
 
                     }
 
-
+                    let avgPrice = totalPrice / products.length
 
 
                     let search_string = removeDuplicatesString(products.reduce(reducer, brand).replace(/  /g, " "))
@@ -399,6 +407,7 @@ const headless = true
                         model.trim().toUpperCase(),
                         products[0].name.trim().toUpperCase(),
                         products[0].brand.trim().toUpperCase(),
+                        avgPrice,
                         search_string,
                         image_link
                     ])
@@ -423,7 +432,7 @@ const headless = true
 
 
             await connection.query(`DELETE FROM temp_model_data`)
-            await connection.query(`INSERT INTO temp_model_data (model_ID, name, brand, search_terms, image_url) VALUES ?`, [model_data])
+            await connection.query(`INSERT INTO temp_model_data (model_ID, name, brand, avg_price, search_terms, image_url) VALUES ?`, [model_data])
 
             await connection.query(`DELETE FROM temp_model_keywords`)
             await connection.query(`INSERT INTO temp_model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])

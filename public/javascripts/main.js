@@ -42,9 +42,9 @@ function loadMore(all) {
     
     currentlyLoading = true
     let btn = document.querySelector("#load-more-btn")
-    let btn2 = document.querySelector("#load-all-btn")
+    // let btn2 = document.querySelector("#load-all-btn")
     btn.disabled = true
-    btn2.disabled = true
+    // btn2.disabled = true
 
     document.querySelectorAll(".plus-icon").forEach(e => e.style.display = "none")
     document.querySelectorAll(".spinner-icon").forEach(e => e.style.display = "inline-block")
@@ -69,7 +69,7 @@ function loadMore(all) {
 
                 if (obj.ended) {
                     btn.style.display = 'none'
-                    btn2.style.display = 'none'
+                    // btn2.style.display = 'none'
 
                     document.querySelector("#loaded-text").style.display = 'block'
                     document.removeEventListener('scroll', scrollEvtListener)
@@ -77,7 +77,7 @@ function loadMore(all) {
                 currentlyLoading = false
                 visibleItems = visibleItems + Number(JSON.parse(this.responseText).number)
                 btn.disabled = false
-                btn2.disabled = false
+                // btn2.disabled = false
                 filter()
                 // setTimeout(loadMore, 1000)
                 // loadMore()
@@ -171,6 +171,8 @@ const opts = {
     searchable: false,
     multiple: true,
     selectedValue: ["#8e44ad", "#e74c3c"],
+    // clearable: true,
+    sortSelected: true
 }
 
 const filters = []
@@ -331,8 +333,11 @@ function showFilters() {
         document.querySelectorAll(".selectr-container:not(.has-selected)").forEach(e => e.parentElement.style.display = "none")
         document.querySelector("#toggle-filters-btn").classList.remove("active")
 
-        if (!Object.keys(filterObj).length) document.querySelector("#copy-filters-btn").style.display = "none"
-
+        if (!Object.keys(filterObj).length) {
+            document.querySelector("#copy-filters-btn").style.display = "none"
+            document.querySelector("#clear-filters-btn").style.display = "none"
+        
+        }
 
         if (!filterObj["weight"]) {
             document.querySelector(".select-weight-container").style.display = "none"
@@ -346,6 +351,7 @@ function showFilters() {
         document.querySelectorAll(".selectr-container").forEach(e => e.parentElement.style.display = "block")
         document.querySelector("#toggle-filters-btn").classList.add("active")
         document.querySelector("#copy-filters-btn").style.display = "block"
+        document.querySelector("#clear-filters-btn").style.display = "block"
         document.querySelector(".select-price-container").style.display = "block"
 
         document.querySelector(".select-weight-container").style.display = "block"
@@ -359,19 +365,35 @@ function copyFilters() {
     let text = window.location.origin
 
     if (urlParams.get("search")) text = text + `?search=${urlParams.get("search")}&filters=${JSON.stringify(filterObj)}`
-    else text = text + `?filters=${JSON.stringify(filterObj)}`
+    else text = text + `?filters=${encodeURIComponent(JSON.stringify(filterObj))}`
 
     copyTextToClipboard(text)
 
     document.querySelector("#copy-link-check").style.display = "inline-block"
     document.querySelector("#copy-link-clip").style.display = "none"
-    document.querySelector("#copy-link-text").innerHTML = "Link copied!"
+    document.querySelector("#copy-link-text").innerHTML = "Copied!"
     setTimeout(function () {
         document.querySelector("#copy-link-clip").style.display = "inline-block"
         document.querySelector("#copy-link-check").style.display = "none"
 
-        document.querySelector("#copy-link-text").innerHTML = "Copy link"
+        document.querySelector("#copy-link-text").innerHTML = "Copy"
     }, 1000)
+
+}
+
+function clearFilters() {
+    sBrand.clear()
+    sLocation.clear()
+    sPbrand.clear()
+    sRam.clear()
+    sScreen.clear()
+    sOs.clear()
+    weightSlider.set([dataObj.minWeight ? dataObj.minWeight : -1, dataObj.maxWeight ? dataObj.maxWeight : -1])
+    priceSlider.set([dataObj.minPrice ? dataObj.minPrice : -1, dataObj.maxPrice ? dataObj.maxPrice : -1])
+    
+    if (!document.querySelector("#weight-unknown").checked)
+        document.querySelector("#weight-unknown").click()
+
 
 }
 
@@ -443,7 +465,7 @@ let weightSlider = noUiSlider.create(weightRange, {
 
 })
 
-weightSlider.on('end', function (values, handle) {
+weightSlider.on('set', function (values, handle) {
 
     document.getElementById('select-weight-text').innerHTML = `Weight: ${values.join("g - ")}g`
     filter(null, values)
@@ -490,7 +512,7 @@ let priceSlider = noUiSlider.create(priceRange, {
 
 })
 
-priceSlider.on('end', function (values, handle) {
+priceSlider.on('set', function (values, handle) {
 
     document.getElementById('select-price-text').innerHTML = `Price: $${values.join(" - $")}`
     filter(null, null, values)
