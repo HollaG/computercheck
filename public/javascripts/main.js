@@ -345,6 +345,9 @@ function filter(option, sliderOption, sliderOptionPrice, elem) {
         loadMore()
     }
 
+    let numberFilters = Object.keys(filterObj).length - 1 // 1 for the shownunknownweight
+    document.querySelector("#filter-btn-text").innerHTML = `FILTERS (${numberFilters})`
+    document.querySelector("#filter-header-text").innerHTML = `Filters (${numberFilters})`
 
 }
 

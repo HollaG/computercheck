@@ -22,12 +22,15 @@ block content
 
     .container.py-4#overall-container
         .container
-            .d-flex.justify-content-between
+            .d-flex.justify-content-between.align-items-center
                 if (original)
-                    h2.fs-4 #{numberOfModels} search results for '#{original}'
+                    h2.mb-0.fs-4.align-middle #{numberOfModels} search results for '#{original}'
                 else
-                    h2.fs-4 #{numberOfModels} results
-                    
+                    h2.mb-0.fs-4.align-middle #{numberOfModels} results
+                button.text-nowrap.btn.btn-light.px-3#toggle-filters-btn(data-mdb-ripple-color="dark" data-mdb-toggle="modal" data-mdb-target="#filterModal") 
+
+                    i(class="fas fa-filter")
+                    p.fw-bold.d-inline-block.my-0.ms-2.me-0#filter-btn-text FILTERS (0) 
                 //- button.btn.btn-primary.text-nowrap(onclick="toggleExpand(this)") Expand all
                 //- button.btn.btn-primary#load-all-btn.text-nowrap.px-3(onclick='loadMore("all")')
                 //-     i.me-2.plus-icon(class="fas fa-plus")
@@ -37,12 +40,9 @@ block content
 
 
 
-            .d-flex.align-items-center.flex-wrap
+            
                 
-                button.text-nowrap.me-4.btn.btn-light.px-3.my-2#toggle-filters-btn(data-mdb-ripple-color="dark" data-mdb-toggle="modal" data-mdb-target="#filterModal") 
-
-                    i(class="fas fa-filter")
-                    p.fw-bold.d-inline-block.my-0.ms-2.me-0 FILTERS
+                
                 
         .d-flex.flex-wrap.mt-3#item-container
             - let counter = 0
@@ -205,7 +205,7 @@ block content
         .modal-dialog
             .modal-content
                 .modal-header
-                    h5.modal-title Filters (0)
+                    h5.modal-title#filter-header-text  Filters (0)
                     button.btn-close(type='button' data-mdb-dismiss='modal' aria-label='Close')
                 .modal-body
                     .container-fluid
