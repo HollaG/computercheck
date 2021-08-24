@@ -75,7 +75,9 @@ router.get('/', async function (req, res, next) {
 
         // console.log(result.groupedByProductId)
 
-
+        function encodeID(string) { 
+            return string.replace(/ /g, "-_-").replace(/\./g, "_-_")
+        }
         res.render('main', {
             title: 'ComputerCheck: Singapore Laptop Database',
             data: result.groupedByProductId,
@@ -89,7 +91,9 @@ router.get('/', async function (req, res, next) {
             getRandomName,
             ended,
             dataObj,
-            stringify: require("js-stringify")
+            stringify: require("js-stringify"),
+            encodeID, 
+            filters: req.query.filters
         });
         await conn.release()
     } catch (e) {

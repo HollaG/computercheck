@@ -18,7 +18,7 @@ block content
                                 .col
                                     input#modelSearch.form-control.form-control-lg(type="text" placeholder="Search model..." name='search' value=original maxlength="75")                                    
                                 .col-auto
-                                    button#submitButton.btn.btn-primary.btn-lg(type="submit") Search               
+                                    button#submitButton.btn.btn-primary.btn-lg(type="submit") SEARCH               
 
     .container.py-4#overall-container
         .container
@@ -38,98 +38,12 @@ block content
 
 
             .d-flex.align-items-center.flex-wrap
-                button.text-nowrap.me-4.btn.btn-light.px-3.my-2#toggle-filters-btn(data-mdb-ripple-color="dark" onclick='showFilters()') 
-                    i(class="fas fa-filter")
-                    p.fw-bold.d-inline-block.my-0.ms-2.me-0 Filters
-                //- button.btn-light.btn.btn-sm Single mode
-
-               
-                    
-
-                .me-3.select-container.shadow-sm.my-2(style='display:none')        
-                    select#select-brand
-                        
-                        each brand in dataObj.brands
-                            option(value=`brand:${brand.brand}`) #{brand.brand} (#{brand.total})
-
-                .me-3.select-container.shadow-sm.my-2(style='display:none')                                
-                    select#select-location
-                        each location in dataObj.locations
-                            option(value=`location:${location.location}`) #{location.location} (#{location.total})
-
-                .me-3.select-container.shadow-sm.my-2(style='display:none')                              
-                    select#select-p-brand   
-                        each models, pbrand in dataObj.processorTypes
-                            if (pbrand == "Unknown")
-                                option(value="processor_model:Unknown") Unknown (#{models[0].total})
-                                - delete dataObj.processorTypes[pbrand]
-                                - break
-                        each models, pbrand in dataObj.processorTypes                        
-                            optgroup(label=pbrand)
-                                each model in models     
-                                        option(value=`processor_model:${model.processor_model_clean}`) #{model.processor_model_clean}
-
-                        
-
-                .me-3.select-container.shadow-sm.my-2(style='display:none')                              
-                    select#select-ram
-                        
-                        each ramSize in dataObj.ramSizes   
-                            if (ramSize.ram_clean == "AAUnknown")
-                                option(value="ram:Unknown") Unknown (#{ramSize.total})  
-                                - dataObj.ramSizes.splice(dataObj.ramSizes.indexOf(ramSize), 1)   
-                                - break
-                                                        
-                        each ramSize in dataObj.ramSizes                          
-                            option(value=`ram:${ramSize.ram_clean}`) #{ramSize.ram_clean} GB 
                 
-                .me-3.select-container.shadow-sm.my-2(style='display:none')                              
-                    select#select-display                      
-                        each screenSize in dataObj.screenSizes
-                            if (screenSize.screen_clean == "AAUnknown")
-                                option(value="screen_size:Unknown") Unknown (#{screenSize.total})
-                                - dataObj.screenSizes.splice(dataObj.screenSizes.indexOf(screenSize), 1)   
-                                - break
-                        each screenSize in dataObj.screenSizes
-                            option(value=`screen_size:${screenSize.screen_clean}`) #{screenSize.screen_clean} inch
-                .me-3.select-container.shadow-sm.my-2(style='display:none')                              
-                    select#select-os                      
-                        each os in dataObj.osTypes
-                            if (os.os_clean == "AAUnknown")
-                                option(value="os:Unknown") Unknown (#{os.total})
-                                - dataObj.osTypes.splice(dataObj.osTypes.indexOf(os), 1)
-                                - break
-                        each os in dataObj.osTypes    
-                            option(value=`os:${os.os_clean}`) #{os.os_clean}
-                    
-                .me-3.select-container.shadow-sm.my-2.select-weight-container(style='display:none')
-                    .d-flex.align-items-center.me-2.flex-wrap
-                        p.m-1.ms-2.font-small.align-middle#select-weight-text Weight: #{dataObj.minWeight}g - #{dataObj.maxWeight}g
-                        .weight-container.ms-2
-                            #select-weight
-                        .form-check.font-small.d-flex.align-items-center#weight-unknown-container.ms-2
-                            input.form-check-input#weight-unknown(type='checkbox' value="" checked onchange="filter()")
-                            label.form-check-label.align-middle#weight-unknown-label(for='weight-unknown') Show unknown weights
+                button.text-nowrap.me-4.btn.btn-light.px-3.my-2#toggle-filters-btn(data-mdb-ripple-color="dark" data-mdb-toggle="modal" data-mdb-target="#filterModal") 
 
-                .me-3.select-container.shadow-sm.my-2.select-price-container(style='display:none')
-                    .d-flex.align-items-center.me-2.flex-wrap
-                        p.m-1.ms-2.font-small.align-middle#select-price-text Price: $#{dataObj.minPrice} - $#{dataObj.maxPrice}
-                        .price-container.ms-2
-                            #select-price
-                        
-                            
-                //- .me-3.select-container  
-                    //- button.btn.btn-light.btn-sm 
-                    //-     i(class="fas fa-clipboard")
-                    //-     p.fw-bold Copy share link
-                button.text-nowrap.btn-sm.btn.btn-light.px-3.my-2#clear-filters-btn.shadow-sm.me-3(data-mdb-ripple-color="dark" onclick='clearFilters()' style="display:none") 
-                    i(class="fas fa-times")                    
-                    p.fw-bold.d-inline-block.my-0.ms-2.me-0 Clear
-
-                button.text-nowrap.btn-sm.btn.btn-light.px-3.my-2#copy-filters-btn.shadow-sm(data-mdb-ripple-color="dark" onclick='copyFilters()' style="display:none") 
-                    i#copy-link-clip(class="fas fa-clipboard")
-                    i#copy-link-check(class="fas fa-check" style='display:none') 
-                    p.fw-bold.d-inline-block.my-0.ms-2.me-0#copy-link-text Copy
+                    i(class="fas fa-filter")
+                    p.fw-bold.d-inline-block.my-0.ms-2.me-0 FILTERS
+                
         .d-flex.flex-wrap.mt-3#item-container
             - let counter = 0
             each products, model_ID in data
@@ -168,7 +82,7 @@ block content
                             .container-fluid.px-0.mt-2.pt-1
                                 mixin prices(location)
                                     .container.mb-2.pb-2
-                                        img.d-inline-block.logo-image(src=`/images/logos/${location.replace(/ /g, "_").toLowerCase()}.jpg`  alt=`Image for store ${location}`)
+                                        img.d-inline-block.logo-image(src=`/images/logos/${location.replace(/ /g, "_").toLowerCase()}.jpg`  alt=`Image for location ${location}`)
                                         p.ms-2.mb-0.d-inline-block=location
                                         
                                         - let numOOS = 0
@@ -270,7 +184,7 @@ block content
                                                 
                                 .row.mb-1
                                     .container.text-center
-                                        a.view-more-btn(id=`button-${counter}` role='button' data-bs-toggle="collapse" data-bs-target=`#collapse-${counter}` aria-expanded="false" onclick='toggleView(this)') 
+                                        a.view-more-btn(id=`button-${counter}` role='button' data-mdb-toggle="collapse" data-mdb-target=`#collapse-${counter}` aria-expanded="false" onclick='toggleView(this)') 
                                             p.d-inline-block.me-1 View more specs
                                             i.unflipped(class="fas fa-angle-down")
 
@@ -283,12 +197,188 @@ block content
                 button.btn.btn-primary#load-more-btn.px-3(onclick='loadMore()') 
                     i.me-2.plus-icon(class="fas fa-plus")
                     i.me-2.spinner-icon(class="fas fa-spinner fa-pulse" style='display:none')
-                    p.d-inline Load more
+                    p.d-inline LOAD MORE
                 
                 p.fst-italic#loaded-text(style='display:none') All items loaded.
     
+    .modal.fade(tabindex='-1')#filterModal
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5.modal-title Filters (0)
+                    button.btn-close(type='button' data-mdb-dismiss='modal' aria-label='Close')
+                .modal-body
+                    .container-fluid
+                        #accordian-filters.accordion
+                            
+
+                            .accordion-item
+                                h2#accordian-brand-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-brand-container' aria-expanded='false' aria-controls='accordian-brand-container')
+                                        .div
+                                            p.mb-0.fw-bold Brand                                            
+                                            p.mb-0.font-small#brand-number 0 filters selected
+                                #accordian-brand-container.accordion-collapse.collapse(aria-labelledby='accordian-brand-heading')
+                                    .accordion-body
+                                        each brand in dataObj.brands
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`brand:${encodeID(brand.brand)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('brand:${brand.brand}', '', '', this)`)
+                                                
+                                                p.d-inline.me-1.pe-1 #{brand.brand} (#{brand.total})
+                                                i.cross(class="fas fa-plus")
+                                            
+                            .accordion-item
+                                h2#accordian-location-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-location-container' aria-expanded='false' aria-controls='accordian-location-container')
+                                        .div
+                                            p.mb-0.fw-bold Store                                            
+                                            p.mb-0.font-small#location-number 0 filters selected
+                                #accordian-location-container.accordion-collapse.collapse(aria-labelledby='accordian-location-heading')
+                                    .accordion-body
+                                        each location in dataObj.locations
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`location:${encodeID(location.location)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('location:${location.location}', '', '', this)`)
+                                                
+                                                p.d-inline.me-1.pe-1 #{location.location} (#{location.total})
+                                                i.cross(class="fas fa-plus")
+
+                            .accordion-item
+                                h2#accordian-pBrand-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-pBrand-container' aria-expanded='false' aria-controls='accordian-pBrand-container')
+                                        .div
+                                            p.mb-0.fw-bold Processor model                                            
+                                            p.mb-0.font-small#processor_model-number 0 filters selected
+                                #accordian-pBrand-container.accordion-collapse.collapse(aria-labelledby='accordian-pBrand-heading')
+                                    .accordion-body
+                                        each models, pbrand in dataObj.processorTypes
+                                            if (pbrand == "Unknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`processor_model:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('processor_model:Unknown', '', '', this)`)
+                                                
+                                                    p.d-inline.me-1.pe-1 Unknown (#{models[0].total})
+                                                    i.cross(class="fas fa-plus")
+                                                - delete dataObj.processorTypes[pbrand]
+                                                - break
+                                        each models, pbrand in dataObj.processorTypes
+                                            p.fw-bold.text-center.my-2=pbrand
+                                            each model in models
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`processor_model:${encodeID(model.processor_model_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('processor_model:${model.processor_model_clean}', '', '', this)`)
+                                                
+                                                    p.d-inline.me-1.pe-1 #{model.processor_model_clean}
+                                                    i.cross(class="fas fa-plus")
+                            .accordion-item
+                                h2#accordian-ram-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-ram-container' aria-expanded='false' aria-controls='accordian-ram-container')
+                                        .div
+                                            p.mb-0.fw-bold RAM                                            
+                                            p.mb-0.font-small#ram-number 0 filters selected
+                                #accordian-ram-container.accordion-collapse.collapse(aria-labelledby='accordian-ram-heading')
+                                    .accordion-body
+                                        each ramSize in dataObj.ramSizes
+                                            if (ramSize.ram_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`ram:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('ram:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{ramSize.total})  
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.ramSizes.splice(dataObj.ramSizes.indexOf(ramSize), 1)   
+                                                - break
+                                        each ramSize in dataObj.ramSizes
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`ram:${encodeID(ramSize.ram_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('ram:${ramSize.ram_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{ramSize.ram_clean} GB
+                                                i.cross(class="fas fa-plus")
+                            .accordion-item
+                                h2#accordian-display-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-display-container' aria-expanded='false' aria-controls='accordian-display-container')
+                                        .div
+                                            p.mb-0.fw-bold Screen size                                            
+                                            p.mb-0.font-small#screen_size-number 0 filters selected
+                                #accordian-display-container.accordion-collapse.collapse(aria-labelledby='accordian-display-heading')
+                                    .accordion-body
+                                        each screenSize in dataObj.screenSizes
+                                            if (screenSize.screen_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`screen_size:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('screen_size:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{screenSize.total}) 
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.screenSizes.splice(dataObj.screenSizes.indexOf(screenSize), 1)   
+                                                - break
+                                        each screenSize in dataObj.screenSizes
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`screen_size:${encodeID(screenSize.screen_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('screen_size:${screenSize.screen_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{screenSize.screen_clean} inch
+                                                i.cross(class="fas fa-plus")
+
+                            .accordion-item
+                                h2#accordian-os-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-os-container' aria-expanded='false' aria-controls='accordian-os-container')
+                                        .div
+                                            p.mb-0.fw-bold Operating system                                            
+                                            p.mb-0.font-small#os-number 0 filters selected
+                                #accordian-os-container.accordion-collapse.collapse(aria-labelledby='accordian-os-heading')
+                                    .accordion-body
+                                        each os in dataObj.osTypes
+                                            if (os.os_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`os:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('os:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{os.total})
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.osTypes.splice(dataObj.osTypes.indexOf(os), 1)
+                                                - break
+                                        each os in dataObj.osTypes
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`os:${encodeID(os.os_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('os:${os.os_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{os.os_clean}
+                                                i.cross(class="fas fa-plus")
+
+                            .accordion-item
+                                h2#accordian-weight-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-weight-container' aria-expanded='false' aria-controls='accordian-weight-container')
+                                        .div
+                                            p.mb-0.fw-bold Weight                                            
+                                            p.mb-0.font-small#select-weight-text #{dataObj.minWeight}g - #{dataObj.maxWeight}g
+                                #accordian-weight-container.accordion-collapse.collapse(aria-labelledby='accordian-weight-heading')
+                                    .accordion-body
+                                        //- .row
+                                        //-     .col-3
+                                        //-         p.m-1.ms-2.font-small.align-middle#select-weight-text Weight: #{dataObj.minWeight}g - #{dataObj.maxWeight}g
+                                        //-     .col-9
+                                        //-         .weight-container.ms-2
+                                        //-             #select-weight
+                                        .d-flex.align-items-center.me-2
+                                            //- p.m-1.ms-2.font-small.align-middle#select-weight-text Weight: #{dataObj.minWeight}g - #{dataObj.maxWeight}g
+                                            .p.mb-0.font-small #{dataObj.minWeight}
+                                            .weight-container.ms-2.flex-grow-1
+                                                #select-weight
+                                            .p.mb-0.font-small #{dataObj.maxWeight}
+                                            
+                                        .form-check.font-small.d-flex.align-items-center#weight-unknown-container.ms-2.mt-2
+                                            input.form-check-input#weight-unknown(type='checkbox' value="" checked onchange="filter()")
+                                            label.form-check-label.align-middle#weight-unknown-label(for='weight-unknown') Show unknown weights
+                            .accordion-item
+                                h2#accordian-price-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-price-container' aria-expanded='false' aria-controls='accordian-price-container')
+                                        .div
+                                            p.mb-0.fw-bold Price                                            
+                                            p.mb-0.font-small#select-price-text $#{dataObj.minPrice} - $#{dataObj.maxPrice}
+                                #accordian-price-container.accordion-collapse.collapse(aria-labelledby='accordian-price-heading')
+                                    .accordion-body
+                                        .d-flex.align-items-center.me-2
+                                            //- p.m-1.ms-2.font-small.align-middle#select-price-text Price: $#{dataObj.minPrice} - $#{dataObj.maxPrice}
+                                            p.font-small.mb-0 #{dataObj.minPrice}
+                                            .price-container.flex-grow-1
+                                                #select-price
+                                            p.font-small.mb-0 #{dataObj.maxPrice}
+
+                .modal-footer
+                    //- button.btn.btn-light.fw-bold(type='button') COPY
+                    //- button.btn.btn-primary(type='button' data-mdb-dismiss='modal') APPLY
+                    button.btn.btn-light#clear-filters-btn(data-mdb-ripple-color="dark" onclick='clearFilters()') 
+                        i(class="fas fa-times")                    
+                        p.fw-bold.d-inline-block.my-0.ms-2.me-0 CLEAR
+
+                    button.btn.btn-light#copy-filters-btn(data-mdb-ripple-color="dark" onclick='copyFilters()') 
+                        i#copy-link-clip(class="fas fa-clipboard")
+                        i#copy-link-check(class="fas fa-check" style='display:none') 
+                        p.fw-bold.d-inline-block.my-0.ms-2.me-0#copy-link-text COPY
+                    button.btn.btn-primary(type='button' data-mdb-dismiss='modal') APPLY
+
     script.
         
+        function encodeID(string) { 
+            return string.replace(/ /g, "-_-").replace(/\./g, "_-_")
+        }
         let dataObj = !{stringify(dataObj)}
         if (location.href.match("search")) document.getElementById('item-container').scrollIntoView()    
 

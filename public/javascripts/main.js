@@ -196,7 +196,7 @@ if (filterObjFromURL) {
 
 
 
-function filter(option, sliderOption, sliderOptionPrice) {
+function filter(option, sliderOption, sliderOptionPrice, elem) {
 
     if (sliderOption) {
         // slider was slid
@@ -206,13 +206,23 @@ function filter(option, sliderOption, sliderOptionPrice) {
         filterObj["price"] = sliderOptionPrice
     }
 
-    if (option) {
-        let filterType = option.getAttribute("value").split(":")[0]
-        let filterValue = option.getAttribute("value").split(":")[1]
+    if (option && elem) {
+        // let filterType = option.getAttribute("value").split(":")[0]
+        // let filterValue = option.getAttribute("value").split(":")[1]
+        // let val = option.getAttribute("value")
+        
+        let filterType = option.split(":")[0]
+        let filterValue = option.split(":")[1]
 
-        if (option.getAttribute("selected") === "") {
+        let val = option
+        console.log(this)
+        if (elem.classList.contains("active")) {
             // this option was selected
-            filters.push(option.getAttribute("value"))
+            // Add class to the i elem
+            elem.querySelector("i").classList.add("rotatedCross")
+            elem.querySelector("i").classList.remove("cross")
+
+            filters.push(val)
 
 
             if (!filterObj[filterType])
@@ -221,7 +231,10 @@ function filter(option, sliderOption, sliderOptionPrice) {
                 filterObj[filterType].push(filterValue)
         } else {
             // this option was unselected
-            const index = filters.indexOf(option.getAttribute("value"));
+            elem.querySelector("i").classList.remove("rotatedCross")
+            elem.querySelector("i").classList.add("cross")
+
+            const index = filters.indexOf(val);
             if (index > -1) {
                 filters.splice(index, 1);
             }
@@ -231,6 +244,20 @@ function filter(option, sliderOption, sliderOptionPrice) {
 
             if (!filterObj[filterType].length) delete filterObj[filterType]
         }
+
+        // Add the selected filter to the list of selected filters displayed 
+        console.log('sdjknjkdnasjkndjkasndjkasd', `#${encodeID(filterType)}-number`)
+        if (!filterObj[filterType]) { 
+            console.log('a')
+            // No more filters selected, re-display 0 filters selected
+            document.querySelector(`#${encodeID(filterType)}-number`).innerHTML = "0 filters selected"
+        } else { 
+            console.log('b')
+
+            document.querySelector(`#${encodeID(filterType)}-number`).innerHTML = `${filterObj[filterType].length} filters selected | ${filterObj[filterType].sort().join(" | ")}`
+            
+        }
+
     }
 
 
@@ -328,39 +355,8 @@ function filter(option, sliderOption, sliderOptionPrice) {
 }
 
 
-function showFilters() {
-    if (shown) {
-        // hide
-        document.querySelectorAll(".selectr-container:not(.has-selected)").forEach(e => e.parentElement.style.display = "none")
-        document.querySelector("#toggle-filters-btn").classList.remove("active")
 
-        if (!Object.keys(filterObj).length) {
-            document.querySelector("#copy-filters-btn").style.display = "none"
-            document.querySelector("#clear-filters-btn").style.display = "none"
-        
-        }
-
-        if (!filterObj["weight"]) {
-            document.querySelector(".select-weight-container").style.display = "none"
-        }
-        if (!filterObj["price"]) {
-            document.querySelector(".select-price-container").style.display = "none"
-
-        }
-        shown = false
-    } else {
-        document.querySelectorAll(".selectr-container").forEach(e => e.parentElement.style.display = "block")
-        document.querySelector("#toggle-filters-btn").classList.add("active")
-        document.querySelector("#copy-filters-btn").style.display = "block"
-        document.querySelector("#clear-filters-btn").style.display = "block"
-        document.querySelector(".select-price-container").style.display = "block"
-
-        document.querySelector(".select-weight-container").style.display = "block"
-        shown = true
-    }
-}
-
-function copyFilters() {
+async function copyFilters() {
 
 
     let text = window.location.origin
@@ -368,16 +364,16 @@ function copyFilters() {
     if (urlParams.get("search")) text = text + `?search=${urlParams.get("search")}&filters=${JSON.stringify(filterObj)}`
     else text = text + `?filters=${encodeURIComponent(JSON.stringify(filterObj))}`
 
-    copyTextToClipboard(text)
-
+    await copyTextToClipboard(text)
+    
     document.querySelector("#copy-link-check").style.display = "inline-block"
     document.querySelector("#copy-link-clip").style.display = "none"
-    document.querySelector("#copy-link-text").innerHTML = "Copied!"
+    document.querySelector("#copy-link-text").innerHTML = "COPIED!"
     setTimeout(function () {
         document.querySelector("#copy-link-clip").style.display = "inline-block"
         document.querySelector("#copy-link-check").style.display = "none"
 
-        document.querySelector("#copy-link-text").innerHTML = "Copy"
+        document.querySelector("#copy-link-text").innerHTML = "COPY"
     }, 1000)
 
 }
@@ -398,43 +394,17 @@ function clearFilters() {
 
 }
 
-
-opts.placeholder = "Brand:"
-const sBrand = new Selectr('#select-brand', opts)
-sBrand.on("selectr.select", filter)
-sBrand.on("selectr.deselect", filter)
-if (filterObjFromURL.brand) sBrand.setValue(filterObjFromURL.brand.map(x => `brand:${x}`))
-
-
-opts.placeholder = "Store:"
-const sLocation = new Selectr('#select-location', opts)
-sLocation.on("selectr.select", filter)
-sLocation.on("selectr.deselect", filter)
-if (filterObjFromURL.location) sLocation.setValue(filterObjFromURL.location.map(x => `location:${x}`))
-
-opts.placeholder = "Processor model:"
-const sPbrand = new Selectr('#select-p-brand', opts)
-sPbrand.on("selectr.select", filter)
-sPbrand.on("selectr.deselect", filter)
-if (filterObjFromURL.processor_model) sPbrand.setValue(filterObjFromURL.processor_model.map(x => `processor_model:${x}`))
-
-opts.placeholder = "RAM:"
-const sRam = new Selectr('#select-ram', opts)
-sRam.on("selectr.select", filter)
-sRam.on("selectr.deselect", filter)
-if (filterObjFromURL.ram) sRam.setValue(filterObjFromURL.ram.map(x => `ram:${x}`))
-
-opts.placeholder = "Screen size:"
-const sScreen = new Selectr('#select-display', opts)
-sScreen.on("selectr.select", filter)
-sScreen.on("selectr.deselect", filter)
-if (filterObjFromURL.screen_size) sScreen.setValue(filterObjFromURL.screen_size.map(x => `screen_size:${x}`))
-
-opts.placeholder = "Operating system:"
-const sOs = new Selectr('#select-os', opts)
-sOs.on("selectr.select", filter)
-sOs.on("selectr.deselect", filter)
-if (filterObjFromURL.os) sOs.setValue(filterObjFromURL.os.map(x => `os:${x}`))
+if (Object.keys(filterObjFromURL).length) {
+    for (filterType of Object.keys(filterObjFromURL)) {
+        
+        if (filterType == "showUnknownWeight" || filterType == "weight" || filterType == "price") continue // these keys are updated separately from the usual
+        for (filterValue of filterObjFromURL[filterType]) { 
+            console.log(`#${filterType}\\:${encodeID(filterValue)}-btn`)
+            document.querySelector(`#${filterType}\\:${encodeID(filterValue)}-btn`).click()
+        }
+    } 
+    
+}
 
 
 
@@ -447,21 +417,21 @@ let weightSlider = noUiSlider.create(weightRange, {
         'max': dataObj.maxWeight ? dataObj.maxWeight : -1
     },
     step: 1,
-    //- pips: {
-    //-     mode: 'steps',
-    //-     stepped: true,
-    //-     density: 1
-    //- },
+    // pips: {
+    //     mode: 'count',
+    //     values: 2,
+    //     density: 100
+    // },
     start: [dataObj.minWeight, dataObj.maxWeight],
     connect: true,
     behaviour: 'tap-drag',
     tooltips: true,
     format: {
         to: function (value) {
-            return value
+            return Math.round(Number(value))
         },
         from: function (value) {
-            return Number(value)
+            return Math.round(Number(value))
         }
     }
 
@@ -469,13 +439,13 @@ let weightSlider = noUiSlider.create(weightRange, {
 
 weightSlider.on('set', function (values, handle) {
 
-    document.getElementById('select-weight-text').innerHTML = `Weight: ${values.join("g - ")}g`
+    document.getElementById('select-weight-text').innerHTML = `${values.join("g - ")}g`
     filter(null, values)
 })
 
 if (filterObjFromURL.weight) {
     weightSlider.set(filterObjFromURL.weight)
-    document.getElementById('select-weight-text').innerHTML = `Weight: ${filterObjFromURL.weight.join("g - ")}g`
+    document.getElementById('select-weight-text').innerHTML = `${filterObjFromURL.weight.join("g - ")}g`
     filter(null, filterObjFromURL.weight)
 }
 
@@ -494,11 +464,11 @@ let priceSlider = noUiSlider.create(priceRange, {
         'max': dataObj.maxPrice ? dataObj.maxPrice : -1
     },
     step: 1,
-    //- pips: {
-    //-     mode: 'steps',
-    //-     stepped: true,
-    //-     density: 1
-    //- },
+    // pips: {
+    //     mode: 'count',
+    //     values: 2,
+    //     density: 100
+    // },
     start: [dataObj.minPrice, dataObj.maxPrice],
     connect: true,
     behaviour: 'tap-drag',
@@ -516,14 +486,14 @@ let priceSlider = noUiSlider.create(priceRange, {
 
 priceSlider.on('set', function (values, handle) {
 
-    document.getElementById('select-price-text').innerHTML = `Price: $${values.join(" - $")}`
+    document.getElementById('select-price-text').innerHTML = `$${values.join(" - $")}`
     filter(null, null, values)
 })
 
 
 if (filterObjFromURL.price) {
     priceSlider.set(filterObjFromURL.price)
-    document.getElementById('select-price-text').innerHTML = `Price: $${filterObjFromURL.price.join(" - $")}`
+    document.getElementById('select-price-text').innerHTML = `$${filterObjFromURL.price.join(" - $")}`
     filter(null, null, filterObjFromURL.price)
 }
 
@@ -554,17 +524,20 @@ function fallbackCopyTextToClipboard(text) {
 
     document.body.removeChild(textArea);
 }
-function copyTextToClipboard(text) {
+async function copyTextToClipboard(text) {
     if (!navigator.clipboard) {
         fallbackCopyTextToClipboard(text);
         return;
     }
-    navigator.clipboard.writeText(text).then(function () {
+    try {
+        let res = await navigator.clipboard.writeText(text)
         console.log('Async: Copying to clipboard was successful!');
-
-    }, function (err) {
-        console.error('Async: Could not copy text: ', err);
-    });
+        return true
+    } catch (e) { 
+        console.error('Async: Could not copy text: ', e);
+        return false
+    }
+    
 }
 
 if (Object.keys(filterObjFromURL).length) showFilters()
