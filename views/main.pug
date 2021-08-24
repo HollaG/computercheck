@@ -365,14 +365,17 @@ block content
                     //- button.btn.btn-light.fw-bold(type='button') COPY
                     //- button.btn.btn-primary(type='button' data-mdb-dismiss='modal') APPLY
                     button.btn.btn-light#clear-filters-btn(data-mdb-ripple-color="dark" onclick='clearFilters()') 
-                        i(class="fas fa-times")                    
-                        p.fw-bold.d-inline-block.my-0.ms-2.me-0 CLEAR
+                        i#clear-filters-cross(class="fas fa-times")  
+                        i#clear-filters-loading(class="fas fa-spinner fa-pulse" style='display:none')  
+                        i#clear-filters-done(class="fas fa-check" style='display:none') 
+
+                        p#clear-filters-text.fw-bold.d-inline-block.my-0.ms-2.me-0 CLEAR
 
                     button.btn.btn-light#copy-filters-btn(data-mdb-ripple-color="dark" onclick='copyFilters()') 
                         i#copy-link-clip(class="fas fa-clipboard")
                         i#copy-link-check(class="fas fa-check" style='display:none') 
                         p.fw-bold.d-inline-block.my-0.ms-2.me-0#copy-link-text COPY
-                    button.btn.btn-primary(type='button' data-mdb-dismiss='modal') APPLY
+                    button.btn.btn-primary(type='button' data-mdb-dismiss='modal') CLOSE
 
     script.
         

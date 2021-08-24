@@ -60,7 +60,7 @@ function loadMore(all) {
         if (this.readyState == XMLHttpRequest.DONE) {
             if (this.readyState == 4 && this.status == 200) {
                 let obj = JSON.parse(this.responseText)
-                //- console.log(obj)
+                
                 document.querySelector("#item-container").lastElementChild.insertAdjacentHTML('afterend', JSON.parse(this.responseText).html)
                 observer.observe();
 
@@ -77,15 +77,9 @@ function loadMore(all) {
                 currentlyLoading = false
                 visibleItems = visibleItems + Number(JSON.parse(this.responseText).number)
                 btn.disabled = false
-                // btn2.disabled = false
+                
                 filter()
-                // setTimeout(loadMore, 1000)
-                // loadMore()
-                // if (visibleItems < 24) {
-                //     console.log("Showing less than 24 items, loading more")
-
-                //     loadMore()
-                // }
+                
 
             }
             if (this.status == 204) {
@@ -215,7 +209,7 @@ function filter(option, sliderOption, sliderOptionPrice, elem) {
         let filterValue = option.split(":")[1]
 
         let val = option
-        console.log(this)
+        
         if (elem.classList.contains("active")) {
             // this option was selected
             // Add class to the i elem
@@ -246,13 +240,13 @@ function filter(option, sliderOption, sliderOptionPrice, elem) {
         }
 
         // Add the selected filter to the list of selected filters displayed 
-        console.log('sdjknjkdnasjkndjkasndjkasd', `#${encodeID(filterType)}-number`)
+        
         if (!filterObj[filterType]) { 
-            console.log('a')
+            
             // No more filters selected, re-display 0 filters selected
             document.querySelector(`#${encodeID(filterType)}-number`).innerHTML = "0 filters selected"
         } else { 
-            console.log('b')
+            
 
             document.querySelector(`#${encodeID(filterType)}-number`).innerHTML = `${filterObj[filterType].length} filters selected | ${filterObj[filterType].sort().join(" | ")}`
             
@@ -345,7 +339,7 @@ function filter(option, sliderOption, sliderOptionPrice, elem) {
 
 
     }
-    console.log(visibleItems)
+    
     if (visibleItems < 24) {
         console.log("Showing less than 24 items, loading more")
         loadMore()
@@ -378,13 +372,30 @@ async function copyFilters() {
 
 }
 
-function clearFilters() {
-    sBrand.clear()
-    sLocation.clear()
-    sPbrand.clear()
-    sRam.clear()
-    sScreen.clear()
-    sOs.clear()
+async function clearFilters() {
+    document.querySelector("#clear-filters-cross").style.display = 'none'
+    document.querySelector("#clear-filters-loading").style.display = 'inline-block'
+    document.querySelector("#clear-filters-done").style.display = 'none'
+    document.querySelector("#clear-filters-text").innerHTML = "CLEARING"
+    await timeout(250)
+    const btnsToClick = []
+    for (filterType of Object.keys(filterObj)) {
+        
+        if (filterType == "showUnknownWeight" || filterType == "weight" || filterType == "price") {
+            // these keys are updated separately from the usual
+        } else {
+            for (filterValue of filterObj[filterType]) { 
+            
+                let btn = document.querySelector(`#${filterType}\\:${encodeID(filterValue)}-btn`)
+                
+                if (btn.classList.contains('active')) btnsToClick.push(btn) // Cant clikc from here as this would modify filterObj, modifying the lengt of the array
+               
+            }
+        }
+        
+    } 
+    btnsToClick.forEach(btn => btn.click())
+
     weightSlider.set([dataObj.minWeight ? dataObj.minWeight : -1, dataObj.maxWeight ? dataObj.maxWeight : -1])
     priceSlider.set([dataObj.minPrice ? dataObj.minPrice : -1, dataObj.maxPrice ? dataObj.maxPrice : -1])
     
@@ -392,16 +403,32 @@ function clearFilters() {
         document.querySelector("#weight-unknown").click()
 
 
+    document.querySelector("#clear-filters-cross").style.display = 'none'
+    document.querySelector("#clear-filters-loading").style.display = 'none'
+    document.querySelector("#clear-filters-done").style.display = 'inline-block'
+    document.querySelector("#clear-filters-text").innerHTML = "CLEARED"
+
+    await timeout(2500)    
+    document.querySelector("#clear-filters-cross").style.display = 'inline-block'
+    document.querySelector("#clear-filters-loading").style.display = 'none'
+    document.querySelector("#clear-filters-done").style.display = 'none'
+    document.querySelector("#clear-filters-text").innerHTML = "CLEAR"
+
+    
 }
 
 if (Object.keys(filterObjFromURL).length) {
     for (filterType of Object.keys(filterObjFromURL)) {
         
-        if (filterType == "showUnknownWeight" || filterType == "weight" || filterType == "price") continue // these keys are updated separately from the usual
-        for (filterValue of filterObjFromURL[filterType]) { 
-            console.log(`#${filterType}\\:${encodeID(filterValue)}-btn`)
-            document.querySelector(`#${filterType}\\:${encodeID(filterValue)}-btn`).click()
+        if (filterType == "showUnknownWeight" || filterType == "weight" || filterType == "price") {
+            // these keys are updated separately from the usual
+        } else {
+            for (filterValue of filterObjFromURL[filterType]) { 
+                
+                document.querySelector(`#${filterType}\\:${encodeID(filterValue)}-btn`).click()
+            }
         }
+        
     } 
     
 }
@@ -540,4 +567,6 @@ async function copyTextToClipboard(text) {
     
 }
 
-if (Object.keys(filterObjFromURL).length) showFilters()
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

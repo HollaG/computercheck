@@ -178,7 +178,7 @@ img[data-loaded="true"], [data-loaded="true"] img { animation-name: showLazyImg;
 }
 
 .noUi-connect { 
-  background: var(--bs-primary)
+  background: var(--mdb-primary)
 }
 
 .select-weight-container, .select-price-container { 
