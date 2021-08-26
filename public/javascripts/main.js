@@ -233,6 +233,7 @@ function filter(option, sliderOption, sliderOptionPrice, elem) {
                 filters.splice(index, 1);
             }
 
+            console.log(filterObj, filterType)
             const i = filterObj[filterType].indexOf(filterValue)
             if (i > -1) filterObj[filterType].splice(i, 1)
 
@@ -420,21 +421,23 @@ async function clearFilters() {
     
 }
 
-if (Object.keys(filterObjFromURL).length) {
-    for (filterType of Object.keys(filterObjFromURL)) {
-        
-        if (filterType == "showUnknownWeight" || filterType == "weight" || filterType == "price") {
-            // these keys are updated separately from the usual
-        } else {
-            for (filterValue of filterObjFromURL[filterType]) { 
-                
-                document.querySelector(`#${filterType}\\:${encodeID(filterValue)}-btn`).click()
+setTimeout(function() { 
+    if (Object.keys(filterObjFromURL).length) {
+        for (filterType of Object.keys(filterObjFromURL)) {
+            
+            if (filterType == "showUnknownWeight" || filterType == "weight" || filterType == "price") {
+                // these keys are updated separately from the usual
+            } else {
+                for (filterValue of filterObjFromURL[filterType]) {                    
+                    document.querySelector(`#${filterType}\\:${encodeID(filterValue)}-btn`).click()
+                }
             }
-        }
+            
+        } 
         
-    } 
-    
-}
+    }
+}, 250)
+
 
 
 
