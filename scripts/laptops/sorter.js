@@ -30,6 +30,9 @@ const headless = true
 
                 var file = files[i]
                 var data = await fs.readJSON(`${process.cwd()}/data/raw/laptops/${file}`)
+                if (data == {} || data == [] || !data) { // If no data, continue
+                   continue 
+                }
                 for (var j = 0; j < data.length; j++) {
                     var item = data[j]
 

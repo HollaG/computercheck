@@ -110,7 +110,7 @@ const brands = []
 
             await harvey()
             await challenger()
-            
+
             await courts() // Illegal
             await best()
 
@@ -446,14 +446,18 @@ const brands = []
                         }
                     }
                     console.log("All items loaded")
-                    await lenovoPage.exposeFunction("cleaner", cleaner)
-                    let products = await lenovoPage.evaluate(async () => {
+                    // await lenovoPage.exposeFunction("cleaner", cleaner)
+                    
+                    let products = await lenovoPage.evaluate(() => {
                         try {
                             let items = document.querySelectorAll(".facetResults-item  ")
                             let products = []
 
                             for (let i = 0; i < items.length; i++) {
                                 let item = items[i]
+
+                                // Skip this if the price is NOT in the correct format
+                                if (!item.querySelector(".xblodSize")) continue
 
                                 let childName = item.querySelector('div.item-descriptions > a').innerText.replace(/\\n/g, "")
 
@@ -492,7 +496,7 @@ const brands = []
 
                     await lenovoPage.close()
 
-                    // console.log(products)
+                    console.log(products)
 
                     // Write to file
                     fs.writeFile(`${process.cwd()}/data/raw/laptops/lenovo.json`, JSON.stringify(products), (err, file) => {
@@ -868,7 +872,7 @@ const brands = []
 
                 await cluster1.task(async ({ page, data }) => {
                     try {
-                        
+
                         let url = data.url
                         let i = data.i
                         console.log("PUPPETEER-CLUSTER (1): Scraping page " + (i + 1) + " of " + pages)
@@ -941,11 +945,11 @@ const brands = []
                     if (ended) {
                         pages = i - 1
                         break;
-                    } 
+                    }
 
                 }
 
-                for (let i = 1; i < pages; i++) { 
+                for (let i = 1; i < pages; i++) {
                     let url = `https://www.bestdenki.com.sg/fitness-personal-care/it-mobile/computer/laptop.html?p=${i}`
                     cluster1.queue({
                         url, i
@@ -964,7 +968,7 @@ const brands = []
                 })
                 console.log("PUPPETEER-CLUSTER: Completed scraping Best Denki")
                 return true
-                
+
 
 
             }
@@ -988,7 +992,7 @@ const brands = []
 
                 await cluster.task(async ({ page, data }) => {
                     try {
-                        
+
                         let url = data.url
                         let i = data.i
                         console.log("PUPPETEER-CLUSTER: Scraping page " + i + " of " + courtsPages)
