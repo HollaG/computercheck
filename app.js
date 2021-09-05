@@ -20,8 +20,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(compression({ filter: shouldCompress }))
+// app.use(compression({ filter: shouldCompress }))
 
+app.get("/fallback", (req, res, next) => res.render("fallback.pug")) // Fallback code
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
