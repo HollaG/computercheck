@@ -1,4 +1,6 @@
-const dynamicCacheName = 'site-dynamic-v1';
+console.log("Service worker loaded!")
+
+var dynamicCacheName = 'site-dynamic-v1';
 // activate event
 self.addEventListener('activate', evt => {
     evt.waitUntil(
@@ -13,7 +15,7 @@ self.addEventListener('activate', evt => {
 // fetch event
 self.addEventListener('fetch', evt => {
     evt.respondWith(
-        caches.match(evt.request).then(cacheRes => {
+        caches.match(evt.request, { ignoreSearch: true }).then(cacheRes => {
             return cacheRes || fetch(evt.request).then(fetchRes => {
                 return caches.open(dynamicCacheName).then(cache => {
                     cache.put(evt.request.url, fetchRes.clone());

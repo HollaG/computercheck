@@ -9,4 +9,6 @@ if ('serviceWorker' in navigator) {
         console.log('ServiceWorker registration failed: ', err);
       });
     });
+  } else {
+      console.log("No service worker!")
   }
