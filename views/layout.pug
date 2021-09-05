@@ -1,31 +1,47 @@
 doctype html
 html(lang='en')
-  head
-    title= title
-    
-    //- script(src='/javascripts/bootstrap.min.js')
-    //- link(rel='stylesheet' href='/stylesheets/bootstrapTemplate.css')
-    meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" )
-    meta(name="description" content="Singapore PC (Laptops, Monitors, AIOs, Prebuilts) Database - Search and filter models from Best Denki, ASUS, Harvey Norman and more!")
-    meta(name="keywords" content="Laptop, PC, Monitor, AIO, Prebuilt, Database, Singapore")
-    meta(name='author' content='Marcus Soh')
-    link(
-      href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.css"
-      rel="stylesheet")
-    
+    head
+        title= title
 
-    
-    script(src="https://kit.fontawesome.com/e60b5739ed.js" crossorigin="anonymous")
-    script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js")
-   
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.js')
-    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.css')
+        //- script(src='/javascripts/bootstrap.min.js')
+        //- link(rel='stylesheet' href='/stylesheets/bootstrapTemplate.css')
+        meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" )
+        meta(name="description" content="Singapore PC (Laptops, Monitors, AIOs, Prebuilts) Database - Search and filter models from Best Denki, ASUS, Harvey Norman and more!")
+        meta(name="keywords" content="Laptop, PC, Monitor, AIO, Prebuilt, Database, Singapore")
+        meta(name='author' content='Marcus Soh')
+        meta(name="theme-color" content="#fbfbfb")
+        link(rel='apple-touch-icon' sizes='180x180' href='/apple-touch-icon.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/favicon-32x32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/favicon-16x16.png')
+        
 
-    link(rel='stylesheet', href='/stylesheets/style.css')
+        link(
+            href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.css"
+            rel="stylesheet")
 
-  body
-    include navbar.pug
-    block content
-  script(
-      type="text/javascript"
-      src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js")
+        script(src="/javascripts/app.js")
+
+        //- PWA manifest
+        link(
+            href="../manifest.json"
+            rel="manifest"
+        )
+
+        script(src="https://kit.fontawesome.com/e60b5739ed.js" crossorigin="anonymous")
+        script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js")
+
+        script(src='https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.js')
+        link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.css')
+
+        link(rel='stylesheet', href='/stylesheets/style.css')
+
+    body
+        include navbar.pug
+        block content
+    script(
+        type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js")
+
+        
+
+
