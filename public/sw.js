@@ -1,6 +1,6 @@
 console.log("Service worker loadeds!")
 
-const STATIC_CACHE_NAME = "cc-static-cache-v1.0.2"
+const STATIC_CACHE_NAME = "cc-static-cache-v1.0.3"
 const STATIC_CACHE_ARR = [
     '/',
     "/faq",
@@ -19,7 +19,7 @@ const STATIC_CACHE_ARR = [
     "https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.css",
 ]
 
-const DYNAMIC_CACHE_NAME = 'cc-dynamic-cache-v1.0.0'
+const DYNAMIC_CACHE_NAME = 'cc-dynamic-cache-v1.0.1'
 
 // Cache size limiter - 1250
 const CACHE_SIZE = 1250

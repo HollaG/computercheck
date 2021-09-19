@@ -484,7 +484,7 @@ module.exports.specs = async () => {
                     console.log(specifications, '-------------------------------------------------------', url)
                     if (!Object.keys(specifications).length) return false
                     let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, Number(specifications.screenResolution.split("X")[0]), Number(specifications.screenResolution.split("X")[1]), specifications.screenTech, specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                     await page.waitForTimeout(500) // Timeout to prevent spam
 
@@ -546,7 +546,7 @@ module.exports.specs = async () => {
                     let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, Number(specifications.screenResolution.split("X")[0]), Number(specifications.screenResolution.split("X")[1]), specifications.screenTech, specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
 
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                     await page.waitForTimeout(500) // Timeout to prevent spam
 
@@ -607,7 +607,7 @@ module.exports.specs = async () => {
                     let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, Number(specifications.screenResolution.split("X")[0]), Number(specifications.screenResolution.split("X")[1]), specifications.screenTech, specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
 
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                     await page.waitForTimeout(500) // Timeout to prevent spam
 
@@ -672,7 +672,7 @@ module.exports.specs = async () => {
                     let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, Number(specifications.screenResolution.split("X")[0]), Number(specifications.screenResolution.split("X")[1]), specifications.screenTech, specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
 
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                     await page.waitForTimeout(500) // Timeout to prevent spam
 
@@ -736,7 +736,7 @@ module.exports.specs = async () => {
                     let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, Number(specifications.screenResolution.split("X")[0]), Number(specifications.screenResolution.split("X")[1]), specifications.screenTech, specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
 
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                     await page.waitForTimeout(500) // Timeout to prevent spam
 
@@ -805,7 +805,7 @@ module.exports.specs = async () => {
                     let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, Number(specifications.screenResolution.split("X")[0]), Number(specifications.screenResolution.split("X")[1]), specifications.screenTech, specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
 
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                     await page.waitForTimeout(500) // Timeout to prevent spam
 
@@ -888,7 +888,7 @@ module.exports.specs = async () => {
 
                     let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, specifications.screenResolution.split("X")[0], specifications.screenResolution.split("X")[1], specifications.screenTech, specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
                     await page.waitForTimeout(1000) // Timeout to prevent spam
 
                     return true
@@ -957,7 +957,7 @@ module.exports.specs = async () => {
 
                     let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, specifications.screenResolution.split("X")[0], specifications.screenResolution.split("X")[1], specifications.screenTech, specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
                     await page.waitForTimeout(1000) // Timeout to prevent spam
                     return true
 
@@ -1006,7 +1006,7 @@ module.exports.specs = async () => {
 
                     let arr = [processorCompany, processor, ram, storage, screenSize, screenResolution.split("X")[0], screenResolution.split("X")[1], screenTech, graphics.toUpperCase(), graphicsCompany, os, weight, model.model_ID]
                     console.log(arr, model.model_ID)
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
                     return true
                 } catch (e) {
                     console.log(e)
@@ -1114,7 +1114,7 @@ module.exports.specs = async () => {
 
                     let arr = [specifications.processorCompany, specifications.processor, specifications.ram, specifications.storage, specifications.screenSize, specifications.screenResolution.split("X")[0], specifications.screenResolution.split("X")[1], specifications.screenTech, specifications.graphics.toUpperCase(), specifications.graphicsCompany, specifications.os, specifications.weight, model.model_ID]
 
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, screen_tech = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                     await page.waitForTimeout(1000) // Timeout to prevent spam
 
@@ -1154,7 +1154,7 @@ module.exports.specs = async () => {
                     let arr = [processorCompany, processor, ram, storage, screen_size, screen_resolution_w, screen_resolution_h, graphics, graphicsCompany, os, weight, model.model_ID]
                     console.log(arr, model.model_ID)
 
-                    await conn.query(`UPDATE temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
+                    await conn.query(`UPDATE laptops__temp_model_data SET processor_company = ?, processor_model = ?, ram = ?, storage = ?, screen_size = ?, screen_resolution_w = ?, screen_resolution_h = ?, graphics_card = ?, graphics_company = ?, os = ?, weight = ? WHERE model_ID = ?`, arr)
 
                     await page.waitForTimeout(1000) // Timeout to prevent spam
 
