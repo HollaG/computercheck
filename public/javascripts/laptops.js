@@ -94,9 +94,9 @@ function loadMore(all) {
     }
     let searchString = location.href.split("search=")[1]
     if (searchString)
-        xhttp.open("GET", `/loadmore/${text}?search=${searchString}`, true);
+        xhttp.open("GET", `/laptops/loadmore/${text}?search=${searchString}`, true);
     else
-        xhttp.open("GET", `/loadmore/${text}`, true);
+        xhttp.open("GET", `/laptops/loadmore/${text}`, true);
 
     xhttp.send()
     loadCount = loadCount + 24

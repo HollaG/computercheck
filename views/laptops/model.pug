@@ -1,0 +1,131 @@
+extends ../layout
+
+block content
+    .container.py-4.mt-3
+        .row
+            .col-lg-5.text-center
+                img.w-75(src=`${model.image_url ? model.image_url : "/images/missing.jpg"}`)
+            .col-lg-7.p-3
+                .row
+                    h4.text-dark.mb-3 #{model.name}
+                    //- .col-12.text-center.mb-2
+                    //-     h5.text-dark.fw-bold Details 
+                .row.d-flex.flex-wrap
+                    .col-4
+                        p.fw-bold.text-dark Brand
+                    .col-8
+                        p #{model.brand}
+                    .col-4
+                        p.fw-bold.text-dark Model
+                    .col-8
+                        p #{model.model_ID}
+                    .col-4
+                        p.fw-bold.text-dark Average price
+                    .col-8
+                        p $#{avgPrice}
+                    
+                
+        .container.d-flex.flex-wrap.mt-4(style='max-width: 1000px')
+
+            .col-12.text-center.mb-2
+                h5.text-dark.fw-bold Technical specifications    
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Processor
+            .col-md-3.col-6.text-end.px-3
+                p=model.processor
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark RAM
+            .col-md-3.col-6.text-end.px-3
+                p=model.ram
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Storage
+            .col-md-3.col-6.text-end.px-3
+                p=model.storage
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Graphics Card
+            .col-md-3.col-6.text-end.px-3
+                p=model.graphics
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Screen size
+            .col-md-3.col-6.text-end.px-3
+                p=model.screen_size
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Screen resolution
+            .col-md-3.col-6.text-end.px-3
+                p=model.screen_resolution
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Screen pixels-per-inch
+            .col-md-3.col-6.text-end.px-3
+                p=model.screen_ppi
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Screen technology
+            .col-md-3.col-6.text-end.px-3
+                p=model.screen_tech
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Weight
+            .col-md-3.col-6.text-end.px-3
+                p=model.weight
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Operating system
+            .col-md-3.col-6.text-end.px-3
+                p=model.os
+
+        .container.mt-1
+            
+            if (products.length)
+                .col-12.text-center.mb-2.mt-3
+                    h5.text-dark.fw-bold Retailers
+                .d-flex.flex-wrap
+                    
+                    each product in products
+                        .col-12.col-xl-3.col-lg-4.col-md-6
+                            .card.m-2
+                                .bg-image.hover-overlay.ripple.text-center(data-mdb-ripple-color="light")
+                                    a(href=`${product.link}` target="_blank")
+                                        img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${product.image_url}`)
+                                .card-body.parent-relative-apply.d-flex.flex-column.pb-0
+                                    //- p.text-muted.fw-light.text-center.small-text.mb-0 $#{product.price}
+                                    .container
+                                        img.d-inline-block.logo-image(src=`/images/logos/${product.location.replace(/ /g, "_").toLowerCase()}.jpg`)
+                                        p.ms-2.mb-0.d-inline-block=product.location
+                                        a.float-end(href=product.link target="_blank") $#{product.price}
+                                                
+                                    -
+                                        let linkText = product.name
+                                        if (product.customizable == 1) linkText += ` (Customizable)`
+                                    a(href=`${product.link}` target="_blank").mt-2.card-title=linkText
+                                    
+                                .card-footer
+                                    p.text-muted.small-text.text-center.mb-0 Updated #{product.date_updated}
+            
+
+            if (expiredProducts.length)
+                .col-12.text-center.mb-2.mt-3
+                    h5.text-dark.fw-bold Retailers (Out of stock)
+                .d-flex.flex-wrap
+                    
+                    each product in expiredProducts
+                        .col-12.col-xl-3.col-lg-4.col-md-6
+                            .card.m-2
+                                .bg-image.hover-overlay.ripple.text-center(data-mdb-ripple-color="light")
+                                    a(href=`${product.link}` target="_blank")
+                                        img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${product.image_url}`)
+                                .card-body.parent-relative-apply.d-flex.flex-column.pb-0
+                                    //- p.text-muted.fw-light.text-center.small-text.mb-0 $#{product.price}
+                                    .container
+                                        img.d-inline-block.logo-image(src=`/images/logos/${product.location.replace(/ /g, "_").toLowerCase()}.jpg`)
+                                        p.ms-2.mb-0.d-inline-block=product.location
+                                        a.float-end(href=product.link target="_blank") $#{product.price}
+                                    
+                                    -
+                                        let linkText = product.name
+                                        if (product.customizable == 1) linkText += ` (Customizable)`
+                                    a(href=`${product.link}` target="_blank").mt-2.card-title=linkText
+                                .card-footer
+                                    p.text-muted.small-text.text-center.mb-0 Updated #{product.date_updated}
+
+    script.
+        const observer = lozad(); // lazy loads elements with default selector as '.lozad'
+        observer.observe();
+                    
+                            

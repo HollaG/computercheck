@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 block content
     .container.py-4.mt-3
@@ -29,46 +29,56 @@ block content
 
             .col-12.text-center.mb-2
                 h5.text-dark.fw-bold Technical specifications    
-            .col-md-3.col-6.px-3
-                p.fw-bold.text-dark Processor
-            .col-md-3.col-6.text-end.px-3
-                p=model.processor
-            .col-md-3.col-6.px-3
-                p.fw-bold.text-dark RAM
-            .col-md-3.col-6.text-end.px-3
-                p=model.ram
-            .col-md-3.col-6.px-3
-                p.fw-bold.text-dark Storage
-            .col-md-3.col-6.text-end.px-3
-                p=model.storage
-            .col-md-3.col-6.px-3
-                p.fw-bold.text-dark Graphics Card
-            .col-md-3.col-6.text-end.px-3
-                p=model.graphics
+            
             .col-md-3.col-6.px-3
                 p.fw-bold.text-dark Screen size
             .col-md-3.col-6.text-end.px-3
                 p=model.screen_size
             .col-md-3.col-6.px-3
+
                 p.fw-bold.text-dark Screen resolution
             .col-md-3.col-6.text-end.px-3
                 p=model.screen_resolution
+
             .col-md-3.col-6.px-3
                 p.fw-bold.text-dark Screen pixels-per-inch
             .col-md-3.col-6.text-end.px-3
                 p=model.screen_ppi
+
             .col-md-3.col-6.px-3
                 p.fw-bold.text-dark Screen technology
             .col-md-3.col-6.text-end.px-3
                 p=model.screen_tech
+
             .col-md-3.col-6.px-3
-                p.fw-bold.text-dark Weight
+                p.fw-bold.text-dark Refresh rate
             .col-md-3.col-6.text-end.px-3
-                p=model.weight
+                p=model.refresh_rate
+
             .col-md-3.col-6.px-3
-                p.fw-bold.text-dark Operating system
+                p.fw-bold.text-dark Aspect ratio
             .col-md-3.col-6.text-end.px-3
-                p=model.os
+                p=model.aspect_ratio
+
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Response time
+            .col-md-3.col-6.text-end.px-3
+                p=model.response_time
+
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Brightness
+            .col-md-3.col-6.text-end.px-3
+                p=model.brightness
+
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Bit depth
+            .col-md-3.col-6.text-end.px-3
+                p=model.bit_depth
+
+            .col-md-3.col-6.px-3
+                p.fw-bold.text-dark Contrast ratio
+            .col-md-3.col-6.text-end.px-3
+                p=model.contrast_ratio
 
         .container.mt-1
             

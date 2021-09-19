@@ -1,0 +1,489 @@
+extends ../layout
+block content
+
+    //- // Navigation
+    //- nav.navbar.navbar-light.bg-light.static-top
+    //-     .container
+    //-         a.navbar-brand(href="#!") Start Bootstrap
+    //-         a.btn.btn-primary(href="#signup") Sign Up
+    // Masthead
+    header.masthead#monitors
+        .container.position-relative
+            .row.justify-content-center
+                .col-xl-6
+                    .text-center.text-white                        
+                        h1.mb-5 Search for a monitor from #{getRandomName()} and more              
+                        form#searchForm(action='/' method='get')                           
+                            .row
+                                .col
+                                    input#modelSearch.form-control.form-control-lg(type="text" placeholder="Search model..." name='search' value=original maxlength="75")                                    
+                                .col-auto
+                                    button#submitButton.btn.btn-primary.btn-lg(type="submit") SEARCH               
+
+    .container.py-4#overall-container
+        .container
+            .d-flex.justify-content-between.align-items-center
+                if (original)
+                    h2.mb-0.fs-4.align-middle #{numberOfModels} search results for '#{original}'
+                else
+                    h2.mb-0.fs-4.align-middle #{numberOfModels} models
+                button.text-nowrap.btn.btn-light.px-3#toggle-filters-btn(data-mdb-ripple-color="dark" data-mdb-toggle="modal" data-mdb-target="#filterModal") 
+
+                    i(class="fas fa-filter")
+                    p.fw-bold.d-inline-block.my-0.ms-2.me-0#filter-btn-text FILTERS (0) 
+                //- button.btn.btn-primary.text-nowrap(onclick="toggleExpand(this)") Expand all
+                //- button.btn.btn-primary#load-all-btn.text-nowrap.px-3(onclick='loadMore("all")')
+                //-     i.me-2.plus-icon(class="fas fa-plus")
+                //-     i.me-2.spinner-icon(class="fas fa-spinner fa-pulse" style='display:none')
+
+                //-     p.d-inline Load all
+
+
+
+            
+                
+                
+                
+        .d-flex.flex-wrap.mt-3#item-container
+            include card
+            //- - let counter = 0
+            //- each products, model_ID in data
+
+                - if (!modelData[model_ID]) modelData[model_ID] = [{}]
+                - let model = modelData[model_ID][0]
+                .col-12.col-xl-3.col-lg-4.col-md-6
+                    -
+                        let locations = []
+                        let totalprice = []
+                        for (location of Object.keys(products)) { 
+                            locations.push(location)
+                            for (product of products[location]) totalprice.push(Number(product.price))
+                        }
+                        let avgPrice = Math.round((totalprice.reduce((a, b) => a + b, 0)) / totalprice.length)
+
+                        let filters = {
+                            brand: model.brand,                            
+                            screen_size: model.screen_size_clean,
+                            screen_resolution: `${screen_resolution_w_clean} x ${screen_resolution_h_clean}`,
+                            screen_tech: model.screen_tech_clean,
+                            refresh_rate: model.refresh_rate_clean,
+                            response_time: model.response_time_clean,
+                            brightness: model.brightness_clean,
+                            bit_depth: model.bit_depth_clean,
+                            contrast_ratio: model.contrast_ratio_clean,
+                            locations,                       
+                            price: avgPrice
+                        }
+                        
+                    .card.m-2.product(data-terms=JSON.stringify(filters))
+                        .bg-image.hover-overlay.ripple(data-mdb-ripple-color="light")
+                            a(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener")
+                                img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}` alt=`Image for model ${model_ID}`)
+                        .card-body.parent-relative-apply.d-flex.flex-column.pb-0
+                            p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}
+                            a(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener").text-truncate.mt-2.card-title=model.name
+                            .container-fluid.px-0.mt-2.pt-1
+                                mixin prices(location)
+                                    .container.mb-2.pb-2
+                                        img.d-inline-block.logo-image(src=`/images/logos/${location.replace(/ /g, "_").toLowerCase()}.jpg`  alt=`Image for location ${location}`)
+                                        p.ms-2.mb-0.d-inline-block=location
+                                        
+                                        - let numOOS = 0
+                                        each product in products[location]
+                                            if (product.active == 1)
+                                                a.float-end(href=product.link target="_blank" title=`Link for model ${model_ID} to ${location}` rel="noopener") $#{product.price}
+                                                br
+                                            //- TODO: Show or hide inactive products?                                
+                                            else
+                                                - numOOS++
+                                            //-     a.text-decoration-line-through.float-end(href=product.link target="_blank") $#{product.price}
+                                            if (product.customizable == 1)
+                                                a.float-end(href=product.link target="_blank" title=`Link for model ${model_ID} to ${location}` rel="noopener") (Customizable)
+                                                br
+                                        if (numOOS != 0)
+                                            if (numOOS == 1)
+                                                a.float-end(href=products[location][0].link target="_blank"  title=`Link for model ${model_ID} to ${location}` rel="noopener") Out of stock
+                                                br
+                                            else
+                                                a.float-end(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener") #{numOOS} out of stock
+                                                br
+                                            
+                                                
+                                each prodsInLoc, location in products
+                                    +prices(location)
+
+
+
+
+                            - let txt;
+                            .card-footer.mt-auto
+                                .row
+                                    .col-5
+                                        p.small-text.fw-bold Screen size
+                                    .col-7
+                                        -
+                                            txt = `${model.screen_size} inch`
+
+                                            if (model.screen_size == -1 || model.screen_size == 0) txt = "Unknown"
+                                        p.small-text #{txt}
+                                .row
+                                    .col-5
+                                        p.small-text.fw-bold Resolution
+                                    .col-7
+                                        -
+                                            txt = `${model.screen_resolution_w} x ${model.screen_resolution_h}`
+                                            if (model.screen_resolution_w == "-1" || model.screen_resolution_h == "-1") txt = "Unknown"
+                                        p.small-text=txt
+                                .row
+                                    .col-5
+                                        p.small-text.fw-bold Screen tech
+                                    .col-7
+                                        -
+                                            txt = `${model.screen_tech}`
+
+                                            if (model.screen_tech == "" || model.screen_tech == "-") txt = "Unknown"
+                                        p.small-text #{txt}
+                                .row
+                                    .col-5
+                                        p.small-text.fw-bold Refresh rate
+                                    .col-7
+                                        -
+                                            txt = `${model.refresh_rate}`
+
+                                            if (model.screrefresh_rateen_tech == "" || model.refresh_rate == "-") txt = "Unknown"
+                                        p.small-text #{txt}
+                               
+
+                                .container-fluid.p-0.m-0.collapse.hiding(id=`collapse-${counter}`)
+                                    .row
+                                        .col-5
+                                            p.small-text.fw-bold Aspect ratio
+                                        .col-7
+                                            -
+                                                txt = model.aspect_ratio
+                                                if (model.aspect_ratio == "-" || model.aspect_ratio === "") txt = "Unknown"
+                                            p.small-text=txt
+                                    
+                                    
+                                    .row
+                                        .col-5
+                                            p.small-text.fw-bold Response time
+                                        .col-7
+                                            -
+                                                txt = `${model.response_time} ms`
+                                                if (model.response_time == -1 || model.response_time == 0) txt = "Unknown"
+                                            p.small-text=txt
+                                    .row
+                                        .col-5
+                                            p.small-text.fw-bold Screen brightness
+                                        .col-7
+                                            -
+                                                txt = `${model.brightness} nits`
+                                                if (model.brightness == -1 || model.brightness == 0) txt = "Unknown"
+                                            p.small-text=txt
+                                    .row
+                                        .col-5
+                                            p.small-text.fw-bold Bit depth
+                                        .col-7
+                                            -
+                                                txt = `${model.bit_depth}-bit`
+                                                if (model.bit_depth == -1 || model.bit_depth == 0) txt = "Unknown"
+                                            p.small-text=txt
+                                    .row
+                                        .col-5
+                                            p.small-text.fw-bold Contrast ratio
+                                        .col-7
+                                            -
+                                                txt = `${model.contrast_ratio}:1`
+                                                if (model.contrast_ratio == -1 || model.contrast_ratio == 0) txt = "Unknown"
+                                            p.small-text=txt
+                                                
+                                .row.mb-1
+                                    .container.text-center
+                                        a.view-more-btn(id=`button-${counter}` role='button' data-mdb-toggle="collapse" data-mdb-target=`#collapse-${counter}` aria-expanded="false" onclick='toggleView(this)') 
+                                            p.d-inline-block.me-1 View more specs
+                                            i.unflipped(class="fas fa-angle-down")
+
+
+                - counter++
+        .container.text-center.my-3
+            if (ended)
+                //- p.fst-italic#loaded-text All items loaded.
+            else 
+                button.btn.btn-primary#load-more-btn.px-3(onclick='loadMore()') 
+                    i.me-2.plus-icon(class="fas fa-plus")
+                    i.me-2.spinner-icon(class="fas fa-spinner fa-pulse" style='display:none')
+                    p.d-inline LOAD MORE
+                
+                p.fst-italic#loaded-text(style='display:none') All items loaded.
+    
+    .modal.fade(tabindex='-1')#filterModal
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5.modal-title#filter-header-text  Filters (0)
+                    button.btn-close(type='button' data-mdb-dismiss='modal' aria-label='Close')
+                .modal-body
+                    .container-fluid
+                        #accordian-filters.accordion
+                            
+
+                            .accordion-item
+                                h2#accordian-brand-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-brand-container' aria-expanded='false' aria-controls='accordian-brand-container')
+                                        .div
+                                            p.mb-0.fw-bold Brand                                            
+                                            p.mb-0.font-small#brand-number 0 filters selected
+                                #accordian-brand-container.accordion-collapse.collapse(aria-labelledby='accordian-brand-heading')
+                                    .accordion-body
+                                        each brand in dataObj.brands
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`brand:${encodeID(brand.brand)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('brand:${brand.brand}', '', '', this)`)
+                                                
+                                                p.d-inline.me-1.pe-1 #{brand.brand} (#{brand.total})
+                                                i.cross(class="fas fa-plus")
+                                            
+                            .accordion-item
+                                h2#accordian-location-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-location-container' aria-expanded='false' aria-controls='accordian-location-container')
+                                        .div
+                                            p.mb-0.fw-bold Store                                            
+                                            p.mb-0.font-small#location-number 0 filters selected
+                                #accordian-location-container.accordion-collapse.collapse(aria-labelledby='accordian-location-heading')
+                                    .accordion-body
+                                        each location in dataObj.locations
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`location:${encodeID(location.location)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('location:${location.location}', '', '', this)`)
+                                                
+                                                p.d-inline.me-1.pe-1 #{location.location} (#{location.total})
+                                                i.cross(class="fas fa-plus")
+
+                            
+
+                            .accordion-item
+                                h2#accordian-display-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-display-container' aria-expanded='false' aria-controls='accordian-display-container')
+                                        .div
+                                            p.mb-0.fw-bold Screen size                                            
+                                            p.mb-0.font-small#screen_size-number 0 filters selected
+                                #accordian-display-container.accordion-collapse.collapse(aria-labelledby='accordian-display-heading')
+                                    .accordion-body
+                                        each screenSize in dataObj.screenSizes
+                                            if (screenSize.screen_size_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`screen_size:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('screen_size:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{screenSize.total}) 
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.screenSizes.splice(dataObj.screenSizes.indexOf(screenSize), 1)   
+                                                - break
+                                        each screenSize in dataObj.screenSizes
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`screen_size:${encodeID(screenSize.screen_size_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('screen_size:${screenSize.screen_size_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{screenSize.screen_size_clean} inch
+                                                i.cross(class="fas fa-plus")
+
+                            .accordion-item
+                                h2#accordian-screen_resolution-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-screen_resolution-container' aria-expanded='false' aria-controls='accordian-screen_resolution-container')
+                                        .div
+                                            p.mb-0.fw-bold Screen resolution                                        
+                                            p.mb-0.font-small#screen_resolution-number 0 filters selected
+                                #accordian-screen_resolution-container.accordion-collapse.collapse(aria-labelledby='accordian-screen_resolution-heading')
+                                    .accordion-body
+                                        each screenResolution in dataObj.screenResolutions
+                                            if (screenResolution.screen_resolution_w_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`screen_resolution:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('screen_resolution:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{screenResolution.total})  
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.screenResolutions.splice(dataObj.screenResolutions.indexOf(screenResolution), 1)   
+                                                - break
+                                        each screenResolution in dataObj.screenResolutions
+                                            - let screenResText = `${screenResolution.screen_resolution_w_clean} x ${screenResolution.screen_resolution_h_clean}`
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`screen_resolution:${encodeID(screenResText)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('screen_resolution:${screenResText}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{screenResText}
+                                                i.cross(class="fas fa-plus")
+                            
+                            .accordion-item
+                                h2#accordian-screen_tech-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-screen_tech-container' aria-expanded='false' aria-controls='accordian-screen_tech-container')
+                                        .div
+                                            p.mb-0.fw-bold Screen technology                                       
+                                            p.mb-0.font-small#screen_tech-number 0 filters selected
+                                #accordian-screen_tech-container.accordion-collapse.collapse(aria-labelledby='accordian-screen_tech-heading')
+                                    .accordion-body
+                                        each screenTech in dataObj.screenTechs
+                                            if (screenTech.screen_tech_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`screen_tech:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('screen_tech:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{screenTech.total})  
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.screenTechs.splice(dataObj.screenTechs.indexOf(screenTech), 1)   
+                                                - break
+                                        each screenTech in dataObj.screenTechs
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`screen_tech:${encodeID(screenTech.screen_tech_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('screen_tech:${screenTech.screen_tech_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{screenTech.screen_tech_clean} 
+                                                i.cross(class="fas fa-plus")
+                            
+                            .accordion-item
+                                h2#accordian-refresh_rate-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-refresh_rate-container' aria-expanded='false' aria-controls='accordian-refresh_rate-container')
+                                        .div
+                                            p.mb-0.fw-bold Refresh rate                                      
+                                            p.mb-0.font-small#refresh_rate-number 0 filters selected
+                                #accordian-refresh_rate-container.accordion-collapse.collapse(aria-labelledby='accordian-refresh_rate-heading')
+                                    .accordion-body
+                                        each refreshRate in dataObj.refreshRates
+                                            if (refreshRate.refresh_rate_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`refresh_rate:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('refresh_rate:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{refreshRate.total})  
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.refreshRates.splice(dataObj.refreshRates.indexOf(refreshRate), 1)   
+                                                - break
+                                        each refreshRate in dataObj.refreshRates
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`refresh_rate:${encodeID(refreshRate.refresh_rate_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('refresh_rate:${refreshRate.refresh_rate_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{refreshRate.refresh_rate_clean} Hz
+                                                i.cross(class="fas fa-plus")
+                            
+                            .accordion-item
+                                h2#accordian-aspect_ratio-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-aspect_ratio-container' aria-expanded='false' aria-controls='accordian-aspect_ratio-container')
+                                        .div
+                                            p.mb-0.fw-bold Aspect ratio                                
+                                            p.mb-0.font-small#aspect_ratio-number 0 filters selected
+                                #accordian-aspect_ratio-container.accordion-collapse.collapse(aria-labelledby='accordian-aspect_ratio-heading')
+                                    .accordion-body
+                                        each aspectRatio in dataObj.aspectRatios
+                                            if (aspectRatio.aspect_ratio_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`aspect_ratio:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('aspect_ratio:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{aspectRatio.total})  
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.aspectRatios.splice(dataObj.aspectRatios.indexOf(aspectRatio), 1)   
+                                                - break
+                                        each aspectRatio in dataObj.aspectRatios
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`aspect_ratio:${encodeID(aspectRatio.aspect_ratio_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('aspect_ratio:${aspectRatio.aspect_ratio_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{aspectRatio.aspect_ratio_clean}
+                                                i.cross(class="fas fa-plus")
+                            
+                            .accordion-item
+                                h2#accordian-response_time-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-response_time-container' aria-expanded='false' aria-controls='accordian-response_time-container')
+                                        .div
+                                            p.mb-0.fw-bold Response time                           
+                                            p.mb-0.font-small#response_time-number 0 filters selected
+                                #accordian-response_time-container.accordion-collapse.collapse(aria-labelledby='accordian-response_time-heading')
+                                    .accordion-body
+                                        each responseTime in dataObj.responseTimes
+                                            if (responseTime.response_time_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`response_time:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('response_time:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{responseTime.total})  
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.responseTimes.splice(dataObj.responseTimes.indexOf(responseTime), 1)   
+                                                - break
+                                        each responseTime in dataObj.responseTimes
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`response_time:${encodeID(responseTime.response_time_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('response_time:${responseTime.response_time_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{responseTime.response_time_clean} ms
+                                                i.cross(class="fas fa-plus")
+                            
+                            .accordion-item
+                                h2#accordian-brightness-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-brightness-container' aria-expanded='false' aria-controls='accordian-brightness-container')
+                                        .div
+                                            p.mb-0.fw-bold Brightness                          
+                                            p.mb-0.font-small#brightness-number 0 filters selected
+                                #accordian-brightness-container.accordion-collapse.collapse(aria-labelledby='accordian-brightness-heading')
+                                    .accordion-body
+                                        each brightness in dataObj.brightnesses
+                                            if (brightness.brightness_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`brightness:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('brightness:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{brightness.total})  
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.brightnesses.splice(dataObj.brightnesses.indexOf(brightness), 1)   
+                                                - break
+                                        each brightness in dataObj.brightnesses
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`brightness:${encodeID(brightness.brightness_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('brightness:${brightness.brightness_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{brightness.brightness_clean} nits
+                                                i.cross(class="fas fa-plus")
+                            
+                            .accordion-item
+                                h2#accordian-bit_depth-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-bit_depth-container' aria-expanded='false' aria-controls='accordian-bit_depth-container')
+                                        .div
+                                            p.mb-0.fw-bold Bit depth                          
+                                            p.mb-0.font-small#bit_depth-number 0 filters selected
+                                #accordian-bit_depth-container.accordion-collapse.collapse(aria-labelledby='accordian-bit_depth-heading')
+                                    .accordion-body
+                                        each bitDepth in dataObj.bitDepths
+                                            if (bitDepth.bit_depth_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`bit_depth:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('bit_depth:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{bitDepth.total})  
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.bitDepths.splice(dataObj.bitDepths.indexOf(bitDepth), 1)   
+                                                - break
+                                        each bitDepth in dataObj.bitDepths
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`bit_depth:${encodeID(bitDepth.bit_depth_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('bit_depth:${bitDepth.bit_depth_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{bitDepth.bit_depth_clean}-bit
+                                                i.cross(class="fas fa-plus")
+                            
+                            .accordion-item
+                                h2#accordian-contrast_ratio-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-contrast_ratio-container' aria-expanded='false' aria-controls='accordian-contrast_ratio-container')
+                                        .div
+                                            p.mb-0.fw-bold Contrast ratio                         
+                                            p.mb-0.font-small#contrast_ratio-number 0 filters selected
+                                #accordian-contrast_ratio-container.accordion-collapse.collapse(aria-labelledby='accordian-contrast_ratio-heading')
+                                    .accordion-body
+                                        each contrastRatio in dataObj.contrastRatios
+                                            if (contrastRatio.contrast_ratio_clean == "AAUnknown")
+                                                button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`contrast_ratio:Unknown-btn` type='button' data-mdb-toggle="button" onclick=`filter('contrast_ratio:Unknown', '', '', this)`)
+                                                    p.d-inline.me-1.pe-1 Unknown (#{contrastRatio.total})  
+                                                    i.cross(class="fas fa-plus")
+                                                - dataObj.contrastRatios.splice(dataObj.contrastRatios.indexOf(contrastRatio), 1)   
+                                                - break
+                                        each contrastRatio in dataObj.contrastRatios
+                                            button.btn.btn-light.btn-rounded.btn-sm.mb-2.me-2(id=`contrast_ratio:${encodeID(contrastRatio.contrast_ratio_clean)}-btn` type='button' data-mdb-toggle="button" onclick=`filter('contrast_ratio:${contrastRatio.contrast_ratio_clean}', '', '', this)`)
+                                                p.d-inline.me-1.pe-1 #{contrastRatio.contrast_ratio_clean}:1
+                                                i.cross(class="fas fa-plus")
+                                                       
+                            
+                            .accordion-item
+                                h2#accordian-price-heading.accordion-header
+                                    button.accordion-button.collapsed(type='button' data-mdb-toggle='collapse' data-mdb-target='#accordian-price-container' aria-expanded='false' aria-controls='accordian-price-container')
+                                        .div
+                                            p.mb-0.fw-bold Price                                            
+                                            p.mb-0.font-small#select-price-text $#{dataObj.minPrice} - $#{dataObj.maxPrice}
+                                #accordian-price-container.accordion-collapse.collapse(aria-labelledby='accordian-price-heading')
+                                    .accordion-body
+                                        .d-flex.align-items-center.me-2
+                                            //- p.m-1.ms-2.font-small.align-middle#select-price-text Price: $#{dataObj.minPrice} - $#{dataObj.maxPrice}
+                                            p.font-small.mb-0 #{dataObj.minPrice}
+                                            .price-container.flex-grow-1
+                                                #select-price
+                                            p.font-small.mb-0 #{dataObj.maxPrice}
+
+                .modal-footer
+                    //- button.btn.btn-light.fw-bold(type='button') COPY
+                    //- button.btn.btn-primary(type='button' data-mdb-dismiss='modal') APPLY
+                    button.btn.btn-light#clear-filters-btn(data-mdb-ripple-color="dark" onclick='clearFilters()') 
+                        i#clear-filters-cross(class="fas fa-times")  
+                        i#clear-filters-loading(class="fas fa-spinner fa-pulse" style='display:none')  
+                        i#clear-filters-done(class="fas fa-check" style='display:none') 
+
+                        p#clear-filters-text.fw-bold.d-inline-block.my-0.ms-2.me-0 CLEAR
+
+                    button.btn.btn-light#copy-filters-btn(data-mdb-ripple-color="dark" onclick='copyFilters()') 
+                        i#copy-link-clip(class="fas fa-clipboard")
+                        i#copy-link-check(class="fas fa-check" style='display:none') 
+                        p.fw-bold.d-inline-block.my-0.ms-2.me-0#copy-link-text COPY
+                    button.btn.btn-primary(type='button' data-mdb-dismiss='modal') CLOSE
+
+    script.
+        
+        function encodeID(string) { 
+            return string.replace(/ /g, "-_-").replace(/\./g, "_-_")
+        }
+        let dataObj = !{stringify(dataObj)}
+        if (location.href.match("search")) document.getElementById('item-container').scrollIntoView()    
+
+        
+        
+
+        const observer = lozad(); // lazy loads elements with default selector as '.lozad'
+        observer.observe();
+
+    //- script(src="/javascripts/search.js")
+    script(src="/javascripts/monitors.js")

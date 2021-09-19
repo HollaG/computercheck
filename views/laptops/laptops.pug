@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 block content
 
     //- // Navigation
@@ -7,7 +7,7 @@ block content
     //-         a.navbar-brand(href="#!") Start Bootstrap
     //-         a.btn.btn-primary(href="#signup") Sign Up
     // Masthead
-    header.masthead
+    header.masthead#laptops
         .container.position-relative
             .row.justify-content-center
                 .col-xl-6
@@ -45,8 +45,9 @@ block content
                 
                 
         .d-flex.flex-wrap.mt-3#item-container
-            - let counter = 0
-            each products, model_ID in data
+            include card
+            //- - let counter = 0
+            //- each products, model_ID in data
 
                 - if (!modelData[model_ID]) modelData[model_ID] = [{}]
                 - let model = modelData[model_ID][0]
@@ -119,26 +120,26 @@ block content
                                         p.small-text.fw-bold Processor
                                     .col-7
                                         -
-                                            let processorText =`${model.processor_company} ${model.processor_model}`
-                                            if (model.processor_company == "-" || model.processor_model == "-") processorText = "Unknown"
+                                            let txt =`${model.processor_company} ${model.processor_model}`
+                                            if (model.processor_company == "-" || model.processor_model == "-") txt = "Unknown"
 
-                                        p.small-text=processorText
+                                        p.small-text=txt
                                 .row
                                     .col-5
                                         p.small-text.fw-bold RAM
                                     .col-7
                                         -
-                                            let ramText = `${model.ram} GB`
-                                            if (model.ram == -1 || model.ram == 0) ramText = "Unknown"
-                                        p.small-text=ramText
+                                            let txt = `${model.ram} GB`
+                                            if (model.ram == -1 || model.ram == 0) txt = "Unknown"
+                                        p.small-text=txt
                                 .row
                                     .col-5
                                         p.small-text.fw-bold Storage
                                     .col-7
                                         -
-                                            let storageText = model.storage
-                                            if (model.storage == "-" || model.storage === "") storageText == "Unknown"
-                                        p.small-text=storageText
+                                            let txt = model.storage
+                                            if (model.storage == "-" || model.storage === "") txt == "Unknown"
+                                        p.small-text=txt
 
                                 .container-fluid.p-0.m-0.collapse.hiding(id=`collapse-${counter}`)
                                     .row
@@ -146,41 +147,41 @@ block content
                                             p.small-text.fw-bold Graphics
                                         .col-7
                                             -
-                                                let gpuText = model.graphics_card
-                                                if (model.graphics_card == "-" || model.graphics_card === "") gpuText = "Unknown"
-                                            p.small-text=gpuText
+                                                let txt = model.graphics_card
+                                                if (model.graphics_card == "-" || model.graphics_card === "") txt = "Unknown"
+                                            p.small-text=txt
                                     .row
                                         .col-5
                                             p.small-text.fw-bold Screen size
                                         .col-7
                                             -
-                                                let screenSizeText = `${model.screen_size} inch`
+                                                let txt = `${model.screen_size} inch`
 
-                                                if (model.screen_size == -1 || model.screen_size == 0) screenSizeText = "Unknown"
-                                            p.small-text #{screenSizeText}
+                                                if (model.screen_size == -1 || model.screen_size == 0) txt = "Unknown"
+                                            p.small-text #{txt}
                                     .row
                                         .col-5
                                             p.small-text.fw-bold Resolution
                                         .col-7
                                             -
-                                                let screenResolutionText = `${model.screen_resolution_w} x ${model.screen_resolution_h}`
-                                                if (model.screen_resolution_w == "-1" || model.screen_resolution_h == "-1") screenResolutionText = "Unknown"
-                                            p.small-text=screenResolutionText
+                                                let txt = `${model.screen_resolution_w} x ${model.screen_resolution_h}`
+                                                if (model.screen_resolution_w == "-1" || model.screen_resolution_h == "-1") txt = "Unknown"
+                                            p.small-text=txt
                                     .row
                                         .col-5
                                             p.small-text.fw-bold OS
                                         .col-7
                                             -
-                                                let osText = model.os
-                                                if (model.os == "-" || !model.os) osText = "Unknown"
-                                            p.small-text=osText
+                                                let txt = model.os
+                                                if (model.os == "-" || !model.os) txt = "Unknown"
+                                            p.small-text=txt
                                     .row
                                         .col-5
                                             p.small-text.fw-bold Weight
                                         .col-7
                                             -
-                                                let weightText = model.weight_clean == "Unknown" ? "Unknown" : `${Number(model.weight_clean) > 1000 ? `${Number(model.weight_clean)/1000}kg` : `${model.weight_clean}g`}`
-                                            p.small-text #{weightText}
+                                                let txt = model.weight_clean == "Unknown" ? "Unknown" : `${Number(model.weight_clean) > 1000 ? `${Number(model.weight_clean)/1000}kg` : `${model.weight_clean}g`}`
+                                            p.small-text #{txt}
                                                 
                                 .row.mb-1
                                     .container.text-center
@@ -392,4 +393,4 @@ block content
         observer.observe();
 
     //- script(src="/javascripts/search.js")
-    script(src="/javascripts/main.js")
+    script(src="/javascripts/laptops.js")

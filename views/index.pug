@@ -1,69 +1,42 @@
 extends layout
 
 block content
+    style.
+        //- .image-container {
+        //-     height: 94vh;
 
+        //- }
+        .image-container#laptops { 
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url("../images/laptop_masthead.jpg") no-repeat center center;
+            background-size: cover;
+        }
+        .image-container#monitors {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url("../images/monitor_masthead.jpg") no-repeat center center;
+            background-size: cover;
+        }
+        .text {
+            color: white;
+            font-size: 4rem
+            
+
+        }
+    .row.p-0.m-0.flex-grow-1
+        .col-12.col-lg-6.image-container#laptops.d-flex.justify-content-center
+            .align-self-center.text-center.p-3
+                h1.text.fw-bold LAPTOPS
+                a.btn.btn-primary.btn-lg(href="/laptops") VIEW
+        .col-12.col-lg-6.image-container#monitors.d-flex.justify-content-center
+            .align-self-center.text-center.p-3
+                h1.text.fw-bold MONITORS
+                a.btn.btn-primary.btn-lg(href="/monitors") VIEW
+
+    //- .d-flex.justify-content-around.align-items-center
+    //-     .flex-fill.image-container#laptops.d-flex.justify-content-center
+    //-         .align-self-center
+    //-             h1.text.fw-bold ALL LAPTOPS
+    //-             button.btn.btn-primary View LAPTOPS
+            
+    //-     .flex-fill.image-container#monitors
+    //-         h3 Helo
+            
     
-    .container
-        .search-container
-            h1.text-center Start typing your query below
-            .input-container.text-center
-                form(method='get' action="/")
-                    input#search-string.query-input.text-center(type="text" value=original name="search")
-                    button(type="submit") Search
-        .items-container
-            p#total-items.text-end #{numberOfProducts} products, #{numberOfModels} models found (#{diff} ms)
-            #table
-            table(width="100%")
-                thead
-                    tr  
-                        th Brand
-                        th Name
-                        th Model
-                        
-                        th Best Denki
-                        th Challenger
-                        th Courts
-                        th Gain City
-                        th Harvey Norman
-                tbody
-                    each products, model_ID in data
-                        tr(class=`${modelData[model_ID] ? modelData[model_ID][0].search_terms : ""}`)
-                            td #{modelData[model_ID] ? modelData[model_ID][0].brand : "No data"}
-                            td.long #{modelData[model_ID] ? modelData[model_ID][0].name : "No data"}
-                            td.long=model_ID
-                            
-                            td
-                                - var location = "Best Denki"
-                                if products[location]
-                                    each product in products[location]
-                                        a(href=product.link target="_blank")=product.price
-                                        br
-                            td
-                                - var location = "Challenger"
-                                if products[location]
-                                    each product in products[location]
-                                        a(href=product.link target="_blank")=product.price
-                                        br
-                            td
-                                - var location = "Courts"
-                                if products[location]
-                                    each product in products[location]
-                                        a(href=product.link target="_blank")=product.price
-                                        br
-                            td
-                                - var location = "Gain City"
-                                if products[location]
-                                    each product in products[location]
-                                        a(href=product.link target="_blank")=product.price
-                                        br
-                            td
-                                - var location = "Harvey Norman"
-                                if products[location]
-                                    each product in products[location]
-                                        a(href=product.link target="_blank")=product.price
-                                        br
-                                    
-                
-                                
-    script.
-        var data = !{stringify(data)}

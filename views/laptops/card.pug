@@ -26,11 +26,11 @@ each products, model_ID in data
             }
         .card.m-2.product(data-terms=filters)
             .bg-image.hover-overlay.ripple(data-mdb-ripple-color="light")
-                a(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener")
+                a(href=`/laptops/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener")
                     img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}` alt=`Image for model ${model_ID}`)
             .card-body.parent-relative-apply.d-flex.flex-column.pb-0
                 p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}
-                a(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener").text-truncate.mt-2.card-title=model.name
+                a(href=`/laptops/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener").text-truncate.mt-2.card-title=model.name
                 .container-fluid.px-0.mt-2.pt-1
                     mixin prices(location)
                         .container.mb-2.pb-2
@@ -54,7 +54,7 @@ each products, model_ID in data
                                     a.float-end(href=products[location][0].link target="_blank" title=`Link for model ${model_ID} to ${location}` rel="noopener") Out of stock
                                     br
                                 else
-                                    a.float-end(href=`/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID} to ${location}` rel="noopener") #{numOOS} out of stock
+                                    a.float-end(href=`/laptops/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID} to ${location}` rel="noopener") #{numOOS} out of stock
                                     br
 
                                     

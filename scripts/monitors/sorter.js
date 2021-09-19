@@ -20,21 +20,21 @@ const headless = true
             const dictionary = await fs.readJSON(`${process.cwd()}/data/dictionary.json`)
             const extras = await fs.readJSON(`${process.cwd()}/data/extras.json`)
 
-            const files = await fs.readdir(`${process.cwd()}/data/raw/laptops`)
+            const files = await fs.readdir(`${process.cwd()}/data/raw/monitors`)
 
-            await fs.ensureDir(`${process.cwd()}/public/images/product-images/laptops`)
+            await fs.ensureDir(`${process.cwd()}/public/images/product-images`)
             const PRODUCTS = []
             const MODEL_IDs = []
             console.log(files)
             for (var i = 0; i < files.length; i++) {
 
                 var file = files[i]
-                var data = await fs.readJSON(`${process.cwd()}/data/raw/laptops/${file}`)
-                if (data == {} || data == [] || !data) { // If no data, continue
+                var monitors__data = await fs.readJSON(`${process.cwd()}/data/raw/monitors/${file}`)
+                if (monitors__data == {} || monitors__data == [] || !monitors__data) { // If no monitors__data, continue
                    continue 
                 }
-                for (var j = 0; j < data.length; j++) {
-                    var item = data[j]
+                for (var j = 0; j < monitors__data.length; j++) {
+                    var item = monitors__data[j]
 
                     item.name = item.name.toUpperCase().trim()
                     // delete all non numbers from price
@@ -54,7 +54,7 @@ const headless = true
 
                     MODEL_IDs.push(makeFileName(item.model_ID))
                 }
-                PRODUCTS.push(...data)
+                PRODUCTS.push(...monitors__data)
 
             }
 
@@ -300,14 +300,14 @@ const headless = true
 
             // fs.emptyDirSync(`${process.cwd()}/public/images/product-images`)
 
-            // TABLE: model_data
+            // TABLE: monitors__model_data
             // GENERATE: 
             // 1) model_ID
             // 2) name
             // 3) brand
             // 4) search_terms
-            const model_data = []
-            const model_keywords = []
+            const monitors__model_data = []
+            const monitors__model_keywords = []
             const items_data = []
             const reducer = (accumulator, currentVal) => accumulator + " " + currentVal.name + " " + currentVal.location.toUpperCase()
             let counter = 0
@@ -357,8 +357,8 @@ const headless = true
                     let image_link = ""
                     try {
                         let fileName = makeFileName(model)
-                        
-                        let file = `${process.cwd()}/public/images/product-images/laptops/${fileName}.jpg`
+
+                        let file = `${process.cwd()}/public/images/product-images/monitors/${fileName}.jpg`
                         if (fs.existsSync(file)) { 
                             // already exists
                             console.log("File already exists for " + counter)
@@ -367,7 +367,7 @@ const headless = true
 
                                 responseType: 'arraybuffer'
                             })
-                            let data = Buffer.from(res.data, "binary")
+                            let monitors__data = Buffer.from(res.data, "binary")
     
     
                             sharp(data)
@@ -396,7 +396,7 @@ const headless = true
     
                             
                         }
-                        image_link = `/images/product-images/laptops/${fileName}.jpg`
+                        image_link = `/images/product-images/monitors/${fileName}.jpg`
                         
                     } catch (e) {
                         // console.log(e)
@@ -406,7 +406,7 @@ const headless = true
                     // await timeout(500)
 
 
-                    model_data.push([
+                    monitors__model_data.push([
                         model.trim().toUpperCase(),
                         model_name.trim().toUpperCase(),
                         products[0].brand.trim().toUpperCase(),
@@ -417,7 +417,7 @@ const headless = true
 
                     for (let j = 0; j < search_string.split(" ").length; j++) {
 
-                        model_keywords.push([
+                        monitors__model_keywords.push([
                             model.trim().toUpperCase(),
                             search_string.split(" ")[j]
                         ])
@@ -434,54 +434,54 @@ const headless = true
 
 
 
-            await connection.query(`DELETE FROM temp_model_data`)
-            await connection.query(`INSERT INTO temp_model_data (model_ID, name, brand, avg_price, search_terms, image_url) VALUES ?`, [model_data])
+            await connection.query(`DELETE FROM monitors__temp_model_data`)
+            await connection.query(`INSERT INTO monitors__temp_model_data (model_ID, name, brand, avg_price, search_terms, image_url) VALUES ?`, [monitors__model_data])
 
-            await connection.query(`DELETE FROM temp_model_keywords`)
-            await connection.query(`INSERT INTO temp_model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
+            await connection.query(`DELETE FROM monitors__temp_model_keywords`)
+            await connection.query(`INSERT INTO monitors__temp_model_keywords (model_ID, keyword) VALUES ?`, [monitors__model_keywords])
 
 
 
-            await connection.query(`DELETE FROM temp_data`)
-            await connection.query(`INSERT INTO temp_data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
+            await connection.query(`DELETE FROM monitors__temp_data`)
+            await connection.query(`INSERT INTO monitors__temp_data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
 
             // console.log(model_data)
 
-
+            await connection.commit()
             const mod = require(`${__dirname}/specifications.js`)
             await mod.specs()
             
-            console.log("----------------- COPYING OVER DATABASE -----------------")
+            console.log("----------------- COPYING OVER monitors__dataBASE -----------------")
 
             await connection.beginTransaction()
 
-            // Delete all rows from model_data that match a model ID in temp_model_data (this means that the product was re-scraped, data might b updated)
-            await connection.query(`DELETE FROM model_data WHERE model_data.model_ID IN (SELECT temp_model_data.model_ID FROM temp_model_data)`)
-            await connection.query(`INSERT INTO model_data (SELECT * FROM temp_model_data)`)
+            // Delete all rows from monitors__model_data that match a model ID in monitors__temp_model_data (this means that the product was re-scraped, monitors__data might b updated)
+            await connection.query(`DELETE FROM monitors__model_data WHERE monitors__model_data.model_ID IN (SELECT monitors__temp_model_data.model_ID FROM monitors__temp_model_data)`)
+            await connection.query(`INSERT INTO monitors__model_data (SELECT * FROM monitors__temp_model_data)`)
 
-            // Data unlikely to be updated, so just add the new rows in
-            await connection.query(`INSERT INTO model_keywords (SELECT * FROM temp_model_keywords WHERE temp_model_keywords.model_ID NOT IN (SELECT model_keywords.model_ID FROM model_keywords))`)
+            // monitors__data unlikely to be updated, so just add the new rows in
+            await connection.query(`INSERT INTO monitors__model_keywords (SELECT * FROM monitors__temp_model_keywords WHERE monitors__temp_model_keywords.model_ID NOT IN (SELECT monitors__model_keywords.model_ID FROM monitors__model_keywords))`)
 
-            // await connection.query(`DELETE FROM model_keywords `)
+            // await connection.query(`DELETE FROM monitors__model_keywords `)
 
-            // await connection.query(`INSERT INTO model_data (SELECT * FROM temp_model_data WHERE temp_model_data.model_ID NOT IN (SELECT model_data.model_ID FROM model_data))`)
+            // await connection.query(`INSERT INTO monitors__model_data (SELECT * FROM monitors__temp_model_data WHERE monitors__temp_model_data.model_ID NOT IN (SELECT monitors__model_data.model_ID FROM monitors__model_data))`)
 
 
-            // Find rows from DATA that are NOT in temp_data (i.e. products that are now discontinued / OOS) and set as inactive
-            await connection.query(`UPDATE data SET active = 0 WHERE row_ID IN
+            // Find rows from monitors__data that are NOT in temp_data (i.e. products that are now discontinued / OOS) and set as inactive
+            await connection.query(`UPDATE monitors__data SET active = 0 WHERE row_ID IN
             (
                 SELECT row_ID FROM (
-                    SELECT row_ID FROM data WHERE data.link NOT IN (SELECT temp_data.link FROM temp_data)
+                    SELECT row_ID FROM monitors__data WHERE monitors__data.link NOT IN (SELECT monitors__temp_data.link FROM monitors__temp_data)
                 )  as arbitaryTableName
             ) 
             `)
 
-            // Find rows that are in data AND temp_data (i.e. discontinued rows will NOT be selected)
+            // Find rows that are in monitors__data AND temp_data (i.e. discontinued rows will NOT be selected)
             // Delete them so that we can refresh things like price, name etc
-            await connection.query(`DELETE FROM data WHERE data.link IN (SELECT temp_data.link FROM temp_data)`)
-            await connection.query(`INSERT INTO data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data])
+            await connection.query(`DELETE FROM monitors__data WHERE monitors__data.link IN (SELECT monitors__temp_data.link FROM monitors__temp_data)`)
+            await connection.query(`INSERT INTO monitors__data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data])
             await connection.commit()
-            console.log("----------------- COMPLETED COPYING OVER DATABASE -----------------")
+            console.log("----------------- COMPLETED COPYING OVER monitors__dataBASE -----------------")
 
 
             await connection.release()

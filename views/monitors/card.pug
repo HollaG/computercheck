@@ -1,0 +1,160 @@
+- let counter = 0
+each products, model_ID in data
+
+    - if (!modelData[model_ID]) modelData[model_ID] = [{}]
+    - let model = modelData[model_ID][0]
+    .col-12.col-xl-3.col-lg-4.col-md-6
+        -
+            let locations = []
+            let totalprice = []
+            for (location of Object.keys(products)) { 
+                locations.push(location)
+                for (product of products[location]) totalprice.push(Number(product.price))
+            }
+            let avgPrice = Math.round((totalprice.reduce((a, b) => a + b, 0)) / totalprice.length)
+
+            let filters = {
+                brand: model.brand,                            
+                screen_size: model.screen_size_clean,
+                screen_resolution: `${model.screen_resolution_w_clean} x ${model.screen_resolution_h_clean}`,
+                screen_tech: model.screen_tech_clean,
+                refresh_rate: model.refresh_rate_clean,
+                response_time: model.response_time_clean,
+                brightness: model.brightness_clean,
+                bit_depth: model.bit_depth_clean,
+                contrast_ratio: model.contrast_ratio_clean,
+                locations,                       
+                price: avgPrice
+            }
+
+        .card.m-2.product(data-terms=JSON.stringify(filters))
+            .bg-image.hover-overlay.ripple(data-mdb-ripple-color="light")
+                a(href=`/monitors/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener")
+                    img.lozad.card-img-top.fixed-size(src='/images/loading.jpg' data-src=`${modelData[model_ID] ? (model.image_url ? model.image_url : "/images/missing.jpg") : "/images/missing.jpg"}` alt=`Image for model ${model_ID}`)
+            .card-body.parent-relative-apply.d-flex.flex-column.pb-0
+                p.text-muted.fw-light.text-center.small-text #{model.brand} #{model_ID}
+                a(href=`/monitors/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener").text-truncate.mt-2.card-title=model.name
+                .container-fluid.px-0.mt-2.pt-1
+                    mixin prices(location)
+                        .container.mb-2.pb-2
+                            img.d-inline-block.logo-image(src=`/images/logos/${location.replace(/ /g, "_").toLowerCase()}.jpg`  alt=`Image for location ${location}`)
+                            p.ms-2.mb-0.d-inline-block=location
+
+                            - let numOOS = 0
+                            each product in products[location]
+                                if (product.active == 1)
+                                    a.float-end(href=product.link target="_blank" title=`Link for model ${model_ID} to ${location}` rel="noopener") $#{product.price}
+                                    br
+                                //- TODO: Show or hide inactive products?                                
+                                else
+                                    - numOOS++
+                                //-     a.text-decoration-line-through.float-end(href=product.link target="_blank") $#{product.price}
+                                if (product.customizable == 1)
+                                    a.float-end(href=product.link target="_blank" title=`Link for model ${model_ID} to ${location}` rel="noopener") (Customizable)
+                                    br
+                            if (numOOS != 0)
+                                if (numOOS == 1)
+                                    a.float-end(href=products[location][0].link target="_blank"  title=`Link for model ${model_ID} to ${location}` rel="noopener") Out of stock
+                                    br
+                                else
+                                    a.float-end(href=`/monitors/${encodeURIComponent(model.brand)}/${encodeURIComponent(model_ID)}` title=`Link for model ${model_ID}` rel="noopener") #{numOOS} out of stock
+                                    br
+
+
+                    each prodsInLoc, location in products
+                        +prices(location)
+
+
+
+
+                - let txt;
+                .card-footer.mt-auto
+                    .row
+                        .col-5
+                            p.small-text.fw-bold Screen size
+                        .col-7
+                            -
+                                txt = `${model.screen_size} inch`
+
+                                if (model.screen_size == -1 || model.screen_size == 0) txt = "Unknown"
+                            p.small-text #{txt}
+                    .row
+                        .col-5
+                            p.small-text.fw-bold Resolution
+                        .col-7
+                            -
+                                txt = `${model.screen_resolution_w} x ${model.screen_resolution_h}`
+                                if (model.screen_resolution_w == "-1" || model.screen_resolution_h == "-1") txt = "Unknown"
+                            p.small-text=txt
+                    .row
+                        .col-5
+                            p.small-text.fw-bold Screen tech
+                        .col-7
+                            -
+                                txt = `${model.screen_tech}`
+
+                                if (model.screen_tech == "" || model.screen_tech == "-") txt = "Unknown"
+                            p.small-text #{txt}
+                    .row
+                        .col-5
+                            p.small-text.fw-bold Refresh rate
+                        .col-7
+                            -
+                                txt = `${model.refresh_rate} Hz`
+
+                                if (model.refresh_rate == "0" || model.refresh_rate == "-1") txt = "Unknown"
+                            p.small-text #{txt}
+
+
+                    .container-fluid.p-0.m-0.collapse.hiding(id=`collapse-${counter}`)
+                        .row
+                            .col-5
+                                p.small-text.fw-bold Aspect ratio
+                            .col-7
+                                -
+                                    txt = model.aspect_ratio
+                                    if (model.aspect_ratio == "-" || model.aspect_ratio === "") txt = "Unknown"
+                                p.small-text=txt
+
+
+                        .row
+                            .col-5
+                                p.small-text.fw-bold Response time
+                            .col-7
+                                -
+                                    txt = `${model.response_time} ms`
+                                    if (model.response_time == -1 || model.response_time == 0) txt = "Unknown"
+                                p.small-text=txt
+                        .row
+                            .col-5
+                                p.small-text.fw-bold Screen brightness
+                            .col-7
+                                -
+                                    txt = `${model.brightness} nits`
+                                    if (model.brightness == -1 || model.brightness == 0) txt = "Unknown"
+                                p.small-text=txt
+                        .row
+                            .col-5
+                                p.small-text.fw-bold Bit depth
+                            .col-7
+                                -
+                                    txt = `${model.bit_depth}-bit`
+                                    if (model.bit_depth == -1 || model.bit_depth == 0) txt = "Unknown"
+                                p.small-text=txt
+                        .row
+                            .col-5
+                                p.small-text.fw-bold Contrast ratio
+                            .col-7
+                                -
+                                    txt = `${model.contrast_ratio}:1`
+                                    if (model.contrast_ratio == -1 || model.contrast_ratio == 0) txt = "Unknown"
+                                p.small-text=txt
+
+                    .row.mb-1
+                        .container.text-center
+                            a.view-more-btn(id=`button-${counter}` role='button' data-mdb-toggle="collapse" data-mdb-target=`#collapse-${counter}` aria-expanded="false" onclick='toggleView(this)') 
+                                p.d-inline-block.me-1 View more specs
+                                i.unflipped(class="fas fa-angle-down")
+
+
+    - counter++

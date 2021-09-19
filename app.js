@@ -5,9 +5,10 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var compression = require('compression')
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var laptopsRouter = require('./routes/laptops');
 
+var usersRouter = require('./routes/users');
+var monitorsRouter = require("./routes/monitors")
 var app = express();
 
 // view engine setup
@@ -23,8 +24,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // app.use(compression({ filter: shouldCompress }))
 
 app.get("/fallback", (req, res, next) => res.render("fallback.pug")) // Fallback code
-app.use('/', indexRouter);
+app.use('/laptops', laptopsRouter);
+app.use('/monitors', monitorsRouter);
 app.use('/users', usersRouter);
+app.use("/", (req, res) => res.render("index"))
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

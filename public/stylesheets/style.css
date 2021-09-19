@@ -1,11 +1,25 @@
-
+body { 
+  min-height: 100vh
+}
 header.masthead {
   position: relative;
   background-color: #343a40;
-  background: url("../images/masthead.jpg") no-repeat center center;
   background-size: cover;
   padding-top: 8rem;
   padding-bottom: 8rem;
+}
+
+header.masthead#monitors {
+
+  background: url("../images/monitor_masthead.jpg") no-repeat center center;
+  background-size: cover;
+}
+header.masthead#laptops {
+
+  background: url("../images/laptop_masthead.jpg") no-repeat center center;
+  background-size: cover;
+
+
 }
 header.masthead:before {
   content: "";

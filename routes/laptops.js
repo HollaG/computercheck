@@ -41,25 +41,25 @@ router.get('/', async function (req, res, next) {
         // console.log(result.groupedByProductId)
 
         // Get the options object
-        let brands = await conn.query(`SELECT brand, COUNT(*) as total FROM model_data GROUP BY brand ORDER BY brand ASC`)
-        let locations = await conn.query(`SELECT location, COUNT(*) as total FROM data GROUP BY location ORDER BY location ASC`)
+        let brands = await conn.query(`SELECT brand, COUNT(*) as total FROM laptops__model_data GROUP BY brand ORDER BY brand ASC`)
+        let locations = await conn.query(`SELECT location, COUNT(*) as total FROM laptops__data GROUP BY location ORDER BY location ASC`)
         let processorTypes = await conn.query(`
-        SELECT t.processor_model_clean, t.processor_company_clean, COUNT(*) as total FROM (SELECT IF(processor_company = "" OR processor_company = "-", 'Unknown', processor_company) as processor_company_clean, IF(processor_model = "" OR processor_model = "-", 'Unknown', processor_model) as processor_model_clean FROM model_data) t GROUP BY t.processor_model_clean ORDER BY t.processor_model_clean ASC`)
+        SELECT t.processor_model_clean, t.processor_company_clean, COUNT(*) as total FROM (SELECT IF(processor_company = "" OR processor_company = "-", 'Unknown', processor_company) as processor_company_clean, IF(processor_model = "" OR processor_model = "-", 'Unknown', processor_model) as processor_model_clean FROM laptops__model_data) t GROUP BY t.processor_model_clean ORDER BY t.processor_model_clean ASC`)
         processorTypes = processorTypes[0].reduce((r, a) => {
             r[a.processor_company_clean] = [...r[a.processor_company_clean] || [], a];
             return r;
         }, {});
-        let ramSizes = await conn.query(`SELECT t.ram_clean, COUNT(*) as total FROM (SELECT IF(ram = 0 OR ram = -1, 'AAUnknown', ram) as ram_clean FROM model_data) t GROUP BY t.ram_clean ORDER BY t.ram_clean+0 ASC`)
-        let screenSizes = await conn.query(`SELECT t.screen_clean, COUNT(*) as total FROM (SELECT IF(screen_size = 0 OR screen_size = -1, 'AAUnknown', screen_size) as screen_clean FROM model_data) t GROUP BY t.screen_clean ORDER BY t.screen_clean ASC`)
-        let osTypes = await conn.query(`SELECT t.os_clean, COUNT(*) as total FROM (SELECT IF(os = "" OR os = "-", 'AAUnknown', os) as os_clean FROM model_data) t GROUP BY t.os_clean ORDER BY t.os_clean ASC`)
+        let ramSizes = await conn.query(`SELECT t.ram_clean, COUNT(*) as total FROM (SELECT IF(ram = 0 OR ram = -1, 'AAUnknown', ram) as ram_clean FROM laptops__model_data) t GROUP BY t.ram_clean ORDER BY t.ram_clean+0 ASC`)
+        let screenSizes = await conn.query(`SELECT t.screen_clean, COUNT(*) as total FROM (SELECT IF(screen_size = 0 OR screen_size = -1, 'AAUnknown', screen_size) as screen_clean FROM laptops__model_data) t GROUP BY t.screen_clean ORDER BY t.screen_clean ASC`)
+        let osTypes = await conn.query(`SELECT t.os_clean, COUNT(*) as total FROM (SELECT IF(os = "" OR os = "-", 'AAUnknown', os) as os_clean FROM laptops__model_data) t GROUP BY t.os_clean ORDER BY t.os_clean ASC`)
 
-        let weightTypes = await conn.query(`SELECT t.weight_clean, COUNT(*) as total FROM (SELECT IF(weight = 0 OR weight = -1, 'AAUnknown', weight) as weight_clean FROM model_data) t GROUP BY t.weight_clean ORDER BY t.weight_clean+0 ASC`)
+        let weightTypes = await conn.query(`SELECT t.weight_clean, COUNT(*) as total FROM (SELECT IF(weight = 0 OR weight = -1, 'AAUnknown', weight) as weight_clean FROM laptops__model_data) t GROUP BY t.weight_clean ORDER BY t.weight_clean+0 ASC`)
         weightTypes = weightTypes[0]
         if (!weightTypes) weightTypes = []
         let maxWeight = weightTypes[weightTypes.length - 1] ? Number(weightTypes[weightTypes.length - 1].weight_clean) : 0
         let minWeight = weightTypes[1] ? Number(weightTypes[1].weight_clean) : 0 // First one is AAUnknown
 
-        let prices = await conn.query(`SELECT MAX(price) as max, MIN(price) as min FROM data WHERE active = 1`)
+        let prices = await conn.query(`SELECT MAX(price) as max, MIN(price) as min FROM laptops__data WHERE active = 1`)
         let maxPrice = Number(prices[0][0].max)
         let minPrice = Number(prices[0][0].min)
 
@@ -81,7 +81,7 @@ router.get('/', async function (req, res, next) {
         function encodeID(string) { 
             return string.replace(/ /g, "-_-").replace(/\./g, "_-_")
         }
-        res.render('main', {
+        res.render('laptops/laptops', {
             title: 'ComputerCheck: Singapore Laptop Database',
             data: result.groupedByProductId,
             modelData: result.modelDataGroupedID,
@@ -132,7 +132,7 @@ router.get("/loadMore/:code", async function (req, res, next) {
 
         if (result == "All items loaded") return res.status(204).send("All items loaded")
 
-        let html = pug.renderFile(`${process.cwd()}/views/card.pug`, {
+        let html = pug.renderFile(`${process.cwd()}/views/laptops/card.pug`, {
             data: result.groupedByProductId,
             modelData: result.modelDataGroupedID,
         })
@@ -193,13 +193,13 @@ async function getModels(startIndex, loadAll, full) {
         let inactiveModels = [""]
 
         // Total model count 
-        let numberOfModels = await conn.query(`SELECT COUNT(row_ID) as total FROM model_data WHERE model_ID NOT IN (?)`, [inactiveModels])
+        let numberOfModels = await conn.query(`SELECT COUNT(row_ID) as total FROM laptops__model_data WHERE model_ID NOT IN (?)`, [inactiveModels])
         numberOfModels = numberOfModels[0][0].total
 
         if (startIndex > numberOfModels) return "All items loaded"
 
         // Total product count
-        let numberOfProducts = await conn.query(`SELECT COUNT(row_ID) as total FROM data WHERE model_ID NOT IN (?)`, [inactiveModels])
+        let numberOfProducts = await conn.query(`SELECT COUNT(row_ID) as total FROM laptops__data WHERE model_ID NOT IN (?)`, [inactiveModels])
         numberOfProducts = numberOfProducts[0][0].total
 
 
@@ -214,14 +214,14 @@ async function getModels(startIndex, loadAll, full) {
             IF(os = "-" OR os = "", "Unknown", os) AS os_clean,
             IF(weight = 0 OR weight = -1, "Unknown", weight) as weight_clean
     
-            FROM model_data
+            FROM laptops__model_data
             LEFT JOIN (
                 SELECT model_ID, IF(e.s = 0, 0, 1) as model_active, s as sum_active, model_count FROM
-                (SELECT model_ID, SUM(active) as s, COUNT(*) as model_count FROM data GROUP BY model_ID) as e
+                (SELECT model_ID, SUM(active) as s, COUNT(*) as model_count FROM laptops__data GROUP BY model_ID) as e
             ) as d
    
-            ON model_data.model_ID = d.model_ID 
-            WHERE model_data.model_ID NOT IN (?) 
+            ON laptops__model_data.model_ID = d.model_ID 
+            WHERE laptops__model_data.model_ID NOT IN (?) 
             ORDER BY model_active DESC, avg_price ASC LIMIT ? OFFSET ?`, [inactiveModels, limit, startIndex])
         modelData = modelData[0]
         
@@ -230,7 +230,7 @@ async function getModels(startIndex, loadAll, full) {
         if (!availableModels.length) availableModels = [""]
 
 
-        let data = await conn.query(`SELECT * FROM data LEFT JOIN model_data ON data.model_ID = model_data.model_ID WHERE data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [availableModels])
+        let data = await conn.query(`SELECT * FROM laptops__data LEFT JOIN laptops__model_data ON laptops__data.model_ID = laptops__model_data.model_ID WHERE laptops__data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [availableModels])
 
 
         data = data[0]
@@ -296,7 +296,7 @@ async function getSearchModels(startIndex, searchString, loadAll, full) {
         let inactiveModels = [""]
 
         console.log(inactiveModels, 'asdas')
-        let modelSearchTerms = await conn.query(`SELECT search_terms, brand, model_ID FROM model_data WHERE model_ID NOT IN (?) ORDER BY model_ID`, [inactiveModels])
+        let modelSearchTerms = await conn.query(`SELECT search_terms, brand, model_ID FROM laptops__model_data WHERE model_ID NOT IN (?) ORDER BY model_ID`, [inactiveModels])
         modelSearchTerms = modelSearchTerms[0]
 
         let searchArr = searchString.trim().toUpperCase().split(" ")
@@ -338,13 +338,13 @@ async function getSearchModels(startIndex, searchString, loadAll, full) {
         let limitedSearchModels = searchedModels.slice(startIndex, startIndex + limit)
 
         // Total model count 
-        let numberOfModels = await conn.query(`SELECT COUNT(*) as total FROM model_data WHERE model_ID IN (?)`, [searchedModels])
+        let numberOfModels = await conn.query(`SELECT COUNT(*) as total FROM laptops__model_data WHERE model_ID IN (?)`, [searchedModels])
         numberOfModels = numberOfModels[0][0].total
 
         if (startIndex > numberOfModels) return "All items loaded"
 
         // Total product count
-        let numberOfProducts = await conn.query(`SELECT COUNT(*) as total FROM data WHERE model_ID IN (?)`, [searchedModels])
+        let numberOfProducts = await conn.query(`SELECT COUNT(*) as total FROM laptops__data WHERE model_ID IN (?)`, [searchedModels])
         numberOfProducts = numberOfProducts[0][0].total
 
         // Select the first 24 models (sorted by alphabetical)
@@ -356,18 +356,18 @@ async function getSearchModels(startIndex, searchString, loadAll, full) {
             IF(os = "-" OR os = "", "", os) AS os_clean,
             IF(weight = 0 OR weight = -1, "Unknown", weight) as weight_clean
             
-            FROM model_data 
+            FROM laptops__model_data 
             LEFT JOIN (
                 SELECT model_ID, IF(e.s = 0, 0, 1) as model_active, s as sum_active, model_count FROM
              	(SELECT model_ID, SUM(active) as s, COUNT(*) as model_count FROM data GROUP BY model_ID) as e
             ) as d           
             
-            ON model_data.model_ID = d.model_ID
+            ON laptops__model_data.model_ID = d.model_ID
             
-            WHERE model_data.model_ID IN (?) ORDER BY  model_active DESC, avg_price ASC`, [limitedSearchModels])
+            WHERE laptops__model_data.model_ID IN (?) ORDER BY model_active DESC, avg_price ASC`, [limitedSearchModels])
         modelData = modelData[0]
 
-        let data = await conn.query(`SELECT * FROM data LEFT JOIN model_data ON data.model_ID = model_data.model_ID WHERE data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [limitedSearchModels])
+        let data = await conn.query(`SELECT * FROM data LEFT JOIN laptops__model_data ON laptops__data.model_ID = laptops__model_data.model_ID WHERE laptops__data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [limitedSearchModels])
         data = data[0]
 
         // Group by product ID

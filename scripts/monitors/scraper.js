@@ -10,32 +10,25 @@ const links = {
             "requests": [
                 {
                     "indexName": "hachisearchengine",
-                    "params": "filters=active_sites%3AHSG&maxValuesPerFacet=1&query=&hitsPerPage=1000&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&page=0&tagFilters=&facetFilters=%5B%5B%22boutiquecates.subcategory%3APc%20%26%20Notebooks%20%3E%20Notebooks%20%26%20Desktops%20%3E%20Notebooks%20%26%20Laptops%22%5D%5D"
-                }, // For Windows Laptops
-
+                    "params": "filters=active_sites%3AHSG&maxValuesPerFacet=1&query=&hitsPerPage=1000&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&page=0&tagFilters=&facetFilters=%5B%5B%22boutiquecates.subcategory%3APc%20%26%20Notebooks%20%3E%20Notebooks%20%26%20Desktops%20%3E%20Monitors%22%5D%5D"
+                }, // For normal monitors
                 {
                     "indexName": "hachisearchengine",
-                    "params": "filters=active_sites%3AHSG&maxValuesPerFacet=1&query=&hitsPerPage=1000&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&page=0&tagFilters=&facetFilters=%0A%0A%5B%5B%22boutiquecates.subcategory%3AApple%20%3E%20Mac%20%3E%20Macbook%20Pro%22%5D%5D%0A%0A"
-                }, // For macbook pros
-
-                {
-                    "indexName": "hachisearchengine",
-                    "params": "filters=active_sites%3AHSG&maxValuesPerFacet=1&query=&hitsPerPage=1000&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&page=0&tagFilters=&facetFilters=%5B%5B%22boutiquecates.subcategory%3AApple%20%3E%20Mac%20%3E%20Macbook%20Air%22%5D%5D"
-                }
-            ] // for macbook Airs
+                    "params": "filters=active_sites%3AHSG&maxValuesPerFacet=1&query=&hitsPerPage=1000&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&page=0&tagFilters=&facetFilters=%5B%5B%22boutiquecates.subcategory%3AGaming%20%3E%20Pc%20Gaming%20%3E%20Gaming%20Monitor%22%5D%5D"
+                }, // for Gaming monitors
+            ]
         }
     ],
-    "Best Denki": ['https://www.bestdenki.com.sg/fitness-personal-care/it-mobile/computer/laptop.html'],
-    "Courts": ['https://www.courts.com.sg/computing-mobile/laptops/all-laptops?product_list_limit=32'],
-    "Harvey Norman": ['https://www.harveynorman.com.sg/computing/computers-en/laptops-en/'],
-    "Gain City": ['https://www.gaincity.com/catalog/category/160/laptops'],
+    "Best Denki": ['https://www.bestdenki.com.sg/it-mobile/computer/monitors.html'],
+    "Courts": ['https://www.courts.com.sg/computing-mobile/monitors-projectors/monitors?product_list_limit=32'],
+    "Harvey Norman": ['https://www.harveynorman.com.sg/computing/computers-en/monitors-en/'],
+    "Gain City": ['https://www.gaincity.com/catalog/category/166/monitors'],
 
-    "ACER Store": ['https://store.acer.com/en-sg/laptops?product_list_limit=all'],
-    "ASUS Store": ['https://sg.store.asus.com/laptop.html', 'https://sg.store.asus.com/laptop.html?product_list_limit=30'],
-    "DELL Store": ['https://www.dell.com/en-sg/shop/laptops-and-2in1-pcs/sr/laptops'],
-    "HP Store": ['https://www.hp.com/sg-en/shop/laptops-tablets.html?product_list_limit=30'],
-    "LENOVO Store": ['https://www.lenovo.com/sg/en/d/laptops-by-specs?sort=sortBy&currentResultsLayoutType=grid'],
-    "RAZER Store": ['https://www.razer.com/sg-en/shop/pc/gaming-laptops?query=:newest:category:system-laptops']
+    "ACER Store": ['https://store.acer.com/en-sg/monitors?product_list_limit=all'],
+    "DELL Store": ['https://www.dell.com/en-sg/shop/monitors/ar/6481'],
+    "HP Store": ['https://www.hp.com/sg-en/shop/monitors.html?product_list_limit=30'],
+    "LENOVO Store": ['https://www.lenovo.com/sg/en/accessories-and-monitors/dc/monitors?sort=sortBy&currentResultsLayoutType=grid&visibleDatas=facet_Group%3AGroup%3AMonitors'],
+    "LG Store": ['https://www.lg.com/sg/consumer-monitors/view-all']
 };
 
 
@@ -49,7 +42,7 @@ const pageTimeout = 5 * 1000 * 60
 const CLUSTEROPTS = {
     puppeteer,
     concurrency: Cluster.CONCURRENCY_PAGE,
-    maxConcurrency: 2,
+    maxConcurrency: 1,
     timeout: 30 * 1000 * 60,
 
     sameDomainDelay: 500,
@@ -84,32 +77,35 @@ const brands = []
 
 
 
-            await fs.ensureDir(`${process.cwd()}/data/raw/laptops`)
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/harvey.json`)
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/challenger.json`)
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/gain.json`)
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/courts.json`)
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/best.json`)
+            await fs.ensureDir(`${process.cwd()}/data/raw/monitors`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/monitors/harvey.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/monitors/challenger.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/monitors/gain.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/monitors/courts.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/monitors/best.json`)
+            // await fs.ensureFile(`${process.cwd()}/data/raw/monitors/lg.json`) 
 
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/acer.json`)
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/asus.json`)
-            // await fs.ensureFile(`${process.cwd()}/data/raw/laptops/dell.json`)
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/hp.json`)
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/lenovo.json`)
-            await fs.ensureFile(`${process.cwd()}/data/raw/laptops/razer.json`)
-
-            await gain()
-
-            await acer()
-            await asus()
-            // await dell() // Don't do this
-            await hp()
-            await lenovo()
-            await razer()
+            await fs.ensureFile(`${process.cwd()}/data/raw/monitors/acer.json`)
+            // await fs.ensureFile(`${process.cwd()}/data/raw/monitors/asus.json`) // No monitors
+            await fs.ensureFile(`${process.cwd()}/data/raw/monitors/dell.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/monitors/hp.json`)
+            await fs.ensureFile(`${process.cwd()}/data/raw/monitors/lenovo.json`)
 
 
-            await harvey()
-            await challenger()
+
+
+            // await gain()
+
+            // await acer()
+
+            // await dell() 
+            // await hp()
+            // await lenovo()
+
+
+
+            // await harvey()
+            // await challenger()
 
             await courts() // Illegal
             await best()
@@ -154,7 +150,6 @@ const brands = []
                                 location: "ACER Store"
                             })
                         }
-                        debugger;
                         return products
 
                     } catch (e) {
@@ -168,7 +163,7 @@ const brands = []
 
 
                 // Write to file
-                fs.writeFile(`${process.cwd()}/data/raw/laptops/acer.json`, JSON.stringify(acerData), (err, file) => {
+                fs.writeFile(`${process.cwd()}/data/raw/monitors/acer.json`, JSON.stringify(acerData), (err, file) => {
                     if (err) console.log(err)
                 })
 
@@ -176,104 +171,6 @@ const brands = []
 
                 return true
 
-            }
-
-            /* SECTION FOR ASUS */
-            async function asus() {
-                // Get the number of laptops first
-                console.log("PUPPETEER: Scraping ASUS Store")
-
-                const asusPage = await browser.newPage()
-
-                await asusPage.goto(links["ASUS Store"][0], { waitUntil: 'networkidle2', timeout: pageTimeout })
-
-                let pages = await asusPage.evaluate(() => {
-                    let text = document.querySelector('#page-title-heading > span.total-product').innerText
-                    return Math.ceil(Number(text.replace(/\(|\)/gm, "")) / 30)
-                })
-                console.log(pages)
-                await asusPage.close()
-
-                const cluster = await Cluster.launch(CLUSTEROPTS);
-
-                for (let i = 1; i <= pages; i++) {
-                    let url = `https://sg.store.asus.com/laptop.html?p=${i}&product_list_limit=30`
-                    cluster.queue({
-                        url, i
-                    })
-
-
-                }
-
-                let ASUSProducts = []
-
-                await cluster.task(async ({ page, data }) => {
-                    try {
-                        let url = data.url
-                        let i = data.i
-                        console.log("PUPPETEER-CLUSTER: Scraping page " + i + " of " + pages)
-                        await page.goto(url, { waitUntil: 'networkidle2' })
-                        await page.exposeFunction('cleaner', cleaner)
-
-                        let products = await page.evaluate(async () => {
-                            try {
-                                let items = document.querySelectorAll(".product-item")
-                                let products = []
-                                for (let j = 0; j < items.length; j++) {
-                                    let item = items[j]
-
-                                    let childName = item.querySelector(".product-item-link").innerText
-
-                                    let price = item.querySelector('.price').innerText
-
-                                    let brand = "ASUS"
-
-                                    let link = item.querySelector(".product-item-link").getAttribute("href")
-
-
-                                    let model_ID = await cleaner(childName)
-                                    console.log(model_ID, childName, cleaner)
-
-                                    let image_url = item.querySelector(".product-image-photo").src
-
-                                    let instock = item.querySelector(".stock.unavailable") ? "c-false" : ""
-
-                                    products.push({
-                                        name: childName, price, brand, link, model_ID, image_url, instock,
-                                        location: "ASUS Store"
-                                    })
-
-                                }
-                                return products
-                            } catch (e) {
-                                console.log(e)
-                                return e
-                            }
-                        })
-                        ASUSProducts.push(...products)
-                        return true
-
-                    } catch (e) {
-                        console.log(e)
-                        return e
-                    }
-                })
-
-
-
-                await cluster.idle()
-                await cluster.close()
-
-
-                // console.log(ASUSProducts)
-                // Write to file
-                fs.writeFile(`${process.cwd()}/data/raw/laptops/asus.json`, JSON.stringify(ASUSProducts), (err, file) => {
-                    if (err) console.log(err)
-                })
-
-                console.log("PUPPETEER: Completed scraping ASUS Store")
-
-                return true
             }
 
             /* SECTION FOR DELL Store (inoperable) */
@@ -285,7 +182,7 @@ const brands = []
 
                     await dellPage.goto(links['DELL Store'][0], { waitUntil: 'domcontentloaded' })
 
-                    let pages = await dellPage.$eval(("#middle-content > div > div.pageinfo-control.hide-gt-md.hide-lg > div > span.resultcount"), e => Math.ceil(Number(e.innerText) / 12))
+                    let pages = await dellPage.$eval(("#middle-content > div > div.accessories-result-product-stack > div.pageinfo-control.hide-xs.hide-sm.hide-md > div:nth-child(1) > div > span.resultcount"), e => Math.ceil(Number(e.innerText) / 12))
 
                     console.log("Found " + pages + " for Dell")
 
@@ -293,24 +190,80 @@ const brands = []
 
                     const cluster = await Cluster.launch(CLUSTEROPTS);
 
-                    for (let i = 1; i <= pages.length; i++) {
-                        let url = `https://www.dell.com/en-sg/shop/laptops-and-2in1-pcs/sr/laptops?page=${i}`
+                    for (let i = 1; i <= pages; i++) {
+                        let url = `${links['DELL Store'][0]}?page=${i}`
+                        console.log(url)
                         cluster.queue({
                             url, i
                         })
                     }
 
+                    const DELLProducts = []
+
                     await cluster.task(async ({ page, data }) => {
-                        try {
-                            await page.exposeFunction("cleaner", cleaner)
+                        let url = data.url
+                        let i = data.i
+                        await page.exposeFunction('cleaner', cleaner)
+                        console.log("Scraping page " + i + " of " + pages)
+
+                        await page.goto(url, { waitUntil: 'networkidle0', timeout: pageTimeout })
+                        let products = await page.evaluate(async () => {
+                            try {
+                                let items = document.querySelectorAll(".stack-accessories.ps-stack")
+
+                                let products = []
+                                for (let i = 0; i < items.length; i++) {
+                                    let item = items[i]
+
+                                    let childName = item.querySelector(".ps-title > a").innerText
+
+                                    let price = item.querySelector('.smart-popover-btn').innerText
+
+                                    let brand = "DELL"
+
+                                    let link = item.querySelector(".ps-title > a").getAttribute("href")
+                                    if (!link.match(/^https?:\/\//g)) link = "https:" + link
 
 
-                        } catch (e) {
+                                    let model_ID = await cleaner(childName)
+                                    // let model_ID = await cleaner(childName.includes("|") ? childName.split("|")[1].trim() : childName.trim())
 
-                        }
+                                    let image_url = item.querySelector("img").src
+                                    if (!image_url.match(/^https?:\/\//g)) image_url = "https:" + image_url
+                                    if (image_url.match('data:image')) {
+                                        debugger;
+                                        console.log(item) // TODO: WTF IS THIS? Do we ignore the image, and thus use the placeholder image?
+                                    }
+                                    let instock = item.querySelector(".stock-level-wrapper") ? "c-false" : "" // If present, out of stock
+
+                                    products.push({
+                                        name: childName, price, brand, link, model_ID, image_url, instock,
+                                        location: "DELL Store"
+                                    })
+                                }
+                                return products
+
+                            } catch (e) {
+                                console.log(e)
+                                return e
+                            }
+                        })
+                        DELLProducts.push(...products)
+
                     })
 
 
+                    await cluster.idle()
+                    await cluster.close()
+
+                    // Write to file
+                    fs.writeFile(`${process.cwd()}/data/raw/monitors/dell.json`, JSON.stringify(DELLProducts), (err, file) => {
+                        if (err) console.log(err)
+                    })
+
+                    console.log("PUPPETEER: Completed scraping Dell Store")
+
+                    return true
                 } catch (e) {
                     console.log(e)
                 }
@@ -325,7 +278,12 @@ const brands = []
 
                     await hpPage.goto(links['HP Store'][0], { waitUntil: "networkidle2", timeout: pageTimeout })
 
-                    let pages = await hpPage.$eval(("#category\\.product\\.list > div:nth-child(3) > div.pages > ul"), e => e.childElementCount - 1)
+                    let pages = 1;
+                    try { 
+                        pages = await hpPage.$eval(("#category\\.product\\.list > div:nth-child(3) > div.pages > ul"), e => e.childElementCount - 1)
+                    } catch (e) {
+                        // no element, means that there's only one page
+                    }
                     console.log("FOUND " + pages + " pages")
 
                     await hpPage.close()
@@ -340,7 +298,7 @@ const brands = []
                         }
                     });
                     for (let i = 1; i <= pages; i++) {
-                        let url = `https://www.hp.com/sg-en/shop/laptops-tablets.html?p=${i}&product_list_limit=30`
+                        let url = `${links['HP Store'][0]}&p=${i}`
                         cluster.queue({
                             url, i
                         })
@@ -402,14 +360,14 @@ const brands = []
 
                     })
 
-                    console.log("Await idle")
+
                     await cluster.idle()
                     await cluster.close()
 
 
                     // console.log(ASUSProducts)
                     // Write to file
-                    fs.writeFile(`${process.cwd()}/data/raw/laptops/hp.json`, JSON.stringify(HPProducts), (err, file) => {
+                    fs.writeFile(`${process.cwd()}/data/raw/monitors/hp.json`, JSON.stringify(HPProducts), (err, file) => {
                         if (err) console.log(err)
                     })
                     console.log("PUPPETEER: Completed scraping HP Store")
@@ -447,7 +405,7 @@ const brands = []
                     }
                     console.log("All items loaded")
                     // await lenovoPage.exposeFunction("cleaner", cleaner)
-                    
+
                     let products = await lenovoPage.evaluate(() => {
                         try {
                             let items = document.querySelectorAll(".facetResults-item  ")
@@ -499,7 +457,7 @@ const brands = []
                     console.log(products)
 
                     // Write to file
-                    fs.writeFile(`${process.cwd()}/data/raw/laptops/lenovo.json`, JSON.stringify(products), (err, file) => {
+                    fs.writeFile(`${process.cwd()}/data/raw/monitors/lenovo.json`, JSON.stringify(products), (err, file) => {
                         if (err) console.log(err)
                     })
                     console.log("PUPPETEER: Completed scraping LENOVO Store")
@@ -644,7 +602,7 @@ const brands = []
                 })
                 await gainPage.close()
                 // Write to file
-                fs.writeFile(`${process.cwd()}/data/raw/laptops/gain.json`, JSON.stringify(gainData), (err, file) => {
+                fs.writeFile(`${process.cwd()}/data/raw/monitors/gain.json`, JSON.stringify(gainData), (err, file) => {
                     if (err) console.log(err)
                 })
                 console.log("PUPPETEER: Completed scraping GAIN CITY")
@@ -754,7 +712,7 @@ const brands = []
                     for (let i = 1; i <= harveyPages; i++) {
 
 
-                        let url = `https://www.harveynorman.com.sg/computing/computers-en/laptops-en/page-${i}/`
+                        let url = `${links["Harvey Norman"][0]}page-${i}/`
                         // console.log("queueing" + url)
                         console.log("QUEUEING: ", url)
                         cluster.queue({ url, i })
@@ -762,7 +720,7 @@ const brands = []
 
                     await cluster.idle()
                     await cluster.close()
-                    fs.writeFile(`${process.cwd()}/data/raw/laptops/harvey.json`, JSON.stringify(HARVEYPRODUCTS), (err, file) => {
+                    fs.writeFile(`${process.cwd()}/data/raw/monitors/harvey.json`, JSON.stringify(HARVEYPRODUCTS), (err, file) => {
                         if (err) console.log(err)
                     })
                     console.log("PUPPEETER: Completed scraping Harvey Norman")
@@ -804,6 +762,8 @@ const brands = []
                                 let item_ID = hits[i].item_id
                                 let productResponse = await axios.get(`https://www.hachi.tech/product/${item_ID}/details`)
                                 let data = productResponse.data.data
+
+                                console.log(data)
                                 if (!data) continue
 
                                 let name = data.short_desc.toUpperCase().trim()
@@ -850,7 +810,7 @@ const brands = []
                     }
                     console.log("AXIOS: Completed scraping Challenger")
 
-                    fs.writeFile(`${process.cwd()}/data/raw/laptops/challenger.json`, JSON.stringify(products), (err, file) => {
+                    fs.writeFile(`${process.cwd()}/data/raw/monitors/challenger.json`, JSON.stringify(products), (err, file) => {
                         if (err) console.log(err)
                     })
                     return true
@@ -901,6 +861,7 @@ const brands = []
                                     var childName = item.querySelector(".product-item-link").innerText.trim()
                                     var price = item.querySelector(".custominhouseprice > .price").innerText.trim()
                                     let brand = item.querySelector(".product-item-brand").childName.split(" ")[0].toUpperCase()
+
                                     let link = item.querySelector(".product-item-link").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
                                     if (!link.match(/^https?:\/\//g)) link = "https://" + link
                                     let model_ID = await cleaner(childName) // the model is the ending of the url
@@ -939,7 +900,7 @@ const brands = []
                 let pages = 0
 
                 for (let i = 1; i < 10000; i++) {
-                    let url = `https://www.bestdenki.com.sg/fitness-personal-care/it-mobile/computer/laptop.html?p=${i}`
+                    let url = `${links["Best Denki"][0]}?p=${i}`
                     await bestPage.goto(url, { waitUntil: 'domcontentloaded' })
                     let ended = await bestPage.$('#maincontent > div.row > div.column.main.col-lg-9.col-md-9.col-sm-12.col-xs-12.pull-right > div.message.info.empty')
 
@@ -951,7 +912,7 @@ const brands = []
                 }
 
                 for (let i = 1; i < pages; i++) {
-                    let url = `https://www.bestdenki.com.sg/fitness-personal-care/it-mobile/computer/laptop.html?p=${i}`
+                    let url = `${links["Best Denki"][0]}?p=${i}`
                     cluster1.queue({
                         url, i
                     })
@@ -963,7 +924,8 @@ const brands = []
 
                 await cluster1.idle()
                 await cluster1.close()
-                fs.writeFile(`${process.cwd()}/data/raw/laptops/best.json`, JSON.stringify(BESTPRODUCTS), (err, file) => {
+
+                fs.writeFile(`${process.cwd()}/data/raw/monitors/best.json`, JSON.stringify(BESTPRODUCTS), (err, file) => {
                     if (err) console.log(err)
 
                 })
@@ -994,38 +956,64 @@ const brands = []
                 await cluster.task(async ({ page, data }) => {
                     try {
 
+                        page.on('console', async msg => {
+                            const args = await msg.args()
+                            args.forEach(async (arg) => {
+                                const val = await arg.jsonValue()
+                                // value is serializable
+                                if (JSON.stringify(val) !== JSON.stringify({})) console.log(val)
+                                // value is unserializable (or an empty oject)
+                                else {
+                                    const { type, subtype, description } = arg._remoteObject
+                                    console.log(`type: ${type}, subtype: ${subtype}, description:\n ${description}`)
+                                }
+                            })
+                        });
                         let url = data.url
                         let i = data.i
                         console.log("PUPPETEER-CLUSTER: Scraping page " + i + " of " + courtsPages)
                         await page.goto(url, { waitUntil: 'networkidle2', timeout: pageTimeout })
-
+                        console.log("Page Loaded!")
                         await page.exposeFunction("cleaner", cleaner)
+                        console.log("Function exposed!")
+
                         let products = await page.evaluate(async () => {
                             try {
                                 let items = Array.from(document.querySelector(".columns").querySelector(".product-items").querySelectorAll(".product-item-info"))
                                 let products = []
                                 for (item of items) {
+                                    // console.log("Here")
                                     let childName = item.querySelector(".product-item-name").innerText.trim().toUpperCase()
                                     if (!childName) childName = "MISSING INFO"
+                                    // console.log("Here2")
 
                                     // First word is the brand
                                     let brand = childName.split(" ")[0]
+                                    // console.log("Her3e")
+
                                     let price = item.querySelector(".price").innerText.trim().toUpperCase()
+                                    // console.log("Here4")
+
                                     let link = item.querySelector(".product-item-name > a").getAttribute("href").match(/((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/i)[0]
                                     if (!link.match(/^https?:\/\//g)) link = "https://" + link
 
                                     let model_ID = await cleaner(childName) ? await cleaner(childName) : childName
+                                    // console.log("Here5")
 
                                     let image_url = item.querySelector(".product-image-photo").getAttribute("data-original")
                                     if (!image_url.match(/^https?:\/\//g)) image_url = "https://" + image_url
+                                    // console.log("Here6")
 
                                     let instock = item.querySelector(".stock.unavailable") ? "c-false" : ""
 
+                                    // console.log("Here7")
 
                                     products.push({
                                         name: childName, brand, price, link, model_ID, image_url, instock,
                                         location: "Courts"
                                     })
+                                    // console.log("Here8")
+
                                 }
                                 return products
                             } catch (e) {
@@ -1034,7 +1022,7 @@ const brands = []
                             }
 
                         })
-                        // console.log(products)
+                        console.log(products)
                         COURTSPRODUCTS.push(...products)
                     } catch (e) {
                         console.log(e)
@@ -1044,7 +1032,7 @@ const brands = []
 
                 let COURTSPRODUCTS = []
                 for (let i = 1; i <= courtsPages; i++) {
-                    let url = `https://www.courts.com.sg/computing-mobile/laptops/all-laptops?p=${i}&product_list_limit=32`
+                    let url = `${links["Courts"][0]}&p=${i}`
 
                     console.log("Queuing: " + i + " of " + courtsPages)
                     cluster.queue({ url, i })
@@ -1054,7 +1042,7 @@ const brands = []
 
                 await cluster.idle()
                 await cluster.close()
-                fs.writeFile(`${process.cwd()}/data/raw/laptops/courts.json`, JSON.stringify(COURTSPRODUCTS), (err, file) => {
+                fs.writeFile(`${process.cwd()}/data/raw/monitors/courts.json`, JSON.stringify(COURTSPRODUCTS), (err, file) => {
                     if (err) console.log(err)
                 })
                 console.log("PUPPETEER-CLUSTER: Completed scraping Courts")
@@ -1062,6 +1050,29 @@ const brands = []
                 return true
             }
 
+            // /* SECTION FOR LG */
+            // async function lg() {
+            //     console.log("PUPPETEER: SCRAPING LG Store")
+
+            //     const lgPage = await browser.newPage()
+            //     await lgPage.goto(links["LG Store"][0], { waitUntil: "networkidle2", timeout: pageTimeout })
+            //     await lgPage.exposeFunction("cleaner", cleaner)
+            //     let products = await lgPage.evaluate(async () => {
+            //         let products = []
+            //         let items = document.querySelector()
+            //         let childName = 
+
+
+            //         products.push({
+            //             name: childName, brand, price, link, model_ID, image_url, instock,
+            //             location: "Courts"
+            //         })
+
+            //         return products
+
+            //     })
+
+            // }
 
             await browser.close()
             function cleaner(string) {
@@ -1069,8 +1080,8 @@ const brands = []
                 var string = string.trim().toLowerCase()
 
 
-                // Replace all non-breaking space
-                string = string.replace(/ /gi, " ")
+                // Replace all non-breaking space and underscores
+                string = string.replace(/ |_/gi, " ")
 
 
 

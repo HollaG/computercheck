@@ -48,7 +48,7 @@ module.exports.specs = async () => {
     try {
         conn = await pool.getConnection()
 
-        let items = await conn.query(`SELECT * FROM temp_data`)
+        let items = await conn.query(`SELECT * FROM laptops__temp_data`)
         items = items[0]
         // Sort into models
 
