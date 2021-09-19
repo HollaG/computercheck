@@ -94,18 +94,18 @@ const brands = []
 
 
 
-            // await gain()
+            await gain()
 
-            // await acer()
+            await acer()
 
-            // await dell() 
-            // await hp()
-            // await lenovo()
+            await dell() 
+            await hp()
+            await lenovo()
 
 
 
-            // await harvey()
-            // await challenger()
+            await harvey()
+            await challenger()
 
             await courts() // Illegal
             await best()

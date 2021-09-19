@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS  `monitors__model_data` (
   `screen_resolution_w` int(11) NOT NULL,
   `screen_resolution_h` int(11) NOT NULL,
   `screen_tech` text NOT NULL,
-  `screen_type` text NOT NULL
+  `aspect_ratio` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
