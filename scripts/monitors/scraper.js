@@ -33,7 +33,7 @@ const links = {
 
 
 
-const headless = true
+const headless = false
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 // const { clearCustomQueryHandlers } = require("puppeteer");
 puppeteer.use(StealthPlugin());
@@ -42,7 +42,7 @@ const pageTimeout = 5 * 1000 * 60
 const CLUSTEROPTS = {
     puppeteer,
     concurrency: Cluster.CONCURRENCY_PAGE,
-    maxConcurrency: 1,
+    maxConcurrency: 2,
     timeout: 30 * 1000 * 60,
 
     sameDomainDelay: 500,
