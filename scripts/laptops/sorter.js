@@ -434,16 +434,16 @@ const headless = true
 
 
 
-            await connection.query(`DELETE FROM temp_model_data`)
-            await connection.query(`INSERT INTO temp_model_data (model_ID, name, brand, avg_price, search_terms, image_url) VALUES ?`, [model_data])
+            await connection.query(`DELETE FROM laptops__temp_model_data`)
+            await connection.query(`INSERT INTO laptops__temp_model_data (model_ID, name, brand, avg_price, search_terms, image_url) VALUES ?`, [model_data])
 
-            await connection.query(`DELETE FROM temp_model_keywords`)
-            await connection.query(`INSERT INTO temp_model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
+            await connection.query(`DELETE FROM laptops__temp_model_keywords`)
+            await connection.query(`INSERT INTO laptops__temp_model_keywords (model_ID, keyword) VALUES ?`, [model_keywords])
 
 
 
-            await connection.query(`DELETE FROM temp_data`)
-            await connection.query(`INSERT INTO temp_data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
+            await connection.query(`DELETE FROM laptops__temp_data`)
+            await connection.query(`INSERT INTO laptops__temp_data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data]) // Set row_ID to null for easier access
 
             // console.log(model_data)
 
@@ -456,11 +456,11 @@ const headless = true
             await connection.beginTransaction()
 
             // Delete all rows from model_data that match a model ID in temp_model_data (this means that the product was re-scraped, data might b updated)
-            await connection.query(`DELETE FROM model_data WHERE model_data.model_ID IN (SELECT temp_model_data.model_ID FROM temp_model_data)`)
-            await connection.query(`INSERT INTO model_data (SELECT * FROM temp_model_data)`)
+            await connection.query(`DELETE FROM laptops__model_data WHERE laptops__model_data.model_ID IN (SELECT laptops__temp_model_data.model_ID FROM laptops__temp_model_data)`)
+            await connection.query(`INSERT INTO laptops__model_data (SELECT * FROM laptops__temp_model_data)`)
 
             // Data unlikely to be updated, so just add the new rows in
-            await connection.query(`INSERT INTO model_keywords (SELECT * FROM temp_model_keywords WHERE temp_model_keywords.model_ID NOT IN (SELECT model_keywords.model_ID FROM model_keywords))`)
+            await connection.query(`INSERT INTO laptops__model_keywords (SELECT * FROM laptops__temp_model_keywords WHERE laptops__temp_model_keywords.model_ID NOT IN (SELECT laptops__model_keywords.model_ID FROM laptops__model_keywords))`)
 
             // await connection.query(`DELETE FROM model_keywords `)
 
@@ -468,18 +468,18 @@ const headless = true
 
 
             // Find rows from DATA that are NOT in temp_data (i.e. products that are now discontinued / OOS) and set as inactive
-            await connection.query(`UPDATE data SET active = 0 WHERE row_ID IN
+            await connection.query(`UPDATE laptops__data SET active = 0 WHERE row_ID IN
             (
                 SELECT row_ID FROM (
-                    SELECT row_ID FROM data WHERE data.link NOT IN (SELECT temp_data.link FROM temp_data)
+                    SELECT row_ID FROM laptops__data WHERE laptops__data.link NOT IN (SELECT laptops__temp_data.link FROM laptops__temp_data)
                 )  as arbitaryTableName
             ) 
             `)
 
             // Find rows that are in data AND temp_data (i.e. discontinued rows will NOT be selected)
             // Delete them so that we can refresh things like price, name etc
-            await connection.query(`DELETE FROM data WHERE data.link IN (SELECT temp_data.link FROM temp_data)`)
-            await connection.query(`INSERT INTO data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data])
+            await connection.query(`DELETE FROM laptops__data WHERE laptops__data.link IN (SELECT laptops__temp_data.link FROM laptops__temp_data)`)
+            await connection.query(`INSERT INTO laptops__data (model_ID, name, price, brand, location, link, image_url, customizable, active) VALUES ?`, [items_data])
             await connection.commit()
             console.log("----------------- COMPLETED COPYING OVER DATABASE -----------------")
 
