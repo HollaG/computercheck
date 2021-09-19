@@ -370,7 +370,7 @@ const headless = true
                             let monitors__data = Buffer.from(res.data, "binary")
     
     
-                            sharp(data)
+                            sharp(monitors__data)
                                 .flatten({ background: '#FFFFFF' })
                                 .trim(25)
                                 .resize({
