@@ -96,7 +96,7 @@ router.get('/', async function (req, res, next) {
             return string.replace(/ /g, "-_-").replace(/\./g, "_-_")
         }
         res.render('monitors/monitors', {
-            title: 'ComputerCheck: Singapore Laptop Database',
+            title: 'ComputerCheck: Singapore Monitor Database',
             data: result.groupedByProductId,
             modelData: result.modelDataGroupedID,
             searchString,
