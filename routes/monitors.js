@@ -386,11 +386,11 @@ async function getSearchModels(startIndex, searchString, loadAll, full) {
             ) as d
 
             ON monitors__model_data.model_ID = d.model_ID 
-            WHERE monitors__model_data.model_ID NOT IN (?) 
-            ORDER BY model_active DESC, avg_price ASC LIMIT ? OFFSET ?`, [limitedSearchModels])
+            WHERE monitors__model_data.model_ID IN (?) 
+            ORDER BY model_active DESC, avg_price ASC`, [limitedSearchModels])
         modelData = modelData[0]
 
-        let data = await conn.query(`SELECT * FROM data LEFT JOIN monitors__model_data ON monitors__data.model_ID = monitors__model_data.model_ID WHERE monitors__data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [limitedSearchModels])
+        let data = await conn.query(`SELECT * FROM monitors__data LEFT JOIN monitors__model_data ON monitors__data.model_ID = monitors__model_data.model_ID WHERE monitors__data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [limitedSearchModels])
         data = data[0]
 
         // Group by product ID

@@ -46,6 +46,9 @@ const headless = true
                     item.ID = `${i}-${j}`
                     if (item.brand.toUpperCase() == "SURFACE") item.brand = "MICROSOFT"
 
+                    // if no brand, set to first word of name
+                    if (!item.brand) item.brand = item.name.split(" ")[0]
+
                     if (!item.link.match(/^https?:\/\//g)) item.link = "https://" + item.link
                     if (!item.model_ID) item.model_ID = item.name
 

@@ -359,7 +359,7 @@ async function getSearchModels(startIndex, searchString, loadAll, full) {
             FROM laptops__model_data 
             LEFT JOIN (
                 SELECT model_ID, IF(e.s = 0, 0, 1) as model_active, s as sum_active, model_count FROM
-             	(SELECT model_ID, SUM(active) as s, COUNT(*) as model_count FROM data GROUP BY model_ID) as e
+             	(SELECT model_ID, SUM(active) as s, COUNT(*) as model_count FROM laptops__data GROUP BY model_ID) as e
             ) as d           
             
             ON laptops__model_data.model_ID = d.model_ID
@@ -367,7 +367,7 @@ async function getSearchModels(startIndex, searchString, loadAll, full) {
             WHERE laptops__model_data.model_ID IN (?) ORDER BY model_active DESC, avg_price ASC`, [limitedSearchModels])
         modelData = modelData[0]
 
-        let data = await conn.query(`SELECT * FROM data LEFT JOIN laptops__model_data ON laptops__data.model_ID = laptops__model_data.model_ID WHERE laptops__data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [limitedSearchModels])
+        let data = await conn.query(`SELECT * FROM laptops__data LEFT JOIN laptops__model_data ON laptops__data.model_ID = laptops__model_data.model_ID WHERE laptops__data.model_ID IN (?) ORDER BY avg_price ASC, active DESC`, [limitedSearchModels])
         data = data[0]
 
         // Group by product ID
