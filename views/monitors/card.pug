@@ -13,10 +13,13 @@ each products, model_ID in data
             }
             let avgPrice = Math.round((totalprice.reduce((a, b) => a + b, 0)) / totalprice.length)
 
+            let screen_resolution = "Unknown"
+            if (model.screen_resolution_w_clean != "Unknown" && model.screen_resolution_h_clean != "Unknown")
+                screen_resolution = `${model.screen_resolution_w_clean} x ${model.screen_resolution_h_clean}`
             let filters = {
                 brand: model.brand,                            
                 screen_size: model.screen_size_clean,
-                screen_resolution: `${model.screen_resolution_w_clean} x ${model.screen_resolution_h_clean}`,
+                screen_resolution,
                 screen_tech: model.screen_tech_clean,
                 refresh_rate: model.refresh_rate_clean,
                 response_time: model.response_time_clean,
