@@ -535,13 +535,13 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
 
         let brand = req.params.brand
         let model_ID = req.params.model_ID
-        let model = await conn.query(`SELECT * FROM model_data WHERE model_ID = ? AND brand = ?`, [model_ID, brand])
+        let model = await conn.query(`SELECT * FROM laptops__model_data WHERE model_ID = ? AND brand = ?`, [model_ID, brand])
         model = model[0][0]
 
-        let products = await conn.query(`SELECT * FROM data WHERE model_ID = ? AND brand = ? AND active = 1 ORDER BY price ASC, location ASC`, [model_ID, brand])
+        let products = await conn.query(`SELECT * FROM laptops__data WHERE model_ID = ? AND brand = ? AND active = 1 ORDER BY price ASC, location ASC`, [model_ID, brand])
         products = products[0]
 
-        let expiredProducts = await conn.query(`SELECT * FROM data WHERE model_ID = ? AND brand = ? AND active = 0 ORDER BY price ASC, location ASC`, [model_ID, brand])
+        let expiredProducts = await conn.query(`SELECT * FROM laptops__data WHERE model_ID = ? AND brand = ? AND active = 0 ORDER BY price ASC, location ASC`, [model_ID, brand])
         expiredProducts = expiredProducts[0]
 
         // Format the model text appropiately

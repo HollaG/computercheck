@@ -153,7 +153,7 @@ router.get("/loadMore/:code", async function (req, res, next) {
 
         let searchTimeEnd = new Date().getMilliseconds()
 
-        console.log(Object.keys(result.groupedByProductId).length)
+        console.log(Object.keys(result.groupedByProductId).length, 'amount of products loaded')
         if (Object.keys(result.groupedByProductId).length < 2 || loadAll) {
 
             let obj = {
@@ -244,8 +244,9 @@ async function getModels(startIndex, loadAll, full) {
             ORDER BY model_active DESC, avg_price ASC LIMIT ? OFFSET ?`, [inactiveModels, limit, startIndex])
         modelData = modelData[0]
 
-
         let availableModels = modelData.map(x => x.model_ID)
+
+
         if (!availableModels.length) availableModels = [""]
 
 
@@ -253,6 +254,7 @@ async function getModels(startIndex, loadAll, full) {
 
 
         data = data[0]
+        
 
         // Group by product ID
         var modelDataGroupedID = modelData.reduce((r, a) => {
@@ -266,7 +268,7 @@ async function getModels(startIndex, loadAll, full) {
             return r;
         }, {});
 
-
+        
 
         for (model_ID of Object.keys(groupedByProductId)) {
             // Ensure that at least ONE seller is active, if all sellers are not active, then, delete this key // TODO we can do something else perhaps gray it out here
@@ -283,7 +285,7 @@ async function getModels(startIndex, loadAll, full) {
 
         }
 
-
+        
         await conn.release()
         return {
             groupedByProductId,
