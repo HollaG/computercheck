@@ -648,7 +648,7 @@ router.get("/:brand/:model_ID", async function (req, res, next) {
         let avgPrice = Math.round(totalPrice / products.length)
 
 
-        res.render("model.pug", {
+        res.render("laptops/model.pug", {
             model: modelData, products, expiredProducts,
             title: `${brand} ${model_ID}`,
             avgPrice
