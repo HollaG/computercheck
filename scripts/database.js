@@ -10,7 +10,7 @@ console.log(laptopSQL)
 ;(async() => {
     try { 
         console.log("Starting database checks")
-        const conn = await mysql.createConnection({multipleStatements: true, user: 'marcus', password: "", database: "computercheck",})
+        const conn = await mysql.createConnection({multipleStatements: true, user: 'marcu', password: "", database: "computercheck",})
         
     
         await conn.query(laptopSQL)
