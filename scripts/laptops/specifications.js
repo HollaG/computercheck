@@ -365,21 +365,23 @@ module.exports.specs = async () => {
 
 
 
-            if (locations.includes("ASUS Store")) {
-                console.log("Trying ASUS")
-                let pass = await tryAsus()
-                if (pass) return true
-            }
-            if (locations.includes("HP Store")) {
-                console.log("Trying HP")
-                let pass = await tryHp()
-                if (pass) return true
-            }
+            // if (locations.includes("ASUS Store")) {
+            //     console.log("Trying ASUS")
+            //     let pass = await tryAsus()
+            //     if (pass) return true
+            // }
+           
+            // if (locations.includes("HP Store")) {
+            //     console.log("Trying HP")
+            //     let pass = await tryHp()
+            //     if (pass) return true
+            // }
             if (locations.includes("LENOVO Store")) {
                 console.log("Trying LENOVO")
                 let pass = await tryLenovo()
                 if (pass) return true
             }
+            return true
             if (locations.includes("RAZER Store")) {
                 console.log("Trying RAZER")
                 let pass = await tryRazer()
@@ -570,15 +572,15 @@ module.exports.specs = async () => {
                     let specifications = await page.evaluate(async () => {
                         try {
                             let specifications = {}
-                            document.querySelector("#product-attribute-specs-table").querySelectorAll("td").forEach(td => {
-                                specifications[td.dataset.th] = td.innerText
+                            document.querySelector("#specifications-div > div.additional-attributes-details > div.details").querySelectorAll(".prd-spec-grp").forEach(contentElem => {
+                                specifications[contentElem.firstElementChild.innerText] = contentElem.lastElementChild.innerText
                             })
 
                             let processor = await getProcessor(specifications['Processor'])
                             let processorCompany = await getProcessorCompany(specifications['Processor'])
                             let ram = await getRam(specifications['Memory'])
-                            let storage = specifications['Hard drive description']
-                            let graphics = await getGraphics(specifications["Graphics Card"])
+                            let storage = specifications['Storage']
+                            let graphics = await getGraphics(specifications["Graphics"])
                             let graphicsCompany = await getGraphicsCompany(graphics)
 
                             let os = await getOS(specifications["Operating system"])
