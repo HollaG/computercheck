@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
-  },
+    "start": "nodemon --http-parser=legacy ./bin/www",
+    "scrape": "node --insecure-http-parser ./scripts/laptops/scraper.js; node --insecure-http-parser ./scripts/monitors/scraper.js",
+    "laptops": "node --insecure-http-parser ./scripts/laptops/scraper.js"
+},
   "dependencies": {
     "axios": "^0.21.1",
     "compression": "^1.7.4",
@@ -25,5 +27,8 @@
     "puppeteer-search-scraper": "^3.7.2",
     "sharp": "^0.28.3",
     "tabulator-tables": "^4.9.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }
