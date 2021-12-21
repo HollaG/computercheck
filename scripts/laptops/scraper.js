@@ -137,20 +137,20 @@ const brands = [];
         //     require(`${__dirname}/sorter.js`);
         // });
         // });
-        // await gain()
+        await gain()
 
-        // await acer()
-        // await asus()
-        // // await dell() // Don't do this
-        // await hp();
-        // await lenovo()
-        // await razer()
+        await acer()
+        await asus()
+        // await dell() // Don't do this
+        await hp();
+        await lenovo()
+        await razer()
 
-        // await harvey()
-        // await challenger();
+        await harvey()
+        await challenger();
 
-        // await courts() // Illegal
-        // await best()
+        await courts() // Illegal
+        await best()
 
         /* SECTION FOR ACER */
         async function acer() {
