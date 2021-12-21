@@ -365,23 +365,23 @@ module.exports.specs = async () => {
 
 
 
-            // if (locations.includes("ASUS Store")) {
-            //     console.log("Trying ASUS")
-            //     let pass = await tryAsus()
-            //     if (pass) return true
-            // }
+            if (locations.includes("ASUS Store")) {
+                console.log("Trying ASUS")
+                let pass = await tryAsus()
+                if (pass) return true
+            }
            
-            // if (locations.includes("HP Store")) {
-            //     console.log("Trying HP")
-            //     let pass = await tryHp()
-            //     if (pass) return true
-            // }
+            if (locations.includes("HP Store")) {
+                console.log("Trying HP")
+                let pass = await tryHp()
+                if (pass) return true
+            }
             if (locations.includes("LENOVO Store")) {
                 console.log("Trying LENOVO")
                 let pass = await tryLenovo()
                 if (pass) return true
             }
-            return true
+           
             if (locations.includes("RAZER Store")) {
                 console.log("Trying RAZER")
                 let pass = await tryRazer()
