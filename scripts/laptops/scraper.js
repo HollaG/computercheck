@@ -614,7 +614,9 @@ const brands = [];
 
                             let model_ID = item.dataset.productcode;
 
-                            let image_url = item.querySelector("img")?.src;
+                            let image = item.querySelector("img")
+                            let image_url;
+                            if (image) image_url = image.src;
                             if (image_url && !image_url.match(/^https?:\/\//g))
                                 image_url = "https:" + image_url;
                             if (image_url == "https:" || !image_url)
